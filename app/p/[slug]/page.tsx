@@ -4,6 +4,8 @@ import { getPortfolioItemsForProfile } from "@/lib/queries/portfolio";
 import PortfolioGallery from "@/app/components/PortfolioGallery";
 import FirmPublicProfile from "@/app/components/FirmPublicProfile";
 import ProfileAvatar from "@/app/components/ProfileAvatar";
+import FollowButton from "@/app/components/FollowButton";
+import { getFollowCounts, getFollowState, getProfileOwnerUserId } from "@/lib/queries/follows";
 
 interface PageProps {
     params: Promise<{
@@ -26,9 +28,16 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
     const { data: portfolioItems, error: portfolioError } = await getPortfolioItemsForProfile(profile.id);
     const { data: currentProfile } = await getCurrentProfile();
     const isOwner = currentProfile?.id === profile.id;
+    const profileOwnerId = await getProfileOwnerUserId(profile.id);
+    const [followCounts, followState] = profileOwnerId
+        ? await Promise.all([
+            getFollowCounts(profileOwnerId),
+            getFollowState(currentProfile?.user_id ?? null, profileOwnerId),
+        ])
+        : [{ followers: 0, following: 0 }, { isFollowing: false, isMutual: false }];
 
     if (profile.role === "firm") {
-        return <FirmPublicProfile profile={profile} portfolioItems={portfolioItems ?? []} portfolioError={portfolioError} isOwner={isOwner} />;
+        return <FirmPublicProfile profile={profile} portfolioItems={portfolioItems ?? []} portfolioError={portfolioError} isOwner={isOwner} profileOwnerId={profileOwnerId} followerCount={followCounts.followers} followingCount={followCounts.following} isFollowing={followState.isFollowing} isMutual={followState.isMutual} />;
     }
 
     return (
@@ -49,9 +58,7 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
                             </p>
                             </div>
                         </div>
-                        <span className="relative rounded-full border border-paper/30 px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest text-paper/70">
-                            {profile.role}
-                        </span>
+                        <div className="relative flex flex-col items-end gap-3"><span className="rounded-full border border-paper/30 px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest text-paper/70">{profile.role}</span><span className="font-mono text-[10px] uppercase tracking-widest text-paper/60">{followCounts.following} Following · {followCounts.followers} Followers</span>{!isOwner && profileOwnerId && <FollowButton followingId={profileOwnerId} initialFollowing={followState.isFollowing} initialMutual={followState.isMutual} initialFollowerCount={followCounts.followers} />}</div>
                     </div>
 
                     <div className="grid gap-8 border-b border-line pb-8 pt-2 lg:grid-cols-[0.7fr_1.3fr]">

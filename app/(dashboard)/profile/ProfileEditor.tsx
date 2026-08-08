@@ -5,6 +5,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/types";
 import { ARCHITECTURE_SOFTWARE, NIGERIAN_ARCHITECTURE_SCHOOLS, NIGERIAN_STATES } from "@/lib/profile-options";
+import { compressImageForUpload } from "@/lib/image-compression";
 
 type Props = { profile: Profile | null; variant?: "individual" | "firm" };
 
@@ -78,7 +79,10 @@ export default function ProfileEditor({ profile, variant = "individual" }: Props
         const extension = avatarFile.type === "image/png" ? "png" : avatarFile.type === "image/webp" ? "webp" : "jpg";
         const formData = new FormData();
         formData.set("bucket", "avatars");
-        formData.set("file", avatarFile, `avatar.${extension}`);
+        setMessage("Compressing profile image...");
+        const compressedAvatar = await compressImageForUpload(avatarFile, "avatar");
+        setMessage("Uploading profile image...");
+        formData.set("file", compressedAvatar, compressedAvatar.name || `avatar.${extension}`);
         const response = await fetch("/api/storage", { method: "POST", body: formData });
         const result = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(result.error ?? "Unable to upload avatar");

@@ -2,6 +2,9 @@ import Link from "next/link";
 import { searchProfiles } from "@/lib/queries/profiles";
 import { Profile, UserRole } from "@/types";
 import ProfileAvatar from "@/app/components/ProfileAvatar";
+import FollowButton from "@/app/components/FollowButton";
+import { getCurrentProfile } from "@/lib/queries/profiles";
+import { getFollowStatesForTargets, getProfileOwnerUserIds } from "@/lib/queries/follows";
 
 interface DiscoverPageProps {
     searchParams: Promise<{ role?: string }>;
@@ -17,6 +20,9 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
         { limit: 1000, offset: 0 },
         { sortBy: "created_at", ascending: false, random: true },
     );
+    const { data: currentProfile } = await getCurrentProfile();
+    const ownerIds = await getProfileOwnerUserIds((profiles ?? []).map((profile) => profile.id));
+    const followStates = await getFollowStatesForTargets(currentProfile?.user_id ?? null, Object.values(ownerIds));
 
     return (
         <div className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
@@ -55,11 +61,11 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                             <>
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                                     {profiles.map((profile: Profile) => (
-                                        <Link
+                                        <div
                                             key={profile.id}
-                                            href={`/p/${profile.slug}`}
-                                            className="surface card-lift group flex min-h-[240px] flex-col justify-between p-5"
+                                            className="surface card-lift flex min-h-[240px] flex-col justify-between p-5"
                                         >
+                                            <Link href={`/p/${profile.slug}`} className="group flex min-h-[190px] flex-col justify-between">
                                             <div>
                                                 <div className="flex justify-between items-start mb-3">
                                                     <ProfileAvatar profile={profile} size={40} className="h-10 w-10 rounded-full border border-line object-cover" />
@@ -83,7 +89,9 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                                                     </svg>
                                                 </span>
                                             </div>
-                                        </Link>
+                                            </Link>
+                                            {currentProfile?.id !== profile.id && ownerIds[profile.id] && <div className="mt-4 border-t border-line/70 pt-3"><FollowButton followingId={ownerIds[profile.id]} initialFollowing={followStates[ownerIds[profile.id]]?.isFollowing ?? false} initialMutual={followStates[ownerIds[profile.id]]?.isMutual ?? false} initialFollowerCount={0} compact /></div>}
+                                        </div>
                                     ))}
                                 </div>
                             </>

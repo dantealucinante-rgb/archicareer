@@ -59,7 +59,7 @@ const seedUsers = [
         name: "Amina Bello",
         role: "student",
         school_or_firm: "University of Lagos",
-        bio: "Amina Bello is an architecture student focused on climate-responsive housing, model making, and urban research. The drawings are getting there, slowly.",
+        bio: "I’m an architecture student focused on climate-responsive housing, model making, and urban research. The drawings are getting there, slowly.",
         location: "Yaba, Lagos",
         software_proficiency: ["Revit", "Rhino", "Adobe InDesign", "QGIS"],
         personal_site_url: "https://amina-bello.example",
@@ -76,7 +76,7 @@ const seedUsers = [
         name: "Sani Musa",
         role: "student",
         school_or_firm: "Ahmadu Bello University",
-        bio: "Sani Musa is a final-year designer interested in low-tech fabrication, clear drawings, and repeatable housing systems that make good architecture easier to deliver. Some details are still being figured out.",
+        bio: "I’m a final-year designer interested in low-tech fabrication, clear drawings, and repeatable housing systems that make good architecture easier to deliver. Some details are still being figured out.",
         location: "Zaria, Kaduna",
         software_proficiency: ["AutoCAD", "SketchUp", "V-Ray", "Adobe Photoshop"],
         personal_site_url: "https://sani-musa.example",
@@ -92,7 +92,7 @@ const seedUsers = [
         name: "Zainab Aliyu",
         role: "student",
         school_or_firm: "Federal University of Technology, Akure",
-        bio: "Zainab Aliyu is an architecture student combining landscape research, environmental mapping, and computational workflows to study how public space can manage heat and heavy rain. She is still testing the idea in real places.",
+        bio: "I combine landscape research, environmental mapping, and computational workflows to study how public space can manage heat and heavy rain. I’m still testing the idea in real places.",
         location: "Akure, Ondo",
         software_proficiency: ["Rhino", "Grasshopper", "Lumion", "QGIS", "Adobe Illustrator"],
         personal_site_url: "https://zainab-aliyu.example",
@@ -108,7 +108,7 @@ const seedUsers = [
         name: "Tunde Akinyemi",
         role: "architect",
         school_or_firm: "Maki & Partners",
-        bio: "Tunde Akinyemi is an architect working between concept design and the realities of delivery: tight urban sites, consultant coordination, procurement decisions, and details that survive construction. The site lessons usually come late.",
+        bio: "I work between concept design and the realities of delivery: tight urban sites, consultant coordination, procurement decisions, and details that survive construction. The site lessons usually come late.",
         location: "Ikeja, Lagos",
         software_proficiency: ["Revit", "AutoCAD", "Enscape", "Bluebeam", "Adobe InDesign"],
         personal_site_url: "https://tunde-akinyemi.example",
@@ -124,7 +124,7 @@ const seedUsers = [
         name: "Ifeoma Okafor",
         role: "architect",
         school_or_firm: "Atelier Atlas",
-        bio: "Ifeoma Okafor is an architect and interior designer drawn to public work with a human scale: adaptive reuse, civic interiors, and spaces that make people feel oriented, welcome, and considered. She likes a good threshold, maybe too much.",
+        bio: "I’m an architect and interior designer drawn to public work with a human scale: adaptive reuse, civic interiors, and spaces that make people feel oriented, welcome, and considered. I like a good threshold, maybe too much.",
         location: "Wuse II, Abuja",
         software_proficiency: ["Revit", "Rhino", "Enscape", "Adobe InDesign", "Miro"],
         personal_site_url: "https://ifeoma-okafor.example",
@@ -140,7 +140,7 @@ const seedUsers = [
         name: "Kora Urban Practice",
         role: "firm",
         school_or_firm: "Urban design & delivery",
-        bio: "Kora Urban Practice is a compact design and delivery practice working across housing and mixed-use projects. The studio is interested in generous thresholds, passive comfort, and details that remain legible from drawing to site.",
+        bio: "We’re a compact design and delivery practice working across housing and mixed-use projects. We care about generous thresholds, passive comfort, and details that remain legible from drawing to site.",
         location: "Lekki, Lagos",
         software_proficiency: ["Revit", "Rhino", "Enscape", "AutoCAD", "Notion"],
         personal_site_url: "https://koraurbanpractice.example",
@@ -156,7 +156,7 @@ const seedUsers = [
         name: "Northstar Atelier",
         role: "firm",
         school_or_firm: "Civic and institutional architecture",
-        bio: "Northstar Atelier is a design-led office for civic, workplace, and institutional architecture. The practice brings research, technical coordination, and a calm visual language to complex public programmes.",
+        bio: "We’re a design-led office for civic, workplace, and institutional architecture. We bring research, technical coordination, and a calm visual language to complex public programmes.",
         location: "Central District, Abuja",
         software_proficiency: ["Revit", "BIM 360", "Rhino", "Enscape", "Adobe InDesign"],
         personal_site_url: "https://northstaratelier.example",
@@ -172,7 +172,7 @@ const seedUsers = [
         name: "Bala & Co. Studio",
         role: "firm",
         school_or_firm: "Learning spaces and cultural work",
-        bio: "Bala & Co. Studio is a small practice working across learning spaces, cultural commissions, and homes. The studio uses careful proportion, durable materials, and strong graphic communication to make modest briefs feel substantial.",
+        bio: "We’re a small practice working across learning spaces, cultural commissions, and homes. We use careful proportion, durable materials, and strong graphic communication to make modest briefs feel substantial.",
         location: "Enugu",
         software_proficiency: ["ArchiCAD", "SketchUp", "Twinmotion", "Adobe Photoshop", "AutoCAD"],
         personal_site_url: "https://balacostudio.example",
@@ -289,17 +289,17 @@ function generateSeedUsers(targetCount) {
             ? `${generatedSchools[generated.length % generatedSchools.length]}${generated.length % 3 === 0 ? " — Architecture" : ""}`
             : generatedFirmNames[generated.length % generatedFirmNames.length];
         const humanNote = [
-            " The drawings are still a work in progress, but the ideas are getting clearer.",
-            " They care about the small decisions too, even when the deadline is doing the most.",
-            " Their current work is a little rough around the edges, in a good way.",
-            " Theyre learning by making things, breaking them, then trying again.",
-            " Some of the best thinking happens away from the screen, usually with a notebook.",
+            " My drawings are still a work in progress, but the ideas are getting clearer.",
+            " I care about the small decisions too, even when the deadline is doing the most.",
+            " My current work is a little rough around the edges, in a good way.",
+            " I’m learning by making things, breaking them, then trying again.",
+            " Some of my best thinking happens away from the screen, usually with a notebook.",
         ][generated.length % 5];
         const bio = isStudent
-            ? `${name} is an architecture student interested in ${focus[0]}, ${focus[1]}, and thoughtful design communication. Their work moves between research, making, and proposals grounded in everyday Nigerian contexts.${humanNote}`
+            ? `I’m an architecture student interested in ${focus[0]}, ${focus[1]}, and thoughtful design communication. My work moves between research, making, and proposals grounded in everyday Nigerian contexts.${humanNote}`
             : isFirm
-                ? `${name} is a design practice working across ${focus[0]}, ${focus[1]}, and carefully resolved projects that connect strong ideas to the realities of delivery.${humanNote}`
-                : `${name} is an architect working across ${focus[0]}, ${focus[1]}, and ${focus[2]}. They enjoy translating early concepts into coordinated drawings, useful conversations, and details that can stand up on site.${humanNote}`;
+                ? `We’re a design practice working across ${focus[0]}, ${focus[1]}, and carefully resolved projects that connect strong ideas to the realities of delivery.${humanNote}`
+                : `I’m an architect working across ${focus[0]}, ${focus[1]}, and ${focus[2]}. I enjoy translating early concepts into coordinated drawings, useful conversations, and details that can stand up on site.${humanNote}`;
         const spec = {
             key: slug,
             email: `${slug}${SEED_DOMAIN}`,
@@ -875,6 +875,35 @@ async function clearExistingSeedUsers(usersCache) {
     }, 12);
 }
 
+async function clearSeedProjectsOnly(usersCache) {
+    const seededUsers = usersCache.filter((user) => user.email?.endsWith(SEED_DOMAIN));
+    if (seededUsers.length === 0) {
+        console.log("No synthetic seed users found.");
+        return;
+    }
+
+    const { data: profiles, error } = await supabase
+        .from("profiles")
+        .select("id")
+        .in("user_id", seededUsers.map((user) => user.id));
+    if (error) throw new Error(`Unable to find synthetic seed profiles: ${error.message}`);
+
+    const profileIds = (profiles ?? []).map((profile) => profile.id);
+    await clearSeedPortfolio(profileIds);
+    console.log(`Cleared portfolio projects for ${profileIds.length} synthetic profiles.`);
+}
+
+async function refreshSeedBiosOnly(usersCache) {
+    const usersByEmail = new Map(usersCache.filter((user) => user.email?.endsWith(SEED_DOMAIN)).map((user) => [user.email, user]));
+    const specs = seedUsers.filter((spec) => usersByEmail.has(spec.email));
+    await mapWithConcurrency(specs, async (spec) => {
+        const user = usersByEmail.get(spec.email);
+        await findOrCreateAuthUser(spec, usersCache);
+        await ensureProfile(user, spec);
+    }, 12);
+    console.log(`Refreshed first-person bios for ${specs.length} synthetic profiles.`);
+}
+
 async function clearSeedJobs(posterIds) {
     if (posterIds.length === 0) return;
     const { error } = await supabase.from("job_listings").delete().in("user_id", posterIds);
@@ -1016,6 +1045,14 @@ async function insertSeedFirms() {
 async function main() {
     console.log("Loading seed users...");
     const usersCache = await listAllUsers();
+    if (process.argv.includes("--clear-projects")) {
+        await clearSeedProjectsOnly(usersCache);
+        return;
+    }
+    if (process.argv.includes("--refresh-bios")) {
+        await refreshSeedBiosOnly(usersCache);
+        return;
+    }
     console.log("Replacing previous synthetic profiles...");
     await clearExistingSeedUsers(usersCache);
 

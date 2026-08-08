@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import NextImage from "next/image";
 import type { PortfolioItem } from "@/types";
+import { compressImageForUpload } from "@/lib/image-compression";
 
 type Props = { initialItems: PortfolioItem[]; variant?: "individual" | "firm"; startCollapsed?: boolean };
 const projectTypes = ["residential", "commercial", "institutional", "urban_design", "interior", "landscape", "competition", "academic_studio"] as const;
@@ -44,16 +45,21 @@ export default function PortfolioEditor({ initialItems, variant = "individual", 
         const maxTotalBytes = 50 * 1024 * 1024;
         if (files.length > maxFiles) throw new Error(`A project can contain at most ${maxFiles} images`);
         if (files.reduce((total, file) => total + file.size, 0) > maxTotalBytes) throw new Error("Portfolio images must total 50 MB or less");
+        const compressedFiles: File[] = [];
+        for (const [index, file] of files.entries()) {
+            setMessage(`Compressing image ${index + 1} of ${files.length}...`);
+            compressedFiles.push(await compressImageForUpload(file, "portfolio"));
+        }
         const urls: string[] = [];
         const paths: string[] = [];
         try {
-            for (const file of files) {
+            setMessage("Uploading images...");
+            for (const file of compressedFiles) {
                 if (!file.type.startsWith("image/")) throw new Error("Portfolio files must be images");
                 if (file.size > 10 * 1024 * 1024) throw new Error("Each portfolio image must be 10 MB or smaller");
-                const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-120) || "image";
                 const formData = new FormData();
                 formData.set("bucket", "portfolio-images");
-                formData.set("file", file, safeName);
+                formData.set("file", file, file.name);
                 const response = await fetch("/api/storage", { method: "POST", body: formData });
                 const result = await response.json().catch(() => ({}));
                 if (!response.ok) throw new Error(result.error ?? "Unable to upload image");

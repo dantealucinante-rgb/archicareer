@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { Profile } from "@/types";
 import { ARCHITECTURE_SOFTWARE } from "@/lib/profile-options";
+import { compressImageForUpload } from "@/lib/image-compression";
 
 function TagsInput({ values, onChange }: { values: string[]; onChange: (values: string[]) => void }) {
     const [draft, setDraft] = useState("");
@@ -41,9 +42,13 @@ export default function OnboardingLinksForm({ profile }: { profile: Profile }) {
             if (avatarFile) {
                 if (!["image/jpeg", "image/png", "image/webp"].includes(avatarFile.type)) throw new Error("Profile image must be a JPG, PNG, or WebP file.");
                 if (avatarFile.size > 2 * 1024 * 1024) throw new Error("Profile image must be 2 MB or smaller.");
-                avatarUrl = await uploadFile("avatars", avatarFile, avatarFile.name);
+                setMessage("Compressing profile image...");
+                const compressedAvatar = await compressImageForUpload(avatarFile, "avatar");
+                setMessage("Uploading profile image...");
+                avatarUrl = await uploadFile("avatars", compressedAvatar, compressedAvatar.name);
             }
             if (cvFile) {
+                setMessage("Uploading CV...");
                 if (cvFile.type !== "application/pdf") throw new Error("CV must be a PDF file.");
                 cvUrl = await uploadFile("cv-documents", cvFile, "resume.pdf");
             }

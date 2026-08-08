@@ -2,8 +2,9 @@ import Link from "next/link";
 import type { PortfolioItem, Profile } from "@/types";
 import PortfolioGallery from "./PortfolioGallery";
 import ProfileAvatar from "./ProfileAvatar";
+import FollowButton from "./FollowButton";
 
-export default function FirmPublicProfile({ profile, portfolioItems, portfolioError, isOwner }: { profile: Profile; portfolioItems: PortfolioItem[]; portfolioError: Error | null; isOwner: boolean }) {
+export default function FirmPublicProfile({ profile, portfolioItems, portfolioError, isOwner, profileOwnerId, followerCount, followingCount, isFollowing, isMutual }: { profile: Profile; portfolioItems: PortfolioItem[]; portfolioError: Error | null; isOwner: boolean; profileOwnerId: string | null; followerCount: number; followingCount: number; isFollowing: boolean; isMutual: boolean }) {
     return (
         <div className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
             <main className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-8 sm:py-14">
@@ -12,7 +13,7 @@ export default function FirmPublicProfile({ profile, portfolioItems, portfolioEr
                     <div className="absolute -right-20 -top-28 h-80 w-80 rounded-full border border-redline/30" /><div className="absolute right-28 top-20 h-28 w-28 rotate-45 border border-ink/15" />
                     <div className="relative grid gap-10 lg:grid-cols-[1.4fr_0.6fr] lg:items-end">
                         <div><p className="eyebrow font-mono text-redline">STUDIO / COMPANY</p><h1 className="display-balance mt-5 max-w-4xl font-display text-6xl font-black leading-[0.82] tracking-[-0.08em] sm:text-8xl">{profile.name}</h1><p className="mt-6 max-w-2xl text-base leading-relaxed text-graphite">{profile.bio ?? "A practice building meaningful work and looking for the people who can help bring it to life."}</p></div>
-                        <div className="flex items-end justify-start gap-4 lg:justify-end"><ProfileAvatar profile={profile} size={112} className="h-24 w-24 rounded-2xl border border-line object-cover sm:h-28 sm:w-28" fallbackClassName="bg-paper" /></div>
+                        <div className="flex flex-col items-start gap-4 lg:items-end"><ProfileAvatar profile={profile} size={112} className="h-24 w-24 rounded-2xl border border-line object-cover sm:h-28 sm:w-28" fallbackClassName="bg-paper" /><div className="flex flex-wrap items-center justify-start gap-3 lg:justify-end"><span className="font-mono text-[10px] uppercase tracking-widest text-graphite">{followingCount} Following · {followerCount} Followers</span>{!isOwner && profileOwnerId && <FollowButton followingId={profileOwnerId} initialFollowing={isFollowing} initialMutual={isMutual} initialFollowerCount={followerCount} />}</div></div>
                     </div>
                 </section>
 
