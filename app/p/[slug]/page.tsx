@@ -45,7 +45,7 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
                             <p className="eyebrow mb-2 font-mono text-sand">{profile.role} / public profile</p>
                             <h1 className="font-display text-3xl font-semibold tracking-[-0.04em] text-paper sm:text-4xl">{profile.name}</h1>
                             <p className="mt-2 font-mono text-xs uppercase tracking-wider text-paper/60">
-                                {profile.school_or_firm ?? "Independent"} {"// "}{profile.location ?? "Nigeria"}
+                                {profile.school_or_firm ?? "Independent"}
                             </p>
                             </div>
                         </div>

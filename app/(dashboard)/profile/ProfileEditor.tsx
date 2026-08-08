@@ -39,6 +39,7 @@ function TagsInput({ values, onChange, placeholder }: { values: string[]; onChan
 
 export default function ProfileEditor({ profile, variant = "individual" }: Props) {
     const router = useRouter();
+    const canUploadAvatar = variant === "individual";
     const [name, setName] = useState(profile?.name ?? "");
     const [bio, setBio] = useState(profile?.bio ?? "");
     const [schoolOrFirm, setSchoolOrFirm] = useState(profile?.school_or_firm ?? "");
@@ -70,7 +71,7 @@ export default function ProfileEditor({ profile, variant = "individual" }: Props
     }
 
     async function uploadAvatar() {
-        if (!avatarFile || !profile) return { url: avatarUrl || null, path: null };
+        if (!canUploadAvatar || !avatarFile || !profile) return { url: avatarUrl || null, path: null };
         const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
         if (!allowedTypes.has(avatarFile.type)) throw new Error("Avatar must be a JPG, PNG, or WebP image");
         if (avatarFile.size > 2 * 1024 * 1024) throw new Error("Avatar must be 2 MB or smaller");
@@ -141,7 +142,7 @@ export default function ProfileEditor({ profile, variant = "individual" }: Props
                 <div className="mb-6 border-b border-line pb-4"><p className="eyebrow font-mono text-redline">02 / {variant === "firm" ? "CONTACT & LINKS" : "LINKS & FILES"}</p><h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">{variant === "firm" ? "Help people reach the practice" : "Give people more ways in"}</h2></div>
                 <div className="space-y-5">
                     <div className="grid gap-5 sm:grid-cols-2"><div><label className={labelClass}>Instagram URL</label><input type="url" aria-invalid={Boolean(errors.instagram)} value={instagramUrl} onChange={(event) => setInstagramUrl(event.target.value)} className={fieldClass} placeholder="https://instagram.com/..." />{errors.instagram && <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-redline">{errors.instagram}</p>}</div><div><label className={labelClass}>Personal site URL</label><input type="url" aria-invalid={Boolean(errors.site)} value={siteUrl} onChange={(event) => setSiteUrl(event.target.value)} className={fieldClass} placeholder="https://..." />{errors.site && <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-redline">{errors.site}</p>}</div><div><label className={labelClass}>LinkedIn URL</label><input type="url" aria-invalid={Boolean(errors.linkedin)} value={linkedinUrl} onChange={(event) => setLinkedinUrl(event.target.value)} className={fieldClass} placeholder="https://linkedin.com/in/..." />{errors.linkedin && <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-redline">{errors.linkedin}</p>}</div></div>
-                    <div className="grid gap-5 sm:grid-cols-2"><div><label className={labelClass}>Profile image</label><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => setAvatarFile(event.target.files?.[0] ?? null)} className={`${fieldClass} file:mr-3 file:border-0 file:bg-ink file:px-3 file:py-1.5 file:font-mono file:text-[10px] file:uppercase file:text-paper`} />{avatarUrl && <p className="mt-2 text-xs text-graphite">Existing image attached.</p>}</div><div><label className={labelClass}>CV / resume PDF</label><input type="file" accept="application/pdf,.pdf" onChange={(event) => setCvFile(event.target.files?.[0] ?? null)} className={`${fieldClass} file:mr-3 file:border-0 file:bg-ink file:px-3 file:py-1.5 file:font-mono file:text-[10px] file:uppercase file:text-paper`} />{cvUrl && <p className="mt-2 text-xs text-graphite">Existing CV attached.</p>}</div></div>
+                    <div className="grid gap-5 sm:grid-cols-2">{canUploadAvatar && <div><label className={labelClass}>Add or replace profile photo</label><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => setAvatarFile(event.target.files?.[0] ?? null)} className={`${fieldClass} file:mr-3 file:border-0 file:bg-ink file:px-3 file:py-1.5 file:font-mono file:text-[10px] file:uppercase file:text-paper`} />{avatarUrl && <p className="mt-2 text-xs text-graphite">Choose a new photo to replace the current one.</p>}<p className="mt-1 text-[11px] text-graphite">JPG, PNG, or WebP · max 2 MB</p></div>}<div><label className={labelClass}>CV / resume PDF</label><input type="file" accept="application/pdf,.pdf" onChange={(event) => setCvFile(event.target.files?.[0] ?? null)} className={`${fieldClass} file:mr-3 file:border-0 file:bg-ink file:px-3 file:py-1.5 file:font-mono file:text-[10px] file:uppercase file:text-paper`} />{cvUrl && <p className="mt-2 text-xs text-graphite">Existing CV attached.</p>}</div></div>
                 </div>
             </section>
 

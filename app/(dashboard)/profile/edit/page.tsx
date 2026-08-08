@@ -1,15 +1,10 @@
 import ProfileEditor from "../ProfileEditor";
-import PortfolioEditor from "../PortfolioEditor";
 import { getCurrentProfile } from "@/lib/queries/profiles";
-import { getPortfolioItemsForProfile } from "@/lib/queries/portfolio";
 
 export const dynamic = "force-dynamic";
 
 export default async function ProfileEditPage() {
     const { data: profile } = await getCurrentProfile();
-    const { data: portfolioItems } = profile
-        ? await getPortfolioItemsForProfile(profile.id)
-        : { data: null };
 
     return (
         <div className="bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
@@ -29,14 +24,12 @@ export default async function ProfileEditPage() {
                         <nav className="mt-4 space-y-2 border-l border-line pl-4 text-sm">
                             <a href="#about" className="block text-ink hover:text-redline">{profile?.role === "firm" ? "About the practice" : "About you"}</a>
                             <a href="#links" className="block text-graphite hover:text-redline">Links & files</a>
-                            <a href="#portfolio" className="block text-graphite hover:text-redline">Portfolio</a>
                         </nav>
                         <p className="mt-10 text-xs leading-relaxed text-graphite">{profile?.role === "firm" ? "Your firm profile is a clear introduction to the practice, its capabilities, and its work." : "Your public profile is a living introduction—not a form to fill once and forget."}</p>
                     </aside>
 
                     <div className="surface p-5 sm:p-8">
                         <ProfileEditor profile={profile} variant={profile?.role === "firm" ? "firm" : "individual"} />
-                        {profile && <PortfolioEditor initialItems={portfolioItems ?? []} variant={profile.role === "firm" ? "firm" : "individual"} />}
                     </div>
                 </div>
             </main>

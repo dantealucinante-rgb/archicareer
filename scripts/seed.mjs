@@ -59,7 +59,7 @@ const seedUsers = [
         name: "Amina Bello",
         role: "student",
         school_or_firm: "University of Lagos",
-        bio: "Architecture student focused on climate-responsive housing, model making, and urban research in Lagos.",
+        bio: "Amina Bello is an architecture student focused on climate-responsive housing, model making, and urban research. The drawings are getting there, slowly.",
         location: "Yaba, Lagos",
         software_proficiency: ["Revit", "Rhino", "Adobe InDesign", "QGIS"],
         personal_site_url: "https://amina-bello.example",
@@ -76,7 +76,7 @@ const seedUsers = [
         name: "Sani Musa",
         role: "student",
         school_or_firm: "Ahmadu Bello University",
-        bio: "Final-year designer interested in how low-tech fabrication, clear drawings, and repeatable housing systems can make good architecture easier to deliver.",
+        bio: "Sani Musa is a final-year designer interested in low-tech fabrication, clear drawings, and repeatable housing systems that make good architecture easier to deliver. Some details are still being figured out.",
         location: "Zaria, Kaduna",
         software_proficiency: ["AutoCAD", "SketchUp", "V-Ray", "Adobe Photoshop"],
         personal_site_url: "https://sani-musa.example",
@@ -92,7 +92,7 @@ const seedUsers = [
         name: "Zainab Aliyu",
         role: "student",
         school_or_firm: "Federal University of Technology, Akure",
-        bio: "Architecture student combining landscape research, environmental mapping, and computational workflows to study how public space can manage heat and heavy rain.",
+        bio: "Zainab Aliyu is an architecture student combining landscape research, environmental mapping, and computational workflows to study how public space can manage heat and heavy rain. She is still testing the idea in real places.",
         location: "Akure, Ondo",
         software_proficiency: ["Rhino", "Grasshopper", "Lumion", "QGIS", "Adobe Illustrator"],
         personal_site_url: "https://zainab-aliyu.example",
@@ -108,7 +108,7 @@ const seedUsers = [
         name: "Tunde Akinyemi",
         role: "architect",
         school_or_firm: "Maki & Partners",
-        bio: "Architect working between concept design and the realities of delivery: tight urban sites, consultant coordination, procurement decisions, and details that survive construction.",
+        bio: "Tunde Akinyemi is an architect working between concept design and the realities of delivery: tight urban sites, consultant coordination, procurement decisions, and details that survive construction. The site lessons usually come late.",
         location: "Ikeja, Lagos",
         software_proficiency: ["Revit", "AutoCAD", "Enscape", "Bluebeam", "Adobe InDesign"],
         personal_site_url: "https://tunde-akinyemi.example",
@@ -124,7 +124,7 @@ const seedUsers = [
         name: "Ifeoma Okafor",
         role: "architect",
         school_or_firm: "Atelier Atlas",
-        bio: "Architect and interior designer drawn to public work with a human scale: adaptive reuse, civic interiors, and spaces that make people feel oriented, welcome, and considered.",
+        bio: "Ifeoma Okafor is an architect and interior designer drawn to public work with a human scale: adaptive reuse, civic interiors, and spaces that make people feel oriented, welcome, and considered. She likes a good threshold, maybe too much.",
         location: "Wuse II, Abuja",
         software_proficiency: ["Revit", "Rhino", "Enscape", "Adobe InDesign", "Miro"],
         personal_site_url: "https://ifeoma-okafor.example",
@@ -139,8 +139,8 @@ const seedUsers = [
         email: `kora.urban.practice${SEED_DOMAIN}`,
         name: "Kora Urban Practice",
         role: "firm",
-        school_or_firm: "Lagos, Nigeria",
-        bio: "A compact design and delivery practice working across Lagos housing and mixed-use projects. The studio is interested in generous thresholds, passive comfort, and details that remain legible from drawing to site.",
+        school_or_firm: "Urban design & delivery",
+        bio: "Kora Urban Practice is a compact design and delivery practice working across housing and mixed-use projects. The studio is interested in generous thresholds, passive comfort, and details that remain legible from drawing to site.",
         location: "Lekki, Lagos",
         software_proficiency: ["Revit", "Rhino", "Enscape", "AutoCAD", "Notion"],
         personal_site_url: "https://koraurbanpractice.example",
@@ -155,8 +155,8 @@ const seedUsers = [
         email: `northstar.atelier${SEED_DOMAIN}`,
         name: "Northstar Atelier",
         role: "firm",
-        school_or_firm: "Abuja, Nigeria",
-        bio: "A design-led Abuja office for civic, workplace, and institutional architecture. Northstar brings research, technical coordination, and a calm visual language to complex public programmes.",
+        school_or_firm: "Civic and institutional architecture",
+        bio: "Northstar Atelier is a design-led office for civic, workplace, and institutional architecture. The practice brings research, technical coordination, and a calm visual language to complex public programmes.",
         location: "Central District, Abuja",
         software_proficiency: ["Revit", "BIM 360", "Rhino", "Enscape", "Adobe InDesign"],
         personal_site_url: "https://northstaratelier.example",
@@ -171,8 +171,8 @@ const seedUsers = [
         email: `bala.co.studio${SEED_DOMAIN}`,
         name: "Bala & Co. Studio",
         role: "firm",
-        school_or_firm: "Enugu, Nigeria",
-        bio: "An Enugu-based studio working across learning spaces, small cultural commissions, and homes. Bala & Co. uses careful proportion, durable materials, and strong graphic communication to make modest briefs feel substantial.",
+        school_or_firm: "Learning spaces and cultural work",
+        bio: "Bala & Co. Studio is a small practice working across learning spaces, cultural commissions, and homes. The studio uses careful proportion, durable materials, and strong graphic communication to make modest briefs feel substantial.",
         location: "Enugu",
         software_proficiency: ["ArchiCAD", "SketchUp", "Twinmotion", "Adobe Photoshop", "AutoCAD"],
         personal_site_url: "https://balacostudio.example",
@@ -184,27 +184,30 @@ const seedUsers = [
     },
 ];
 
-const generatedFirstNames = [
-    "Ada", "Adanna", "Adeola", "Aisha", "Amaka", "Babatunde", "Bassey", "Chiamaka", "Chidi", "Chinonso",
-    "Damilola", "David", "Efe", "Eniola", "Esther", "Faruq", "Fatima", "Femi", "Hauwa", "Ibrahim",
-    "Ikenna", "Imani", "Jide", "Kelechi", "Lara", "Mariam", "Maya", "Mfon", "Nadia", "Nneka",
-    "Obinna", "Ogechi", "Olamide", "Opeyemi", "Osas", "Rasheed", "Sade", "Samuel", "Tari", "Yusuf",
-];
-
-const generatedLastNames = [
-    "Abubakar", "Adebayo", "Ademola", "Afolabi", "Agbaje", "Agu", "Ajayi", "Akpan", "Alabi", "Ali",
-    "Balogun", "Bamidele", "Bassey", "Danladi", "Eze", "Ibrahim", "Iheanacho", "Lawal", "Madu", "Makanjuola",
-    "Mohammed", "Nwosu", "Ojo", "Okeke", "Okoro", "Oladele", "Olawale", "Onyema", "Salami", "Suleiman",
-    "Taiwo", "Udo", "Umeh", "Yakubu", "Yusuf",
-];
-
-const generatedLocations = [
-    ["Lagos Island", "Lagos"], ["Surulere", "Lagos"], ["Yaba", "Lagos"], ["Ikeja", "Lagos"],
-    ["Wuse", "Abuja"], ["Gwarinpa", "Abuja"], ["Kaduna North", "Kaduna"], ["Zaria", "Kaduna"],
-    ["Kano Municipal", "Kano"], ["Ibadan", "Oyo"], ["Ile-Ife", "Osun"], ["Akure", "Ondo"],
-    ["Benin City", "Edo"], ["Enugu", "Enugu"], ["Nsukka", "Enugu"], ["Port Harcourt", "Rivers"],
-    ["Uyo", "Akwa Ibom"], ["Calabar", "Cross River"], ["Owerri", "Imo"], ["Ilorin", "Kwara"],
-    ["Jos", "Plateau"], ["Minna", "Niger"], ["Abeokuta", "Ogun"], ["Asaba", "Delta"],
+// These are deliberately grouped by broad regional naming and architecture hubs.
+// A name is not a proxy for identity; the groups only help the generated directory
+// feel less like random strings assembled from one national list.
+const generatedNameRegions = [
+    {
+        firstNames: ["Adeola", "Aderinsola", "Ayomide", "Bisola", "Damilola", "Ebunoluwa", "Folasade", "Ifeoluwa", "Kehinde", "Morenike", "Olamide", "Oluwatobi", "Seyi", "Temitope", "Yewande", "Yinka"],
+        lastNames: ["Adebayo", "Adeyemi", "Afolabi", "Ajayi", "Akintola", "Alabi", "Balogun", "Fasina", "Ogunleye", "Oladipo", "Olanrewaju", "Oyewole"],
+        locations: [["Lagos Island", "Lagos"], ["Yaba", "Lagos"], ["Surulere", "Lagos"], ["Ibadan", "Oyo"], ["Ile-Ife", "Osun"], ["Akure", "Ondo"], ["Abeokuta", "Ogun"], ["Ilorin", "Kwara"]],
+    },
+    {
+        firstNames: ["Adaeze", "Amarachi", "Chiamaka", "Chidera", "Chidiebere", "Chidimma", "Chigozie", "Chimamanda", "Ikenna", "Kenechukwu", "Kosisochukwu", "Nnamdi", "Nneka", "Obinna", "Somtochukwu", "Uche"],
+        lastNames: ["Agu", "Eze", "Ezeh", "Ibe", "Iheanacho", "Nwafor", "Nwankwo", "Nwosu", "Okafor", "Okeke", "Okoro", "Onyeka"],
+        locations: [["Enugu", "Enugu"], ["Nsukka", "Enugu"], ["Awka", "Anambra"], ["Onitsha", "Anambra"], ["Owerri", "Imo"], ["Umuahia", "Abia"], ["Aba", "Abia"], ["Port Harcourt", "Rivers"]],
+    },
+    {
+        firstNames: ["Abdulrahman", "Aisha", "Amina", "Bashir", "Fatima", "Hafsat", "Hauwa", "Ibrahim", "Mariam", "Maryam", "Musa", "Sadiq", "Sani", "Usman", "Yusuf", "Zainab"],
+        lastNames: ["Abubakar", "Adamu", "Bello", "Danjuma", "Garba", "Ibrahim", "Lawal", "Mohammed", "Musa", "Sani", "Suleiman", "Umar", "Usman", "Yakubu"],
+        locations: [["Wuse", "Abuja"], ["Gwarinpa", "Abuja"], ["Zaria", "Kaduna"], ["Kaduna North", "Kaduna"], ["Kano Municipal", "Kano"], ["Katsina", "Katsina"], ["Sokoto", "Sokoto"], ["Minna", "Niger"], ["Jos", "Plateau"]],
+    },
+    {
+        firstNames: ["Bassey", "Ebi", "Efe", "Ekemini", "Eno", "Ese", "Etinosa", "Favour", "Ibiwari", "Iniobong", "Mfon", "Oghenekaro", "Osas", "Ovie", "Precious", "Tari"],
+        lastNames: ["Akpan", "Bassey", "Edem", "Ekanem", "Eno", "Essien", "Etim", "George", "Ibori", "Idisi", "Obaseki", "Odu", "Okon", "Umobuarie"],
+        locations: [["Benin City", "Edo"], ["Uyo", "Akwa Ibom"], ["Calabar", "Cross River"], ["Warri", "Delta"], ["Yenagoa", "Bayelsa"], ["Port Harcourt", "Rivers"], ["Asaba", "Delta"]],
+    },
 ];
 
 const generatedSchools = [
@@ -224,6 +227,11 @@ const generatedFocuses = [
     ["housing delivery", "consultant coordination", "buildable details"],
 ];
 
+const generatedFirmNames = [
+    "Harbourline Studio", "Civic Thread Architects", "Groundwork Partners", "Mosaic Design Office",
+    "Open Courtyard Practice", "Common Room Architecture", "Field Notes Studio", "Northbank Works",
+];
+
 const generatedSoftwareSets = [
     ["AutoCAD", "Revit", "Adobe InDesign"],
     ["Rhino", "Grasshopper", "Adobe Illustrator", "QGIS"],
@@ -237,7 +245,7 @@ const generatedSoftwareSets = [
 function generatedPortfolioFor(spec, index, focus) {
     const projectTypes = ["residential", "urban", "institutional", "interior", "landscape", "commercial"];
     const type = projectTypes[index % projectTypes.length];
-    const place = generatedLocations[index % generatedLocations.length][0];
+    const place = spec.location?.split(",")[0] ?? "Nigeria";
     return [
         {
             title: `${place} ${type === "urban" ? "Street Study" : "Design Study"}`,
@@ -257,18 +265,21 @@ function generatedPortfolioFor(spec, index, focus) {
 function generateSeedUsers(targetCount) {
     const existingNames = new Set(seedUsers.map((spec) => spec.name));
     const generated = [];
-    let candidateIndex = 0;
+    const regionCursors = generatedNameRegions.map(() => 0);
 
     while (generated.length < targetCount) {
-        const first = generatedFirstNames[candidateIndex % generatedFirstNames.length];
-        const last = generatedLastNames[Math.floor(candidateIndex / generatedFirstNames.length) % generatedLastNames.length];
+        const regionIndex = generated.length % generatedNameRegions.length;
+        const region = generatedNameRegions[regionIndex];
+        const regionCursor = regionCursors[regionIndex];
+        const first = region.firstNames[regionCursor % region.firstNames.length];
+        const last = region.lastNames[Math.floor(regionCursor / region.firstNames.length) % region.lastNames.length];
+        regionCursors[regionIndex] += 1;
         const name = `${first} ${last}`;
-        candidateIndex += 1;
 
         if (existingNames.has(name)) continue;
         existingNames.add(name);
 
-        const location = generatedLocations[generated.length % generatedLocations.length];
+        const location = region.locations[regionCursor % region.locations.length];
         const focus = generatedFocuses[generated.length % generatedFocuses.length];
         const isStudent = generated.length < 180;
         const isFirm = generated.length >= 280;
@@ -276,14 +287,19 @@ function generateSeedUsers(targetCount) {
         const slug = slugify(name);
         const schoolOrFirm = isStudent
             ? `${generatedSchools[generated.length % generatedSchools.length]}${generated.length % 3 === 0 ? " — Architecture" : ""}`
-            : isFirm
-                ? `${location[0]}, ${location[1]}`
-                : `${["Harbourline Studio", "Civic Thread Architects", "Groundwork Partners", "Mosaic Design Office"][generated.length % 4]}`;
+            : generatedFirmNames[generated.length % generatedFirmNames.length];
+        const humanNote = [
+            " The drawings are still a work in progress, but the ideas are getting clearer.",
+            " They care about the small decisions too, even when the deadline is doing the most.",
+            " Their current work is a little rough around the edges, in a good way.",
+            " Theyre learning by making things, breaking them, then trying again.",
+            " Some of the best thinking happens away from the screen, usually with a notebook.",
+        ][generated.length % 5];
         const bio = isStudent
-            ? `${name} is an architecture student interested in ${focus[0]}, ${focus[1]}, and thoughtful design communication. Their work moves between research, making, and proposals grounded in everyday Nigerian contexts.`
+            ? `${name} is an architecture student interested in ${focus[0]}, ${focus[1]}, and thoughtful design communication. Their work moves between research, making, and proposals grounded in everyday Nigerian contexts.${humanNote}`
             : isFirm
-                ? `${name} is a design practice based in ${location[0]}, working across ${focus[0]}, ${focus[1]}, and carefully resolved projects that connect strong ideas to the realities of delivery.`
-                : `${name} is an architect working across ${focus[0]}, ${focus[1]}, and ${focus[2]}. They enjoy translating early concepts into coordinated drawings, useful conversations, and details that can stand up on site.`;
+                ? `${name} is a design practice working across ${focus[0]}, ${focus[1]}, and carefully resolved projects that connect strong ideas to the realities of delivery.${humanNote}`
+                : `${name} is an architect working across ${focus[0]}, ${focus[1]}, and ${focus[2]}. They enjoy translating early concepts into coordinated drawings, useful conversations, and details that can stand up on site.${humanNote}`;
         const spec = {
             key: slug,
             email: `${slug}${SEED_DOMAIN}`,
@@ -709,11 +725,11 @@ async function findOrCreateAuthUser(spec, usersCache) {
             email_confirm: true,
         });
 
-        if (error) {
+        if (error && !/user not found/i.test(error.message)) {
             throw new Error(`Unable to update auth user ${spec.email}: ${error.message}`);
         }
 
-        return user;
+        if (!error) return user;
     }
 
     const { data, error } = await supabase.auth.admin.createUser({
@@ -825,6 +841,38 @@ async function clearSeedPortfolio(profileIds) {
     if (error) {
         throw new Error(`Unable to clear seed portfolio items: ${error.message}`);
     }
+}
+
+async function clearExistingSeedUsers(usersCache) {
+    const seededUsers = usersCache.filter((user) => user.email?.endsWith(SEED_DOMAIN));
+    if (seededUsers.length === 0) return;
+
+    const userIds = seededUsers.map((user) => user.id);
+    const { data: profiles, error: profileLookupError } = await supabase
+        .from("profiles")
+        .select("id")
+        .in("user_id", userIds);
+    if (profileLookupError) {
+        throw new Error(`Unable to look up previous seed profiles: ${profileLookupError.message}`);
+    }
+
+    const profileIds = (profiles ?? []).map((profile) => profile.id);
+    await clearSeedPortfolio(profileIds);
+
+    for (const table of ["bookmarks", "job_listings"]) {
+        const { error } = await supabase.from(table).delete().in(table === "bookmarks" ? "user_id" : "user_id", userIds);
+        if (error) throw new Error(`Unable to clear previous seed ${table}: ${error.message}`);
+    }
+
+    if (profileIds.length > 0) {
+        const { error } = await supabase.from("profiles").delete().in("id", profileIds);
+        if (error) throw new Error(`Unable to clear previous seed profiles: ${error.message}`);
+    }
+
+    await mapWithConcurrency(seededUsers, async (user) => {
+        const { error } = await supabase.auth.admin.deleteUser(user.id);
+        if (error) throw new Error(`Unable to remove previous seed user ${user.email}: ${error.message}`);
+    }, 12);
 }
 
 async function clearSeedJobs(posterIds) {
@@ -968,6 +1016,8 @@ async function insertSeedFirms() {
 async function main() {
     console.log("Loading seed users...");
     const usersCache = await listAllUsers();
+    console.log("Replacing previous synthetic profiles...");
+    await clearExistingSeedUsers(usersCache);
 
     const authUsersByEmail = new Map();
     const authUsers = await mapWithConcurrency(seedUsers, async (spec) => {

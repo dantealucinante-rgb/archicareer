@@ -22,6 +22,9 @@ export async function POST(request: Request) {
         }
 
         const bucket = bucketValue as keyof typeof config;
+        if (bucket === "avatars" && profile.role === "firm") {
+            return NextResponse.json({ error: "Studio avatar uploads are not available yet" }, { status: 403 });
+        }
         const rules = config[bucket];
         if (!rules.types.has(file.type) || file.size === 0 || file.size > rules.maxBytes) {
             return NextResponse.json({ error: "File type or size is not allowed" }, { status: 400 });

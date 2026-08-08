@@ -76,7 +76,12 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                                                 )}
                                             </div>
                                             <div className="mt-6 flex items-center justify-between border-t border-line/70 pt-3">
-                                                <span className="font-mono text-[9px] text-graphite tracking-wider">{profile.location ?? "Nigeria"}</span><span className="text-lg text-redline transition-transform duration-300 group-hover:translate-x-1">↗</span>
+                                                <span className="font-mono text-[9px] uppercase tracking-wider text-graphite">View profile</span>
+                                                <span aria-hidden="true" className="text-redline transition-transform duration-300 group-hover:translate-x-1">
+                                                    <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                                        <path d="M3 13 13 3M5 3h8v8" strokeLinecap="round" strokeLinejoin="round" />
+                                                    </svg>
+                                                </span>
                                             </div>
                                         </Link>
                                     ))}
