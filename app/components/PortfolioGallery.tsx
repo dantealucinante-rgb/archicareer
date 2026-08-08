@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import NextImage from "next/image";
+import { ArrowLeft, ArrowRight } from "./UiIcon";
 
 type Image = { id: string; image_url: string };
 
@@ -18,8 +19,8 @@ export default function PortfolioGallery({ images, title }: { images: Image[]; t
                 <NextImage src={current.image_url} alt={`${title}, image ${active + 1} of ${images.length}`} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition-opacity duration-150" />
                 {images.length > 1 && (
                     <>
-                        <button type="button" aria-label="Previous project image" onClick={() => move(-1)} className="absolute left-2 top-1/2 -translate-y-1/2 border border-line bg-paper/90 px-2 py-1 font-mono text-xs text-ink opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100">←</button>
-                        <button type="button" aria-label="Next project image" onClick={() => move(1)} className="absolute right-2 top-1/2 -translate-y-1/2 border border-line bg-paper/90 px-2 py-1 font-mono text-xs text-ink opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100">→</button>
+                        <button type="button" aria-label="Previous project image" onClick={() => move(-1)} className="absolute left-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center border border-line bg-paper/90 text-ink opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"><ArrowLeft /></button>
+                        <button type="button" aria-label="Next project image" onClick={() => move(1)} className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center border border-line bg-paper/90 text-ink opacity-0 transition-opacity group-hover:opacity-100 focus:opacity-100"><ArrowRight /></button>
                     </>
                 )}
             </div>

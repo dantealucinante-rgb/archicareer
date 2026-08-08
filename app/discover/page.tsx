@@ -28,8 +28,8 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
         <div className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
             <main className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 sm:py-16">
                 <div className="mb-10 grid gap-6 border-b border-line pb-10 lg:grid-cols-[1fr_auto] lg:items-end">
-                    <div><div className="eyebrow mb-4 font-mono text-redline">A-04 / DISCOVER</div><h1 className="display-balance max-w-2xl font-display text-5xl font-semibold leading-[0.92] tracking-[-0.06em] sm:text-7xl">Meet the people behind the work.</h1><p className="mt-5 max-w-xl text-base leading-relaxed text-graphite">Explore profiles from emerging talent, experienced professionals, studios, and companies.</p></div>
-                    <div className="rounded-full border border-line px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-graphite">{profileCount} records · shuffled</div>
+                    <div><div className="eyebrow mb-4 font-mono text-redline">A-04 / DISCOVER</div><h1 className="display-balance max-w-2xl font-display text-4xl font-semibold leading-[0.92] tracking-[-0.06em] sm:text-7xl">Meet the people behind the work.</h1><p className="mt-5 max-w-xl text-base leading-relaxed text-graphite">Explore profiles from emerging talent, experienced professionals, studios, and companies.</p></div>
+                    <div className="w-fit rounded-full border border-line px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-graphite">{profileCount} records · shuffled</div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-[240px_1fr]">
@@ -63,11 +63,11 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                                     {profiles.map((profile: Profile) => (
                                         <div
                                             key={profile.id}
-                                            className="surface card-lift flex min-h-[240px] flex-col justify-between p-5"
+                                            className="surface card-lift flex min-h-[220px] flex-col justify-between p-4 sm:min-h-[240px] sm:p-5"
                                         >
-                                            <div className="mb-3 flex items-start justify-between">
+                                            <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
                                                 <ProfileAvatar profile={profile} size={40} className="h-10 w-10 rounded-full border border-line object-cover" />
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex flex-wrap items-center justify-end gap-1.5">
                                                     {currentProfile?.id !== profile.id && ownerIds[profile.id] && <FollowButton followingId={ownerIds[profile.id]} initialFollowing={followStates[ownerIds[profile.id]]?.isFollowing ?? false} initialMutual={followStates[ownerIds[profile.id]]?.isMutual ?? false} initialFollowerCount={0} compact />}
                                                     <span className="shrink-0 rounded-full border border-line bg-paper px-2 py-1 font-mono text-[8px] uppercase tracking-widest text-graphite">{profile.role}</span>
                                                 </div>

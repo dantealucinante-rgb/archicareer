@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Check } from "./UiIcon";
 
 type Props = {
     followingId: string;
@@ -45,7 +46,7 @@ export default function FollowButton({ followingId, initialFollowing, initialMut
 
     const label = mutual ? "Friends" : following ? "Following" : "Follow";
     return <button type="button" disabled={pending} onClick={toggleFollow} className={`inline-flex items-center rounded-full border ${compact ? "px-3" : "px-4"} py-2 font-mono text-[10px] uppercase tracking-widest transition-colors disabled:cursor-wait disabled:opacity-60 ${mutual ? "border-redline bg-paper text-redline hover:bg-redline hover:text-paper" : following ? "border-line bg-warm-white text-ink hover:border-ink" : "border-ink bg-paper text-ink hover:bg-ink hover:text-paper"}`}>
-        {following && !mutual && <span aria-hidden="true" className="mr-1.5">✓</span>}
+        {following && !mutual && <Check className="mr-1.5 h-3 w-3" />}
         {label}
         <span className="sr-only">. {followerCount} followers</span>
     </button>;

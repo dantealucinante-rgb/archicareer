@@ -169,8 +169,11 @@ button {
 }
 
 @media (max-width: 640px) {
+  body { background-size: 24px 24px; }
   .surface, .surface-dark { border-radius: 18px; }
   .card-lift:hover { transform: none; }
+  .eyebrow { letter-spacing: 0.14em; font-size: 0.62rem; }
+  .interactive { transition-duration: 180ms; }
 }
 
 @keyframes sheet-reveal {
