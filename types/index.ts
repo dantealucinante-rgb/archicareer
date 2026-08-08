@@ -131,6 +131,7 @@ export interface Comment {
     id: string;
     portfolio_item_id: string | null;
     post_id: string | null;
+    parent_comment_id: string | null;
     user_id: string;
     content: string;
     created_at: string;

@@ -92,6 +92,7 @@ export const commentCreateSchema = z.object({
     content: z.string().trim().min(1, "Comment cannot be empty").max(500, "Comment is too long"),
     portfolio_item_id: z.string().uuid().nullable().optional(),
     post_id: z.string().uuid().nullable().optional(),
+    parent_comment_id: z.string().uuid().nullable().optional(),
 }).superRefine((value, context) => {
     if (Boolean(value.portfolio_item_id) === Boolean(value.post_id)) {
         context.addIssue({ code: "custom", message: "A comment must target one piece of content" });

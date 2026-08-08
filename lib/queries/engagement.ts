@@ -17,7 +17,7 @@ async function attachAuthors(comments: Comment[]): Promise<Comment[]> {
 
 export async function getComments(target: Target): Promise<QueryResult<Comment[]>> {
     try {
-        const base = createPublicClient().from("comments").select("id, portfolio_item_id, post_id, user_id, content, created_at, updated_at");
+        const base = createPublicClient().from("comments").select("id, portfolio_item_id, post_id, parent_comment_id, user_id, content, created_at, updated_at");
         const { data, error } = target.portfolio_item_id
             ? await base.eq("portfolio_item_id", target.portfolio_item_id).order("created_at", { ascending: true })
             : await base.eq("post_id", target.post_id as string).order("created_at", { ascending: true });
@@ -37,9 +37,10 @@ export async function addComment(raw: unknown): Promise<QueryResult<Comment>> {
     const { data, error } = await supabase.from("comments").insert({
         portfolio_item_id: parsed.data.portfolio_item_id ?? null,
         post_id: parsed.data.post_id ?? null,
+        parent_comment_id: parsed.data.parent_comment_id ?? null,
         user_id: user.id,
         content: parsed.data.content,
-    }).select("id, portfolio_item_id, post_id, user_id, content, created_at, updated_at").single();
+    }).select("id, portfolio_item_id, post_id, parent_comment_id, user_id, content, created_at, updated_at").single();
     if (error) return { data: null, error: new Error(error.message) };
     const [comment] = await attachAuthors([data as Comment]);
     return { data: comment, error: null };
@@ -60,7 +61,7 @@ export async function updateComment(commentId: string, raw: unknown): Promise<Qu
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return { data: null, error: new Error("Unauthenticated") };
-    const { data, error } = await supabase.from("comments").update({ content: parsed.data.content }).eq("id", commentId).select("id, portfolio_item_id, post_id, user_id, content, created_at, updated_at").single();
+    const { data, error } = await supabase.from("comments").update({ content: parsed.data.content }).eq("id", commentId).select("id, portfolio_item_id, post_id, parent_comment_id, user_id, content, created_at, updated_at").single();
     if (error) return { data: null, error: new Error(error.message) };
     const [comment] = await attachAuthors([data as Comment]);
     return { data: comment, error: null };
