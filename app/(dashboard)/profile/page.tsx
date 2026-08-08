@@ -26,7 +26,6 @@ export default async function ProfilePage() {
                         </div>
                     </div>
                     <div className="flex flex-wrap gap-3">
-                        {profile.slug && <Link href={`/p/${profile.slug}`} className="inline-flex items-center rounded-full border border-line px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest hover:border-ink">View public profile ↗</Link>}
                         <Link href="/profile/edit" className="inline-flex items-center rounded-full bg-ink px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-paper hover:bg-redline">Edit profile</Link>
                     </div>
                 </div>
@@ -34,11 +33,7 @@ export default async function ProfilePage() {
                 <div className="grid gap-8 lg:grid-cols-[220px_1fr] lg:items-start">
                     <aside className="hidden lg:block lg:sticky lg:top-28">
                         <p className="font-mono text-[10px] uppercase tracking-widest text-graphite">Profile workspace</p>
-                        <nav className="mt-4 space-y-2 border-l border-line pl-4 text-sm">
-                            <a href="#portfolio" className="block text-ink hover:text-redline">Portfolio</a>
-                            <Link href="/profile/edit" className="block text-graphite hover:text-redline">Profile details</Link>
-                        </nav>
-                        <p className="mt-10 text-xs leading-relaxed text-graphite">Your work lives here first. Add projects as you finish them, then share the public profile when it feels ready.</p>
+                        <p className="mt-4 text-xs leading-relaxed text-graphite">Your work lives here first. Add projects as you finish them and keep the profile current.</p>
                     </aside>
 
                     <div className="surface p-5 sm:p-8">
