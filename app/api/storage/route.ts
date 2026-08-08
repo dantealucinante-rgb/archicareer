@@ -5,6 +5,7 @@ import { validateAssetBytes } from "@/lib/storage-validation";
 
 const config = {
     "portfolio-images": { kind: "image" as const, maxBytes: 10 * 1024 * 1024, types: new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]) },
+    "post-images": { kind: "image" as const, maxBytes: 10 * 1024 * 1024, types: new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]) },
     avatars: { kind: "image" as const, maxBytes: 2 * 1024 * 1024, types: new Set(["image/jpeg", "image/png", "image/webp"]) },
     "cv-documents": { kind: "pdf" as const, maxBytes: 5 * 1024 * 1024, types: new Set(["application/pdf"]) },
 } as const;

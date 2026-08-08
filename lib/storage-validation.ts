@@ -16,6 +16,14 @@ function parseOwnedPath(publicUrl: string, bucket: string, userId: string): stri
     }
 }
 
+export function isOwnedPublicAssetUrl(publicUrl: string, bucket: string, userId: string): boolean {
+    return parseOwnedPath(publicUrl, bucket, userId) !== null;
+}
+
+export function ownedStoragePath(publicUrl: string, bucket: string, userId: string): string | null {
+    return parseOwnedPath(publicUrl, bucket, userId);
+}
+
 export function validateAssetBytes(bytes: Uint8Array, kind: AssetKind): boolean {
     if (kind === "pdf") return new TextDecoder().decode(bytes.slice(0, 5)) === "%PDF-";
     const png = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a].every((value, index) => bytes[index] === value);

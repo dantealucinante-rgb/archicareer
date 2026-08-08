@@ -5,6 +5,13 @@ import ProfileAvatar from "@/app/components/ProfileAvatar";
 import FollowButton from "@/app/components/FollowButton";
 import { getCurrentProfile } from "@/lib/queries/profiles";
 import { getFollowStatesForTargets, getProfileOwnerUserIds } from "@/lib/queries/follows";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Discover Nigerian Architects and Architecture Students",
+    description: "Meet architecture students, architects, studios, and companies building the future of architecture in Nigeria.",
+    alternates: { canonical: "/discover" },
+};
 
 interface DiscoverPageProps {
     searchParams: Promise<{ role?: string }>;

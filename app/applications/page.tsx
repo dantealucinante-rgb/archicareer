@@ -2,6 +2,12 @@ import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/queries/profiles";
 import { getFirmApplications, getMyApplications } from "@/lib/queries/applications";
 import ApplicationWorkspace from "@/app/components/ApplicationWorkspace";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Applications and conversations",
+    robots: { index: false, follow: false },
+};
 
 export const dynamic = "force-dynamic";
 

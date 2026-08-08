@@ -1,3 +1,11 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "About ArchiCareer",
+    description: "Learn how ArchiCareer helps Nigeria's architecture students, architects, studios, and companies find each other through the work.",
+    alternates: { canonical: "/about" },
+};
+
 export default function AboutPage() {
     return (
         <div className="bg-paper text-ink flex flex-col font-sans selection:bg-redline selection:text-paper">

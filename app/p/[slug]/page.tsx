@@ -5,12 +5,41 @@ import PortfolioGallery from "@/app/components/PortfolioGallery";
 import FirmPublicProfile from "@/app/components/FirmPublicProfile";
 import ProfileAvatar from "@/app/components/ProfileAvatar";
 import FollowButton from "@/app/components/FollowButton";
+import ContentEngagement from "@/app/components/ContentEngagement";
 import { getFollowCounts, getFollowState, getProfileOwnerUserId } from "@/lib/queries/follows";
+import { getEngagementSummary } from "@/lib/queries/engagement";
+import type { EngagementSummary } from "@/types";
+import type { Metadata } from "next";
+import { absoluteUrl, locationLabel, safeJsonLd } from "@/lib/seo";
 
 interface PageProps {
     params: Promise<{
         slug: string;
     }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+    const { slug } = await params;
+    const { data: profile } = await getProfileBySlug(slug);
+    if (!profile) {
+        return { title: "Profile not found", robots: { index: false, follow: false } };
+    }
+
+    const roleLabel = profile.role === "firm" ? "Architecture Firm" : profile.role === "architect" ? "Architect" : "Architecture Student";
+    const location = locationLabel(profile.location);
+    const description = profile.bio?.trim() || `${profile.name}'s public ${roleLabel.toLowerCase()} profile and portfolio on ArchiCareer.`;
+    return {
+        title: `${profile.name} — ${roleLabel} in ${location}`,
+        description,
+        alternates: { canonical: `/p/${profile.slug}` },
+        openGraph: {
+            type: "profile",
+            title: `${profile.name} — ${roleLabel} in ${location}`,
+            description,
+            url: absoluteUrl(`/p/${profile.slug}`),
+            images: profile.avatar_url ? [{ url: profile.avatar_url, alt: `${profile.name}'s profile image` }] : undefined,
+        },
+    };
 }
 
 export default async function PublicPortfolioPage({ params }: PageProps) {
@@ -35,13 +64,31 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
             getFollowState(currentProfile?.user_id ?? null, profileOwnerId),
         ])
         : [{ followers: 0, following: 0 }, { isFollowing: false, isMutual: false }];
+    const engagement = Object.fromEntries(await Promise.all((portfolioItems ?? []).map(async (item) => [item.id, await getEngagementSummary({ portfolio_item_id: item.id }, currentProfile?.user_id)]))) as Record<string, EngagementSummary>;
+
+    const roleLabel = profile.role === "firm" ? "Architecture Firm" : profile.role === "architect" ? "Architect" : "Architecture Student";
+    const profileSchema = {
+        "@context": "https://schema.org",
+        "@type": profile.role === "firm" ? "Organization" : "Person",
+        name: profile.name,
+        description: profile.bio ?? undefined,
+        url: absoluteUrl(`/p/${profile.slug}`),
+        image: profile.avatar_url ?? undefined,
+        jobTitle: profile.role === "firm" ? undefined : roleLabel,
+        address: {
+            "@type": "PostalAddress",
+            addressLocality: profile.location ?? undefined,
+            addressCountry: "NG",
+        },
+        sameAs: [profile.instagram_url, profile.personal_site_url, profile.linkedin_url].filter(Boolean),
+    };
 
     if (profile.role === "firm") {
-        return <FirmPublicProfile profile={profile} portfolioItems={portfolioItems ?? []} portfolioError={portfolioError} isOwner={isOwner} profileOwnerId={profileOwnerId} followerCount={followCounts.followers} followingCount={followCounts.following} isFollowing={followState.isFollowing} isMutual={followState.isMutual} />;
+        return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(profileSchema) }} /><FirmPublicProfile profile={profile} portfolioItems={portfolioItems ?? []} engagement={engagement} portfolioError={portfolioError} isOwner={isOwner} profileOwnerId={profileOwnerId} followerCount={followCounts.followers} followingCount={followCounts.following} isFollowing={followState.isFollowing} isMutual={followState.isMutual} currentUserId={currentProfile?.user_id ?? null} /></>;
     }
 
     return (
-        <div className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
+        <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(profileSchema) }} /><div className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
             <main className="mx-auto w-full max-w-5xl px-5 py-10 sm:px-8 sm:py-16">
                 {isOwner && <div className="mb-5 flex items-center justify-end gap-4 font-mono text-[10px] uppercase tracking-widest"><a href="/profile/edit" className="text-redline hover:text-ink">Edit profile ↗</a><a href="/settings" className="text-graphite hover:text-ink">Settings ↗</a></div>}
                 <div className="surface overflow-hidden p-6 sm:p-10">
@@ -108,6 +155,7 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
                                         {item.process_note && <p className="mt-3 border-l border-redline pl-3 text-[11px] italic leading-relaxed text-graphite">{item.process_note}</p>}
                                         {item.role === "team" && item.team_contribution && <p className="mt-3 font-mono text-[10px] uppercase tracking-wider text-graphite">Team contribution: {item.team_contribution}</p>}
                                         <PortfolioGallery images={item.images} title={item.title} />
+                                        <ContentEngagement target={{ portfolio_item_id: item.id }} initial={engagement[item.id]} currentUserId={currentProfile?.user_id ?? null} canModerate={isOwner} />
                                     </div>
                                 ))}
                             </div>
@@ -119,6 +167,6 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
                     </div>
                 </div>
             </main>
-        </div>
+        </div></>
     );
 }

@@ -27,6 +27,9 @@ export default async function SiteHeader() {
                     <Link href="/jobs" className="rounded-full px-3 py-2 text-graphite transition-colors hover:bg-sand/40 hover:text-ink">
                         Jobs
                     </Link>
+                    <Link href="/feed" className="rounded-full px-3 py-2 text-graphite transition-colors hover:bg-sand/40 hover:text-ink">
+                        Feed
+                    </Link>
                 </nav>
 
                 <div className="ml-auto flex items-center gap-3 font-sans text-xs sm:gap-5 sm:text-sm">

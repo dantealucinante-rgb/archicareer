@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 
-export default function SettingsEditor({ initialMarketingEmails }: { initialMarketingEmails: boolean }) {
+export default function SettingsEditor({ initialMarketingEmails, initialSearchIndexable }: { initialMarketingEmails: boolean; initialSearchIndexable: boolean }) {
     const [marketingEmails, setMarketingEmails] = useState(initialMarketingEmails);
+    const [searchIndexable, setSearchIndexable] = useState(initialSearchIndexable);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState("");
     const [error, setError] = useState(false);
@@ -17,7 +18,7 @@ export default function SettingsEditor({ initialMarketingEmails }: { initialMark
             const response = await fetch("/api/settings", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ marketing_emails: marketingEmails }),
+                body: JSON.stringify({ marketing_emails: marketingEmails, search_indexable: searchIndexable }),
             });
             const payload = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(payload.error ?? "Unable to save settings");
@@ -42,6 +43,19 @@ export default function SettingsEditor({ initialMarketingEmails }: { initialMark
                 />
                 <label htmlFor="marketing_emails" className="ml-2 block font-mono text-xs uppercase tracking-wider text-graphite select-none cursor-pointer">
                     Allow future job-alert emails
+                </label>
+            </div>
+            <div className="flex items-start">
+                <input
+                    id="search_indexable"
+                    type="checkbox"
+                    checked={searchIndexable}
+                    onChange={(event) => setSearchIndexable(event.target.checked)}
+                    className="mt-0.5 h-4 w-4 accent-redline border-line rounded-[2px] cursor-pointer bg-paper"
+                />
+                <label htmlFor="search_indexable" className="ml-2 block font-mono text-xs uppercase tracking-wider text-graphite select-none cursor-pointer">
+                    Show my profile in search engines
+                    <span className="mt-1 block font-sans text-xs normal-case tracking-normal text-graphite/80">When enabled, your public profile may appear in Google and other search results.</span>
                 </label>
             </div>
             <div className="flex items-center justify-between gap-4 border-t border-line pt-4">

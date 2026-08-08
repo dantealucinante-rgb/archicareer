@@ -25,6 +25,7 @@ export default function MobileNav({ authenticated }: Props) {
                     <div className="mx-auto flex max-w-6xl flex-col gap-3 font-mono text-[11px] uppercase tracking-widest">
                         <Link href="/discover" onClick={() => setOpen(false)} className="interactive rounded-xl bg-sand/40 px-4 py-3 text-ink">Discover</Link>
                         <Link href="/jobs" onClick={() => setOpen(false)} className="interactive rounded-xl bg-sand/40 px-4 py-3 text-ink">Jobs</Link>
+                        <Link href="/feed" onClick={() => setOpen(false)} className="interactive rounded-xl bg-sand/40 px-4 py-3 text-ink">Feed</Link>
                         {authenticated ? (
                             <>
                                 <Link href="/profile" onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 text-ink">View profile</Link>

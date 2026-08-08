@@ -39,6 +39,7 @@ export async function POST(request: Request) {
             ...(has("personal_site_url") ? { personal_site_url: nullableUrl(body.personal_site_url) } : {}),
             ...(has("linkedin_url") ? { linkedin_url: nullableUrl(body.linkedin_url) } : {}),
             ...(has("avatar_url") ? { avatar_url: nullableUrl(body.avatar_url) } : {}),
+            ...(has("search_indexable") && typeof body.search_indexable === "boolean" ? { search_indexable: body.search_indexable } : {}),
             ...(has("social_links") && body.social_links && typeof body.social_links === "object" && !Array.isArray(body.social_links)
                 ? { social_links: body.social_links }
                 : {}),

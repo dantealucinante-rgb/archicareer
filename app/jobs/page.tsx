@@ -3,15 +3,30 @@ import { JobListing } from "@/types";
 import JobPostForm from "@/app/components/JobPostForm";
 import ApplyButton from "@/app/components/ApplyButton";
 import { getCurrentProfile } from "@/lib/queries/profiles";
+import type { Metadata } from "next";
+import { safeJsonLd } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+    title: "Architecture Jobs and Internships in Nigeria",
+    description: "Find architecture jobs, internships, competitions, and opportunities shared by studios and companies across Nigeria.",
+    alternates: { canonical: "/jobs" },
+};
 
 export default async function JobsPage() {
     const [{ data: jobs, error: jobsError }, { data: profile }] = await Promise.all([getJobListings(), getCurrentProfile()]);
     const canPost = profile?.role === "firm";
+    const jobsSchema = {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: "Architecture Jobs and Internships in Nigeria",
+        description: "Current architecture jobs, internships, competitions, and opportunities across Nigeria.",
+        about: { "@type": "Thing", name: "Architecture careers in Nigeria" },
+    };
 
     return (
-        <div className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
+        <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jobsSchema) }} /><div className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
             <main className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 sm:py-16">
                 <div className="mb-10 grid gap-6 border-b border-line pb-10 lg:grid-cols-[1fr_auto] lg:items-end">
                     <div><div className="eyebrow mb-4 font-mono text-redline">A-03 / OPPORTUNITIES</div><h1 className="display-balance max-w-2xl font-display text-5xl font-semibold leading-[0.92] tracking-[-0.06em] sm:text-7xl">Find the work worth moving toward.</h1><p className="mt-5 max-w-xl text-base leading-relaxed text-graphite">Explore roles, collaborations, and opportunities shared by studios and companies.</p></div>
@@ -63,6 +78,6 @@ export default async function JobsPage() {
                     </aside>
                 </div>
             </main>
-        </div>
+        </div></>
     );
 }

@@ -18,7 +18,7 @@ export default async function SettingsPage() {
                 <div className="border border-line bg-paper p-8 rounded-[2px]">
                     <p className="font-mono text-xs text-graphite uppercase tracking-widest mb-6">[ PREFERENCES METADATA DETAILS ]</p>
                     <p className="mb-6 text-sm leading-relaxed text-graphite">Your preference is saved now. Email delivery will activate when notifications are connected.</p>
-                    <SettingsEditor initialMarketingEmails={profile?.marketing_emails ?? false} />
+                    <SettingsEditor initialMarketingEmails={profile?.marketing_emails ?? false} initialSearchIndexable={profile?.search_indexable ?? true} />
                     <DeleteAccountButton />
                 </div>
             </main>

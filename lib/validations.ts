@@ -23,6 +23,7 @@ export const profileUpdateSchema = z.object({
     linkedin_url: httpUrl("LinkedIn must be a valid URL").nullable().optional(),
     avatar_url: httpUrl("Avatar must be a valid URL").nullable().optional(),
     marketing_emails: z.boolean().optional(),
+    search_indexable: z.boolean().optional(),
 });
 
 export const portfolioItemCreateSchema = z.object({
@@ -85,4 +86,27 @@ export const applicationStatusSchema = z.object({
 
 export const applicationMessageSchema = z.object({
     body: z.string().trim().min(1, "Message cannot be empty").max(4000, "Message is too long"),
+});
+
+export const commentCreateSchema = z.object({
+    content: z.string().trim().min(1, "Comment cannot be empty").max(500, "Comment is too long"),
+    portfolio_item_id: z.string().uuid().nullable().optional(),
+    post_id: z.string().uuid().nullable().optional(),
+}).superRefine((value, context) => {
+    if (Boolean(value.portfolio_item_id) === Boolean(value.post_id)) {
+        context.addIssue({ code: "custom", message: "A comment must target one piece of content" });
+    }
+});
+
+export const commentUpdateSchema = z.object({
+    content: z.string().trim().min(1, "Comment cannot be empty").max(500, "Comment is too long"),
+});
+
+export const postCreateSchema = z.object({
+    content: z.string().trim().max(1000, "Post text must be 1000 characters or less").nullable().optional(),
+    image_url: z.string().url().nullable().optional(),
+}).superRefine((value, context) => {
+    if (!value.content?.trim() && !value.image_url) {
+        context.addIssue({ code: "custom", message: "Add some text or an image to publish a post" });
+    }
 });

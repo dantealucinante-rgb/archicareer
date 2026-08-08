@@ -52,6 +52,7 @@ export interface Profile {
     linkedin_url: string | null;
     avatar_url: string | null;
     marketing_emails: boolean;
+    search_indexable: boolean;
     created_at: string;
     updated_at: string;
 }
@@ -122,6 +123,47 @@ export interface ApplicationMessage {
     sender_id: string;
     body: string;
     created_at: string;
+}
+
+export type ReactionType = "like";
+
+export interface Comment {
+    id: string;
+    portfolio_item_id: string | null;
+    post_id: string | null;
+    user_id: string;
+    content: string;
+    created_at: string;
+    updated_at: string;
+    author?: Pick<Profile, "id" | "name" | "slug" | "role" | "avatar_url">;
+}
+
+export interface Reaction {
+    id: string;
+    portfolio_item_id: string | null;
+    post_id: string | null;
+    user_id: string;
+    type: ReactionType;
+    created_at: string;
+}
+
+export interface EngagementSummary {
+    reactionCount: number;
+    commentCount: number;
+    userReacted: boolean;
+}
+
+export interface FeedPost {
+    id: string;
+    user_id: string;
+    content: string | null;
+    image_url: string | null;
+    created_at: string;
+    updated_at: string;
+    author: Pick<Profile, "id" | "name" | "slug" | "role" | "avatar_url">;
+    reaction_count: number;
+    comment_count: number;
+    user_reacted: boolean;
 }
 
 export interface Bookmark {
