@@ -65,14 +65,15 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                                             key={profile.id}
                                             className="surface card-lift flex min-h-[240px] flex-col justify-between p-5"
                                         >
-                                            <Link href={`/p/${profile.slug}`} className="group flex min-h-[190px] flex-col justify-between">
-                                            <div>
-                                                <div className="flex justify-between items-start mb-3">
-                                                    <ProfileAvatar profile={profile} size={40} className="h-10 w-10 rounded-full border border-line object-cover" />
-                                                    <span className="rounded-full border border-line px-2 py-1 text-[8px] font-mono uppercase tracking-widest text-graphite bg-paper shrink-0 ml-2">
-                                                        {profile.role}
-                                                    </span>
+                                            <div className="mb-3 flex items-start justify-between">
+                                                <ProfileAvatar profile={profile} size={40} className="h-10 w-10 rounded-full border border-line object-cover" />
+                                                <div className="flex items-center gap-2">
+                                                    {currentProfile?.id !== profile.id && ownerIds[profile.id] && <FollowButton followingId={ownerIds[profile.id]} initialFollowing={followStates[ownerIds[profile.id]]?.isFollowing ?? false} initialMutual={followStates[ownerIds[profile.id]]?.isMutual ?? false} initialFollowerCount={0} compact />}
+                                                    <span className="shrink-0 rounded-full border border-line bg-paper px-2 py-1 font-mono text-[8px] uppercase tracking-widest text-graphite">{profile.role}</span>
                                                 </div>
+                                            </div>
+                                            <Link href={`/p/${profile.slug}`} className="group flex flex-1 flex-col justify-between">
+                                            <div>
                                                 <h3 className="mt-5 font-display text-xl font-semibold tracking-tight text-ink group-hover:text-redline transition-colors">{profile.name}</h3>
                                                 {profile.school_or_firm && (
                                                     <p className="font-mono text-[10px] text-graphite uppercase tracking-wider mb-2">{profile.school_or_firm}</p>
@@ -90,7 +91,6 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                                                 </span>
                                             </div>
                                             </Link>
-                                            {currentProfile?.id !== profile.id && ownerIds[profile.id] && <div className="mt-4 border-t border-line/70 pt-3"><FollowButton followingId={ownerIds[profile.id]} initialFollowing={followStates[ownerIds[profile.id]]?.isFollowing ?? false} initialMutual={followStates[ownerIds[profile.id]]?.isMutual ?? false} initialFollowerCount={0} compact /></div>}
                                         </div>
                                     ))}
                                 </div>
