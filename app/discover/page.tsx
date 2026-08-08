@@ -15,7 +15,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
     const role = ["student", "architect", "firm"].includes(params.role ?? "")
         ? params.role as UserRole
         : undefined;
-    const { data: profiles, error: profilesError, count: profileCount = 0 } = await searchProfiles(
+    const { data: profiles, error: profilesError } = await searchProfiles(
         { role },
         { limit: 1000, offset: 0 },
         { sortBy: "created_at", ascending: false, random: true },
@@ -29,7 +29,6 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
             <main className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 sm:py-16">
                 <div className="mb-10 grid gap-6 border-b border-line pb-10 lg:grid-cols-[1fr_auto] lg:items-end">
                     <div><div className="eyebrow mb-4 font-mono text-redline">A-04 / DISCOVER</div><h1 className="display-balance max-w-2xl font-display text-4xl font-semibold leading-[0.92] tracking-[-0.06em] sm:text-7xl">Meet the people behind the work.</h1><p className="mt-5 max-w-xl text-base leading-relaxed text-graphite">Explore profiles from emerging talent, experienced professionals, studios, and companies.</p></div>
-                    <div className="w-fit rounded-full border border-line px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-graphite">{profileCount} records · shuffled</div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-[240px_1fr]">
@@ -47,7 +46,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                                     <option value="firm">Architecture Firm</option>
                                 </select>
                                 <button type="submit" className="mt-3 w-full rounded-full border border-ink bg-ink px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-paper transition-all duration-300 hover:-translate-y-0.5 hover:bg-redline">
-                                    Filter records ↗
+                                    Filter profiles ↗
                                 </button>
                             </div>
                         </div>
