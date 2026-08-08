@@ -16,6 +16,37 @@ const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
 
 const SEED_DOMAIN = "@seed.archicareer.dev";
 const DEFAULT_PASSWORD = process.env.SEED_DEFAULT_PASSWORD;
+const DICEBEAR_AVATAAARS_BASE_URL = "https://api.dicebear.com/9.x/avataaars/svg";
+const DICEBEAR_INITIALS_BASE_URL = "https://api.dicebear.com/9.x/initials/svg";
+
+function avatarUrlForSeed(seed) {
+    const params = new URLSearchParams({
+        seed,
+        backgroundColor: "f4d35e,ee964b,f95738,8bd3dd,b8e986,cdb4db",
+        skinColor: "614335,ae5d29,d08b5b,edb98a,ffdbb4",
+        hairColor: "2c1b18,4a312c,724133,a55728,b58143,d6b370",
+        facialHairColor: "2c1b18,4a312c,724133,a55728,b58143",
+        clothesColor: "005f73,0a9396,9b2226,ca6702,3a86ff,8338ec",
+        hatColor: "005f73,0a9396,9b2226,ca6702,3a86ff,8338ec",
+        accessoriesColor: "005f73,0a9396,9b2226,ca6702,3a86ff,8338ec",
+        borderRadius: "50",
+    });
+
+    return `${DICEBEAR_AVATAAARS_BASE_URL}?${params.toString()}`;
+}
+
+function firmLogoUrlForSeed(seed) {
+    const params = new URLSearchParams({
+        seed,
+        backgroundColor: "005f73,0a9396,9b2226,ca6702,3a86ff,8338ec",
+        textColor: "ffffff",
+        fontSize: "34",
+        fontWeight: "700",
+        radius: "18",
+    });
+
+    return `${DICEBEAR_INITIALS_BASE_URL}?${params.toString()}`;
+}
 
 if (!DEFAULT_PASSWORD || DEFAULT_PASSWORD.length < 12) {
     throw new Error("Set SEED_DEFAULT_PASSWORD to a unique password of at least 12 characters before running the seed script.");
@@ -30,9 +61,13 @@ const seedUsers = [
         school_or_firm: "University of Lagos",
         bio: "Architecture student focused on climate-responsive housing, model making, and urban research in Lagos.",
         location: "Yaba, Lagos",
+        software_proficiency: ["Revit", "Rhino", "Adobe InDesign", "QGIS"],
+        personal_site_url: "https://amina-bello.example",
+        linkedin_url: "https://linkedin.com/in/amina-bello",
+        instagram_url: "https://instagram.com/amina.bello.arch",
         social_links: {
             portfolio: "https://amina-bello.example",
-            instagram: "https://instagram.com/aminabello.arch",
+            instagram: "https://instagram.com/amina.bello.arch",
         },
     },
     {
@@ -41,11 +76,14 @@ const seedUsers = [
         name: "Sani Musa",
         role: "student",
         school_or_firm: "Ahmadu Bello University",
-        bio: "Final-year architecture student building a portfolio around fabrication, representation, and housing prototypes.",
+        bio: "Final-year designer interested in how low-tech fabrication, clear drawings, and repeatable housing systems can make good architecture easier to deliver.",
         location: "Zaria, Kaduna",
+        software_proficiency: ["AutoCAD", "SketchUp", "V-Ray", "Adobe Photoshop"],
+        personal_site_url: "https://sani-musa.example",
+        linkedin_url: "https://linkedin.com/in/sani-musa",
         social_links: {
-            behance: "https://behance.net/sanimusa",
-            linkedin: "https://linkedin.com/in/sanimusa",
+            portfolio: "https://sani-musa.example",
+            linkedin: "https://linkedin.com/in/sani-musa",
         },
     },
     {
@@ -54,11 +92,14 @@ const seedUsers = [
         name: "Zainab Aliyu",
         role: "student",
         school_or_firm: "Federal University of Technology, Akure",
-        bio: "Student interested in landscape-led planning, climate adaptation, and computational design workflows.",
+        bio: "Architecture student combining landscape research, environmental mapping, and computational workflows to study how public space can manage heat and heavy rain.",
         location: "Akure, Ondo",
+        software_proficiency: ["Rhino", "Grasshopper", "Lumion", "QGIS", "Adobe Illustrator"],
+        personal_site_url: "https://zainab-aliyu.example",
+        linkedin_url: "https://linkedin.com/in/zainab-aliyu",
         social_links: {
             portfolio: "https://zainab-aliyu.example",
-            linkedin: "https://linkedin.com/in/zainabaliyu",
+            linkedin: "https://linkedin.com/in/zainab-aliyu",
         },
     },
     {
@@ -67,11 +108,14 @@ const seedUsers = [
         name: "Tunde Akinyemi",
         role: "architect",
         school_or_firm: "Maki & Partners",
-        bio: "Lagos-based architect balancing residential infill, site supervision, and clean detailing for fast-moving urban projects.",
+        bio: "Architect working between concept design and the realities of delivery: tight urban sites, consultant coordination, procurement decisions, and details that survive construction.",
         location: "Ikeja, Lagos",
+        software_proficiency: ["Revit", "AutoCAD", "Enscape", "Bluebeam", "Adobe InDesign"],
+        personal_site_url: "https://tunde-akinyemi.example",
+        linkedin_url: "https://linkedin.com/in/tunde-akinyemi",
         social_links: {
-            linkedin: "https://linkedin.com/in/tundeakinyemi",
-            website: "https://tundeakinyemi.example",
+            linkedin: "https://linkedin.com/in/tunde-akinyemi",
+            website: "https://tunde-akinyemi.example",
         },
     },
     {
@@ -80,11 +124,14 @@ const seedUsers = [
         name: "Ifeoma Okafor",
         role: "architect",
         school_or_firm: "Atelier Atlas",
-        bio: "Abuja architect working across civic interiors, adaptive reuse, and community-first public spaces.",
+        bio: "Architect and interior designer drawn to public work with a human scale: adaptive reuse, civic interiors, and spaces that make people feel oriented, welcome, and considered.",
         location: "Wuse II, Abuja",
+        software_proficiency: ["Revit", "Rhino", "Enscape", "Adobe InDesign", "Miro"],
+        personal_site_url: "https://ifeoma-okafor.example",
+        linkedin_url: "https://linkedin.com/in/ifeoma-okafor",
         social_links: {
-            linkedin: "https://linkedin.com/in/ifeomaokafor",
-            website: "https://ifeomaokafor.example",
+            linkedin: "https://linkedin.com/in/ifeoma-okafor",
+            website: "https://ifeoma-okafor.example",
         },
     },
     {
@@ -93,8 +140,11 @@ const seedUsers = [
         name: "Kora Urban Practice",
         role: "firm",
         school_or_firm: "Lagos, Nigeria",
-        bio: "Small practice delivering residential and mixed-use work with a strong focus on daylight, material honesty, and delivery.",
+        bio: "A compact design and delivery practice working across Lagos housing and mixed-use projects. The studio is interested in generous thresholds, passive comfort, and details that remain legible from drawing to site.",
         location: "Lekki, Lagos",
+        software_proficiency: ["Revit", "Rhino", "Enscape", "AutoCAD", "Notion"],
+        personal_site_url: "https://koraurbanpractice.example",
+        linkedin_url: "https://linkedin.com/company/kora-urban-practice",
         social_links: {
             website: "https://koraurbanpractice.example",
             linkedin: "https://linkedin.com/company/kora-urban-practice",
@@ -106,8 +156,11 @@ const seedUsers = [
         name: "Northstar Atelier",
         role: "firm",
         school_or_firm: "Abuja, Nigeria",
-        bio: "Design-led practice focused on civic, workplace, and technical architecture for Nigerian cities.",
+        bio: "A design-led Abuja office for civic, workplace, and institutional architecture. Northstar brings research, technical coordination, and a calm visual language to complex public programmes.",
         location: "Central District, Abuja",
+        software_proficiency: ["Revit", "BIM 360", "Rhino", "Enscape", "Adobe InDesign"],
+        personal_site_url: "https://northstaratelier.example",
+        linkedin_url: "https://linkedin.com/company/northstar-atelier",
         social_links: {
             website: "https://northstaratelier.example",
             linkedin: "https://linkedin.com/company/northstar-atelier",
@@ -119,8 +172,11 @@ const seedUsers = [
         name: "Bala & Co. Studio",
         role: "firm",
         school_or_firm: "Enugu, Nigeria",
-        bio: "A nimble practice with a portfolio spanning institutional work, exhibitions, and residential commissions.",
+        bio: "An Enugu-based studio working across learning spaces, small cultural commissions, and homes. Bala & Co. uses careful proportion, durable materials, and strong graphic communication to make modest briefs feel substantial.",
         location: "Enugu",
+        software_proficiency: ["ArchiCAD", "SketchUp", "Twinmotion", "Adobe Photoshop", "AutoCAD"],
+        personal_site_url: "https://balacostudio.example",
+        linkedin_url: "https://linkedin.com/company/bala-and-co-studio",
         social_links: {
             website: "https://balacostudio.example",
             linkedin: "https://linkedin.com/company/bala-and-co-studio",
@@ -128,35 +184,161 @@ const seedUsers = [
     },
 ];
 
+const generatedFirstNames = [
+    "Ada", "Adanna", "Adeola", "Aisha", "Amaka", "Babatunde", "Bassey", "Chiamaka", "Chidi", "Chinonso",
+    "Damilola", "David", "Efe", "Eniola", "Esther", "Faruq", "Fatima", "Femi", "Hauwa", "Ibrahim",
+    "Ikenna", "Imani", "Jide", "Kelechi", "Lara", "Mariam", "Maya", "Mfon", "Nadia", "Nneka",
+    "Obinna", "Ogechi", "Olamide", "Opeyemi", "Osas", "Rasheed", "Sade", "Samuel", "Tari", "Yusuf",
+];
+
+const generatedLastNames = [
+    "Abubakar", "Adebayo", "Ademola", "Afolabi", "Agbaje", "Agu", "Ajayi", "Akpan", "Alabi", "Ali",
+    "Balogun", "Bamidele", "Bassey", "Danladi", "Eze", "Ibrahim", "Iheanacho", "Lawal", "Madu", "Makanjuola",
+    "Mohammed", "Nwosu", "Ojo", "Okeke", "Okoro", "Oladele", "Olawale", "Onyema", "Salami", "Suleiman",
+    "Taiwo", "Udo", "Umeh", "Yakubu", "Yusuf",
+];
+
+const generatedLocations = [
+    ["Lagos Island", "Lagos"], ["Surulere", "Lagos"], ["Yaba", "Lagos"], ["Ikeja", "Lagos"],
+    ["Wuse", "Abuja"], ["Gwarinpa", "Abuja"], ["Kaduna North", "Kaduna"], ["Zaria", "Kaduna"],
+    ["Kano Municipal", "Kano"], ["Ibadan", "Oyo"], ["Ile-Ife", "Osun"], ["Akure", "Ondo"],
+    ["Benin City", "Edo"], ["Enugu", "Enugu"], ["Nsukka", "Enugu"], ["Port Harcourt", "Rivers"],
+    ["Uyo", "Akwa Ibom"], ["Calabar", "Cross River"], ["Owerri", "Imo"], ["Ilorin", "Kwara"],
+    ["Jos", "Plateau"], ["Minna", "Niger"], ["Abeokuta", "Ogun"], ["Asaba", "Delta"],
+];
+
+const generatedSchools = [
+    "University of Lagos", "Ahmadu Bello University", "University of Nigeria, Nsukka", "Obafemi Awolowo University",
+    "University of Ibadan", "Federal University of Technology, Akure", "University of Jos", "Rivers State University",
+    "Covenant University", "Nile University of Nigeria", "Baze University", "Enugu State University of Science and Technology",
+];
+
+const generatedFocuses = [
+    ["passive cooling", "housing prototypes", "clear technical drawings"],
+    ["community-led planning", "public space", "inclusive neighbourhoods"],
+    ["material research", "low-carbon construction", "local fabrication"],
+    ["digital modelling", "parametric studies", "data-informed design"],
+    ["adaptive reuse", "interior atmospheres", "careful detailing"],
+    ["landscape systems", "water management", "urban heat resilience"],
+    ["civic architecture", "wayfinding", "welcoming public buildings"],
+    ["housing delivery", "consultant coordination", "buildable details"],
+];
+
+const generatedSoftwareSets = [
+    ["AutoCAD", "Revit", "Adobe InDesign"],
+    ["Rhino", "Grasshopper", "Adobe Illustrator", "QGIS"],
+    ["SketchUp", "V-Ray", "Adobe Photoshop"],
+    ["ArchiCAD", "Twinmotion", "Adobe Photoshop", "AutoCAD"],
+    ["Revit", "Enscape", "Bluebeam", "Microsoft Office"],
+    ["Blender", "Rhino", "Grasshopper", "D5 Render"],
+    ["QGIS", "ArcGIS", "Illustrator", "InDesign"],
+];
+
+function generatedPortfolioFor(spec, index, focus) {
+    const projectTypes = ["residential", "urban", "institutional", "interior", "landscape", "commercial"];
+    const type = projectTypes[index % projectTypes.length];
+    const place = generatedLocations[index % generatedLocations.length][0];
+    return [
+        {
+            title: `${place} ${type === "urban" ? "Street Study" : "Design Study"}`,
+            description: `A ${focus[0]} project exploring ${focus[1]} through drawings, models, and a practical material strategy.`,
+            category: type,
+            imageSeed: `${spec.key}-${type}-one`,
+        },
+        {
+            title: `${focus[2].replace(/\b\w/g, (character) => character.toUpperCase())} ${type === "landscape" ? "Landscape Framework" : "Studio Project"}`,
+            description: `A portfolio piece about ${focus[2]}, with attention to context, human experience, and how the proposal could be delivered.`,
+            category: type === "commercial" ? "institutional" : type,
+            imageSeed: `${spec.key}-${type}-two`,
+        },
+    ];
+}
+
+function generateSeedUsers(targetCount) {
+    const existingNames = new Set(seedUsers.map((spec) => spec.name));
+    const generated = [];
+    let candidateIndex = 0;
+
+    while (generated.length < targetCount) {
+        const first = generatedFirstNames[candidateIndex % generatedFirstNames.length];
+        const last = generatedLastNames[Math.floor(candidateIndex / generatedFirstNames.length) % generatedLastNames.length];
+        const name = `${first} ${last}`;
+        candidateIndex += 1;
+
+        if (existingNames.has(name)) continue;
+        existingNames.add(name);
+
+        const location = generatedLocations[generated.length % generatedLocations.length];
+        const focus = generatedFocuses[generated.length % generatedFocuses.length];
+        const isStudent = generated.length < 180;
+        const isFirm = generated.length >= 280;
+        const role = isFirm ? "firm" : isStudent ? "student" : "architect";
+        const slug = slugify(name);
+        const schoolOrFirm = isStudent
+            ? `${generatedSchools[generated.length % generatedSchools.length]}${generated.length % 3 === 0 ? " — Architecture" : ""}`
+            : isFirm
+                ? `${location[0]}, ${location[1]}`
+                : `${["Harbourline Studio", "Civic Thread Architects", "Groundwork Partners", "Mosaic Design Office"][generated.length % 4]}`;
+        const bio = isStudent
+            ? `${name} is an architecture student interested in ${focus[0]}, ${focus[1]}, and thoughtful design communication. Their work moves between research, making, and proposals grounded in everyday Nigerian contexts.`
+            : isFirm
+                ? `${name} is a design practice based in ${location[0]}, working across ${focus[0]}, ${focus[1]}, and carefully resolved projects that connect strong ideas to the realities of delivery.`
+                : `${name} is an architect working across ${focus[0]}, ${focus[1]}, and ${focus[2]}. They enjoy translating early concepts into coordinated drawings, useful conversations, and details that can stand up on site.`;
+        const spec = {
+            key: slug,
+            email: `${slug}${SEED_DOMAIN}`,
+            name,
+            role,
+            school_or_firm: schoolOrFirm,
+            bio,
+            location: `${location[0]}, ${location[1]}`,
+            software_proficiency: generatedSoftwareSets[generated.length % generatedSoftwareSets.length],
+            personal_site_url: `https://${slug}.example`,
+            linkedin_url: `https://linkedin.com/in/${slug}`,
+            instagram_url: `https://instagram.com/${slug}.studio`,
+            social_links: {
+                portfolio: `https://${slug}.example`,
+                linkedin: `https://linkedin.com/in/${slug}`,
+            },
+        };
+        spec.portfolioItems = generatedPortfolioFor(spec, generated.length, focus);
+        generated.push(spec);
+    }
+
+    return generated;
+}
+
+seedUsers.push(...generateSeedUsers(292));
+
 const seedFirmsData = [
     {
         name: "Kora Urban Practice",
         slug: "kora-urban-practice",
-        logo_url: "https://picsum.photos/seed/kora-urban-practice-logo/240/240",
+        logo_url: firmLogoUrlForSeed("Kora Urban Practice"),
         verified: true,
     },
     {
         name: "Northstar Atelier",
         slug: "northstar-atelier",
-        logo_url: "https://picsum.photos/seed/northstar-atelier-logo/240/240",
+        logo_url: firmLogoUrlForSeed("Northstar Atelier"),
         verified: true,
     },
     {
         name: "Bala & Co. Studio",
         slug: "bala-co-studio",
-        logo_url: "https://picsum.photos/seed/bala-and-co-studio-logo/240/240",
+        logo_url: firmLogoUrlForSeed("Bala and Co Studio"),
         verified: false,
     },
     {
         name: "Axiom Terrain",
         slug: "axiom-terrain",
-        logo_url: "https://picsum.photos/seed/axiom-terrain-logo/240/240",
+        logo_url: firmLogoUrlForSeed("Axiom Terrain"),
         verified: false,
     },
     {
         name: "Studio Lekki North",
         slug: "studio-lekki-north",
-        logo_url: "https://picsum.photos/seed/studio-lekki-north-logo/240/240",
+        logo_url: firmLogoUrlForSeed("Studio Lekki North"),
         verified: true,
     },
 ];
@@ -478,6 +660,38 @@ async function listAllUsers() {
     return data.users;
 }
 
+async function mapWithConcurrency(items, worker, concurrency = 12) {
+    const results = new Array(items.length);
+    let nextIndex = 0;
+
+    async function consume() {
+        while (true) {
+            const index = nextIndex;
+            nextIndex += 1;
+            if (index >= items.length) return;
+            results[index] = await worker(items[index], index);
+        }
+    }
+
+    await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, () => consume()));
+    return results;
+}
+
+async function withRetry(operation, attempts = 3) {
+    let lastError;
+    for (let attempt = 1; attempt <= attempts; attempt += 1) {
+        try {
+            return await operation();
+        } catch (error) {
+            lastError = error;
+            if (attempt < attempts) {
+                await new Promise((resolve) => setTimeout(resolve, attempt * 500));
+            }
+        }
+    }
+    throw lastError;
+}
+
 async function findOrCreateAuthUser(spec, usersCache) {
     let user = usersCache.find((entry) => entry.email === spec.email) ?? null;
 
@@ -571,6 +785,12 @@ async function ensureProfile(user, spec) {
         bio: spec.bio,
         location: spec.location,
         social_links: spec.social_links,
+        software_proficiency: spec.software_proficiency ?? [],
+        cv_url: spec.cv_url ?? null,
+        instagram_url: spec.instagram_url ?? null,
+        personal_site_url: spec.personal_site_url ?? null,
+        linkedin_url: spec.linkedin_url ?? null,
+        avatar_url: avatarUrlForSeed(slug),
     };
 
     if (existing) {
@@ -638,37 +858,47 @@ async function clearSeedFirms(firmNames) {
 }
 
 async function seedPortfolioItems(profileIndexByEmail) {
-    for (const [email, items] of Object.entries(portfolioByEmail)) {
+    const itemsByEmail = new Map(Object.entries(portfolioByEmail));
+    for (const spec of seedUsers) {
+        if (spec.portfolioItems) itemsByEmail.set(spec.email, spec.portfolioItems);
+    }
+
+    const rows = [];
+    const imageSeedByKey = new Map();
+    for (const [email, items] of itemsByEmail.entries()) {
         const profile = profileIndexByEmail.get(email);
         if (!profile) {
             throw new Error(`Missing profile for ${email}`);
         }
 
         for (const [index, item] of items.entries()) {
-            const { data: inserted, error } = await supabase
-                .from("portfolio_items")
-                .insert({
+            rows.push({
                 profile_id: profile.id,
                 title: item.title,
                 description: item.description,
                 category: item.category,
                 display_order: index,
-                })
-                .select("id")
-                .single();
-            if (error || !inserted) {
-                throw new Error(`Unable to seed portfolio item ${item.title}: ${error?.message ?? "no row returned"}`);
-            }
-
-            const { error: imageError } = await supabase.from("portfolio_item_images").insert({
-                portfolio_item_id: inserted.id,
-                image_url: `https://picsum.photos/seed/${item.imageSeed}/1200/900`,
-                display_order: 0,
             });
-            if (imageError) {
-                throw new Error(`Unable to seed image for ${item.title}: ${imageError.message}`);
-            }
+            imageSeedByKey.set(`${profile.id}:${index}`, item.imageSeed);
         }
+    }
+
+    const { data: inserted, error } = await supabase
+        .from("portfolio_items")
+        .insert(rows)
+        .select("id, profile_id, display_order");
+    if (error || !inserted) {
+        throw new Error(`Unable to seed portfolio items: ${error?.message ?? "no rows returned"}`);
+    }
+
+    const imageRows = inserted.map((item) => ({
+        portfolio_item_id: item.id,
+        image_url: `https://picsum.photos/seed/${imageSeedByKey.get(`${item.profile_id}:${item.display_order}`)}/1200/900`,
+        display_order: 0,
+    }));
+    const { error: imageError } = await supabase.from("portfolio_item_images").insert(imageRows);
+    if (imageError) {
+        throw new Error(`Unable to seed portfolio images: ${imageError.message}`);
     }
 }
 
@@ -740,17 +970,19 @@ async function main() {
     const usersCache = await listAllUsers();
 
     const authUsersByEmail = new Map();
-    for (const spec of seedUsers) {
-        const user = await findOrCreateAuthUser(spec, usersCache);
-        authUsersByEmail.set(spec.email, user);
-    }
+    const authUsers = await mapWithConcurrency(seedUsers, async (spec) => {
+        const user = await withRetry(() => findOrCreateAuthUser(spec, usersCache));
+        return [spec.email, user];
+    }, 4);
+    for (const [email, user] of authUsers) authUsersByEmail.set(email, user);
 
     const profilesByEmail = new Map();
-    for (const spec of seedUsers) {
+    const profiles = await mapWithConcurrency(seedUsers, async (spec) => {
         const user = authUsersByEmail.get(spec.email);
-        const profile = await ensureProfile(user, spec);
-        profilesByEmail.set(spec.email, profile);
-    }
+        const profile = await withRetry(() => ensureProfile(user, spec));
+        return [spec.email, profile];
+    }, 4);
+    for (const [email, profile] of profiles) profilesByEmail.set(email, profile);
 
     const seedProfileIds = [...profilesByEmail.values()].map((profile) => profile.id);
     const seedUserIds = [...authUsersByEmail.values()].map((user) => user.id);
@@ -791,7 +1023,7 @@ async function main() {
     const summary = {
         auth_users: seedUsers.length,
         profiles: profilesByEmail.size,
-        portfolio_items: Object.values(portfolioByEmail).reduce((total, items) => total + items.length, 0),
+        portfolio_items: seedUsers.reduce((total, spec) => total + (portfolioByEmail[spec.email]?.length ?? spec.portfolioItems?.length ?? 0), 0),
         job_listings: seedJobsData.length,
         bookmarks: seedBookmarksData.length,
         firms: seedFirmsData.length,

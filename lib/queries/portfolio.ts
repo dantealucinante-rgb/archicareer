@@ -1,4 +1,4 @@
-import { createClient, createPublicClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient, createPublicClient } from "@/lib/supabase/server";
 import { PortfolioItem, PortfolioItemImage } from "@/types";
 import { portfolioItemCreateSchema, portfolioItemUpdateSchema } from "@/lib/validations";
 import { QueryResult } from "@/lib/queries/profiles";
@@ -42,11 +42,11 @@ export function isOwnedPortfolioImageUrl(imageUrl: string, userId: string): bool
 
 export async function removePortfolioImageFiles(imageUrls: string[]): Promise<boolean> {
     if (imageUrls.length === 0) return true;
-    const supabase = await createClient();
+    const supabase = createAdminClient();
     const byBucket = new Map<string, string[]>();
     for (const imageUrl of imageUrls) {
         const object = storageObjectFromPublicUrl(imageUrl);
-        if (!object) continue;
+        if (!object || object.bucket !== "portfolio-images") continue;
         byBucket.set(object.bucket, [...(byBucket.get(object.bucket) ?? []), object.path]);
     }
     const results = await Promise.all([...byBucket.entries()].map(([bucket, paths]) => supabase.storage.from(bucket).remove(paths)));
@@ -110,7 +110,19 @@ export async function addPortfolioItem(
             return { data: null, error: new Error(validation.error.issues.map((e: import("zod").ZodIssue) => e.message).join(", ")) };
         }
 
-        const supabase = await createClient();
+        const sessionClient = await createClient();
+        const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+        if (authError || !user) return { data: null, error: new Error("Unauthenticated") };
+        const admin = createAdminClient();
+        const { data: owner, error: ownerError } = await admin
+            .from("profiles")
+            .select("id")
+            .eq("id", validation.data.profile_id)
+            .eq("user_id", user.id)
+            .maybeSingle();
+        if (ownerError) return { data: null, error: new Error(ownerError.message) };
+        if (!owner) return { data: null, error: new Error("Profile not found or not owned by the current user") };
+        const supabase = admin;
         const { data, error } = await supabase
             .from("portfolio_items")
             .insert(validation.data)
@@ -135,7 +147,25 @@ export async function updatePortfolioItem(
             return { data: null, error: new Error(validation.error.issues.map((e: import("zod").ZodIssue) => e.message).join(", ")) };
         }
 
-        const supabase = await createClient();
+        const sessionClient = await createClient();
+        const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+        if (authError || !user) return { data: null, error: new Error("Unauthenticated") };
+        const supabase = createAdminClient();
+        const { data: item, error: itemError } = await supabase
+            .from("portfolio_items")
+            .select("id, profile_id")
+            .eq("id", id)
+            .maybeSingle();
+        if (itemError) return { data: null, error: new Error(itemError.message) };
+        if (!item) return { data: null, error: new Error("Portfolio item not found") };
+        const { data: owner, error: ownerError } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("id", item.profile_id)
+            .eq("user_id", user.id)
+            .maybeSingle();
+        if (ownerError) return { data: null, error: new Error(ownerError.message) };
+        if (!owner) return { data: null, error: new Error("Portfolio item is not owned by the current user") };
         const { data, error } = await supabase
             .from("portfolio_items")
             .update(validation.data)
@@ -159,7 +189,25 @@ export async function addPortfolioItemImages(
         if (imageUrls.some((imageUrl) => !isPortfolioImageUrl(imageUrl))) {
             return { data: null, error: new Error("Portfolio images must be uploaded to the portfolio storage bucket") };
         }
-        const supabase = await createClient();
+        const sessionClient = await createClient();
+        const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+        if (authError || !user) return { data: null, error: new Error("Unauthenticated") };
+        const supabase = createAdminClient();
+        const { data: item, error: itemError } = await supabase
+            .from("portfolio_items")
+            .select("id, profile_id")
+            .eq("id", portfolioItemId)
+            .maybeSingle();
+        if (itemError) return { data: null, error: new Error(itemError.message) };
+        if (!item) return { data: null, error: new Error("Portfolio item not found") };
+        const { data: owner, error: ownerError } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("id", item.profile_id)
+            .eq("user_id", user.id)
+            .maybeSingle();
+        if (ownerError) return { data: null, error: new Error(ownerError.message) };
+        if (!owner) return { data: null, error: new Error("Portfolio item is not owned by the current user") };
         const rows = imageUrls.map((image_url, display_order) => ({ portfolio_item_id: portfolioItemId, image_url, display_order }));
         if (rows.length === 0) return { data: [], error: null };
 
@@ -178,7 +226,25 @@ export async function addPortfolioItemImages(
 
 export async function deletePortfolioItem(id: string): Promise<QueryResult<null>> {
     try {
-        const supabase = await createClient();
+        const sessionClient = await createClient();
+        const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+        if (authError || !user) return { data: null, error: new Error("Unauthenticated") };
+        const supabase = createAdminClient();
+        const { data: item, error: itemError } = await supabase
+            .from("portfolio_items")
+            .select("id, profile_id")
+            .eq("id", id)
+            .maybeSingle();
+        if (itemError) return { data: null, error: new Error(itemError.message) };
+        if (!item) return { data: null, error: new Error("Portfolio item not found") };
+        const { data: owner, error: ownerError } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("id", item.profile_id)
+            .eq("user_id", user.id)
+            .maybeSingle();
+        if (ownerError) return { data: null, error: new Error(ownerError.message) };
+        if (!owner) return { data: null, error: new Error("Portfolio item is not owned by the current user") };
         const { data: images, error: imageQueryError } = await supabase
             .from("portfolio_item_images")
             .select("image_url")
@@ -202,13 +268,32 @@ export async function deletePortfolioItem(id: string): Promise<QueryResult<null>
 
 export async function deletePortfolioItemImage(id: string): Promise<QueryResult<null>> {
     try {
-        const supabase = await createClient();
+        const sessionClient = await createClient();
+        const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+        if (authError || !user) return { data: null, error: new Error("Unauthenticated") };
+        const supabase = createAdminClient();
         const { data: image, error: imageQueryError } = await supabase
             .from("portfolio_item_images")
-            .select("image_url")
+            .select("image_url, portfolio_item_id")
             .eq("id", id)
             .maybeSingle();
         if (imageQueryError) return { data: null, error: new Error(imageQueryError.message) };
+        if (!image) return { data: null, error: new Error("Portfolio image not found") };
+        const { data: itemOwner, error: itemOwnerError } = await supabase
+            .from("portfolio_items")
+            .select("profile_id")
+            .eq("id", image.portfolio_item_id)
+            .maybeSingle();
+        if (itemOwnerError) return { data: null, error: new Error(itemOwnerError.message) };
+        if (!itemOwner) return { data: null, error: new Error("Portfolio item not found") };
+        const { data: owner, error: ownerError } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("id", itemOwner.profile_id)
+            .eq("user_id", user.id)
+            .maybeSingle();
+        if (ownerError) return { data: null, error: new Error(ownerError.message) };
+        if (!owner) return { data: null, error: new Error("Portfolio image is not owned by the current user") };
         const { error } = await supabase.from("portfolio_item_images").delete().eq("id", id);
         if (error) return { data: null, error: new Error(error.message) };
         if (image?.image_url) await removePortfolioImageFiles([image.image_url]);
@@ -223,7 +308,25 @@ export async function reorderPortfolioItemImages(
     orderedIds: string[]
 ): Promise<QueryResult<null>> {
     try {
-        const supabase = await createClient();
+        const sessionClient = await createClient();
+        const { data: { user }, error: authError } = await sessionClient.auth.getUser();
+        if (authError || !user) return { data: null, error: new Error("Unauthenticated") };
+        const supabase = createAdminClient();
+        const { data: item, error: itemError } = await supabase
+            .from("portfolio_items")
+            .select("id, profile_id")
+            .eq("id", portfolioItemId)
+            .maybeSingle();
+        if (itemError) return { data: null, error: new Error(itemError.message) };
+        if (!item) return { data: null, error: new Error("Portfolio item not found") };
+        const { data: owner, error: ownerError } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("id", item.profile_id)
+            .eq("user_id", user.id)
+            .maybeSingle();
+        if (ownerError) return { data: null, error: new Error(ownerError.message) };
+        if (!owner) return { data: null, error: new Error("Portfolio item is not owned by the current user") };
         const { data: existingImages, error: imageQueryError } = await supabase
             .from("portfolio_item_images")
             .select("id")

@@ -6,12 +6,18 @@ const buckets = ["avatars", "cv-documents", "portfolio-images"] as const;
 async function removeUserFiles(userId: string) {
     const admin = createAdminClient();
     for (const bucket of buckets) {
-        const { data: files, error: listError } = await admin.storage.from(bucket).list(userId, { limit: 1000 });
-        if (listError) throw new Error(`Unable to prepare ${bucket} files for deletion`);
-        const paths = (files ?? []).filter((file) => file.name).map((file) => `${userId}/${file.name}`);
-        if (paths.length === 0) continue;
-        const { error: removeError } = await admin.storage.from(bucket).remove(paths);
-        if (removeError) throw new Error(`Unable to remove ${bucket} files`);
+        while (true) {
+            // Delete from the beginning each time; removing a page shifts the
+            // remaining objects, so advancing an offset would skip files.
+            const { data: files, error: listError } = await admin.storage.from(bucket).list(userId, { limit: 1000, offset: 0 });
+            if (listError) throw new Error(`Unable to prepare ${bucket} files for deletion`);
+            const paths = (files ?? []).filter((file) => file.name).map((file) => `${userId}/${file.name}`);
+            if (paths.length > 0) {
+                const { error: removeError } = await admin.storage.from(bucket).remove(paths);
+                if (removeError) throw new Error(`Unable to remove ${bucket} files`);
+            }
+            if (!files || files.length < 1000) break;
+        }
     }
 }
 

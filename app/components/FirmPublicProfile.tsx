@@ -1,18 +1,18 @@
 import Link from "next/link";
-import NextImage from "next/image";
 import type { PortfolioItem, Profile } from "@/types";
 import PortfolioGallery from "./PortfolioGallery";
+import ProfileAvatar from "./ProfileAvatar";
 
 export default function FirmPublicProfile({ profile, portfolioItems, portfolioError, isOwner }: { profile: Profile; portfolioItems: PortfolioItem[]; portfolioError: Error | null; isOwner: boolean }) {
     return (
         <div className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
             <main className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-8 sm:py-14">
-                <div className="mb-8 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-graphite"><span>Organisation profile / {profile.location ?? "Practice"}</span>{isOwner && <Link href="/profile/edit" className="text-redline hover:text-ink">Edit profile ↗</Link>}</div>
+                <div className="mb-8 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-graphite"><span>Organisation profile / {profile.location ?? "Practice"}</span>{isOwner && <div className="flex gap-4"><Link href="/profile/edit" className="text-redline hover:text-ink">Edit profile ↗</Link><Link href="/settings" className="hover:text-ink">Settings ↗</Link></div>}</div>
                 <section className="relative overflow-hidden rounded-[28px] border border-line bg-warm-white p-6 text-ink sm:p-10 lg:p-14">
                     <div className="absolute -right-20 -top-28 h-80 w-80 rounded-full border border-redline/30" /><div className="absolute right-28 top-20 h-28 w-28 rotate-45 border border-ink/15" />
                     <div className="relative grid gap-10 lg:grid-cols-[1.4fr_0.6fr] lg:items-end">
                         <div><p className="eyebrow font-mono text-redline">STUDIO / COMPANY</p><h1 className="display-balance mt-5 max-w-4xl font-display text-6xl font-black leading-[0.82] tracking-[-0.08em] sm:text-8xl">{profile.name}</h1><p className="mt-6 max-w-2xl text-base leading-relaxed text-graphite">{profile.bio ?? "A practice building meaningful work and looking for the people who can help bring it to life."}</p></div>
-                        <div className="flex items-end justify-start gap-4 lg:justify-end">{profile.avatar_url ? <NextImage src={profile.avatar_url} alt={`${profile.name} logo`} width={112} height={112} className="h-24 w-24 rounded-2xl object-cover sm:h-28 sm:w-28" /> : <div className="grid h-24 w-24 place-items-center rounded-2xl bg-ink font-display text-4xl font-bold text-sand sm:h-28 sm:w-28">{profile.name.slice(0, 1).toUpperCase()}</div>}<span className="font-mono text-[10px] uppercase tracking-widest text-graphite">{profile.location ?? "Remote / Nigeria"}</span></div>
+                        <div className="flex items-end justify-start gap-4 lg:justify-end"><ProfileAvatar profile={profile} size={112} className="h-24 w-24 rounded-2xl border border-line object-cover sm:h-28 sm:w-28" fallbackClassName="bg-paper" /><span className="font-mono text-[10px] uppercase tracking-widest text-graphite">{profile.location ?? "Remote / Nigeria"}</span></div>
                     </div>
                 </section>
 

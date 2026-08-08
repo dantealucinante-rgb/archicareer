@@ -2,8 +2,8 @@ import { notFound } from "next/navigation";
 import { getCurrentProfile, getProfileBySlug } from "@/lib/queries/profiles";
 import { getPortfolioItemsForProfile } from "@/lib/queries/portfolio";
 import PortfolioGallery from "@/app/components/PortfolioGallery";
-import NextImage from "next/image";
 import FirmPublicProfile from "@/app/components/FirmPublicProfile";
+import ProfileAvatar from "@/app/components/ProfileAvatar";
 
 interface PageProps {
     params: Promise<{
@@ -34,12 +34,13 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
     return (
         <div className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
             <main className="mx-auto w-full max-w-5xl px-5 py-10 sm:px-8 sm:py-16">
+                {isOwner && <div className="mb-5 flex items-center justify-end gap-4 font-mono text-[10px] uppercase tracking-widest"><a href="/profile/edit" className="text-redline hover:text-ink">Edit profile ↗</a><a href="/settings" className="text-graphite hover:text-ink">Settings ↗</a></div>}
                 <div className="surface overflow-hidden p-6 sm:p-10">
                     <div className="relative mb-8 flex flex-col gap-5 overflow-hidden rounded-2xl bg-night p-6 text-paper sm:flex-row sm:items-start sm:justify-between sm:p-8">
                         <div className="absolute -right-12 -top-20 h-52 w-52 rounded-full border border-paper/10" />
                         <div className="absolute -bottom-20 right-24 h-40 w-40 rounded-full border border-redline/50" />
                         <div className="flex items-center gap-4">
-                            {profile.avatar_url ? <NextImage src={profile.avatar_url} alt={`${profile.name} avatar`} width={72} height={72} className="relative h-16 w-16 rounded-full border border-paper/30 object-cover" /> : <div className="relative grid h-16 w-16 place-items-center rounded-full bg-sand font-display text-2xl font-semibold text-ink">{profile.name.slice(0, 1).toUpperCase()}</div>}
+                            <ProfileAvatar profile={profile} size={72} className="relative h-16 w-16 rounded-full border border-paper/30 object-cover" />
                             <div>
                             <p className="eyebrow mb-2 font-mono text-sand">{profile.role} / public profile</p>
                             <h1 className="font-display text-3xl font-semibold tracking-[-0.04em] text-paper sm:text-4xl">{profile.name}</h1>

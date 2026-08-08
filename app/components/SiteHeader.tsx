@@ -20,7 +20,7 @@ export default async function SiteHeader() {
                     </Link>
                 </div>
 
-                <nav className="hidden flex-1 items-center gap-2 font-sans text-sm sm:flex sm:pl-6">
+                <nav className="hidden flex-1 items-center justify-center gap-2 font-sans text-sm sm:flex">
                     <Link href="/discover" className="rounded-full px-3 py-2 text-graphite transition-colors hover:bg-sand/40 hover:text-ink">
                         Discover
                     </Link>

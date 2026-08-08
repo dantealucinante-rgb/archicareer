@@ -44,7 +44,10 @@ export async function POST(request: Request) {
         const path = `${profile.user_id}/${crypto.randomUUID()}.${extension}`;
         const admin = createAdminClient();
         const { error: uploadError } = await admin.storage.from(bucket).upload(path, bytes, { contentType: file.type, upsert: false });
-        if (uploadError) return NextResponse.json({ error: "Unable to upload file" }, { status: 400 });
+        if (uploadError) {
+            await supabase.rpc("release_user_rate_limit", { p_action: "storage_upload" });
+            return NextResponse.json({ error: "Unable to upload file" }, { status: 400 });
+        }
 
         const { data } = admin.storage.from(bucket).getPublicUrl(path);
         return NextResponse.json({ path, url: data.publicUrl }, { status: 201 });

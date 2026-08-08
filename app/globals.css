@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Stack Sans Notch";
+  src: url("/fonts/StackSansNotch-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --color-paper: #F4F1EA;
   --color-ink: #172126;
@@ -11,7 +19,7 @@
   --color-night: #1D2C2F;
   --color-warm-white: #FBF9F4;
 
-  --font-display: "Space Grotesk", "Aptos", "Segoe UI", sans-serif;
+  --font-display: "Stack Sans Notch", "Aptos", "Segoe UI", sans-serif;
   --font-sans: Inter, "Aptos", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
 }

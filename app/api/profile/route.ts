@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getCurrentProfile, isOwnedAvatarUrl, removeAvatarFile, removeCvFile, updateProfile } from "@/lib/queries/profiles";
 import { verifyStoredAsset } from "@/lib/storage-validation";
 import { createClient } from "@/lib/supabase/server";
+import { isFallbackAvatarUrl } from "@/lib/avatar";
 
 export async function POST(request: Request) {
     try {
@@ -56,10 +57,11 @@ export async function POST(request: Request) {
         if (limitError) return NextResponse.json({ error: "Unable to verify request limit" }, { status: 500 });
         if (!allowed) return NextResponse.json({ error: "Too many profile updates. Try again later." }, { status: 429 });
 
-        if (typeof profileUpdates.avatar_url === "string" && !isOwnedAvatarUrl(profileUpdates.avatar_url, profile.user_id)) {
+        const avatarIsFallback = typeof profileUpdates.avatar_url === "string" && isFallbackAvatarUrl(profileUpdates.avatar_url);
+        if (typeof profileUpdates.avatar_url === "string" && !avatarIsFallback && !isOwnedAvatarUrl(profileUpdates.avatar_url, profile.user_id)) {
             return NextResponse.json({ error: "Avatar must be uploaded to your avatar storage folder" }, { status: 400 });
         }
-        if (typeof profileUpdates.avatar_url === "string" && !(await verifyStoredAsset(profileUpdates.avatar_url, "avatars", profile.user_id, "image"))) {
+        if (typeof profileUpdates.avatar_url === "string" && !avatarIsFallback && !(await verifyStoredAsset(profileUpdates.avatar_url, "avatars", profile.user_id, "image"))) {
             return NextResponse.json({ error: "Avatar file could not be verified" }, { status: 400 });
         }
         if (typeof profileUpdates.cv_url === "string" && !(await verifyStoredAsset(profileUpdates.cv_url, "cv-documents", profile.user_id, "pdf"))) {

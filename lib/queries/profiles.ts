@@ -1,4 +1,4 @@
-import { createClient, createPublicClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient, createPublicClient } from "@/lib/supabase/server";
 import type { User } from "@supabase/supabase-js";
 import { Profile, UserRole } from "@/types";
 import { profileUpdateSchema } from "@/lib/validations";
@@ -6,6 +6,7 @@ import { profileUpdateSchema } from "@/lib/validations";
 export interface QueryResult<T> {
     data: T | null;
     error: Error | null;
+    count?: number;
 }
 
 export const PROFILE_COLUMNS = "id, user_id, name, slug, role, school_or_firm, bio, location, social_links, software_proficiency, cv_url, instagram_url, personal_site_url, linkedin_url, avatar_url, marketing_emails, created_at, updated_at";
@@ -130,7 +131,7 @@ async function createProfileForUser(
     const roleValue = metadata.role;
     const role: UserRole = roleValue === "architect" || roleValue === "firm" ? roleValue : "student";
 
-    const { data, error } = await supabase
+    const { data, error } = await createAdminClient()
         .from("profiles")
         .insert({
             user_id: user.id,
@@ -171,7 +172,16 @@ export async function updateProfile(
             return { data: null, error: new Error("Unauthenticated") };
         }
 
-        const { error } = await supabase
+        const currentProfile = await createAdminClient()
+            .from("profiles")
+            .select("id")
+            .eq("id", id)
+            .eq("user_id", user.id)
+            .maybeSingle();
+        if (currentProfile.error) return { data: null, error: new Error(currentProfile.error.message) };
+        if (!currentProfile.data) return { data: null, error: new Error("Profile not found or not owned by the current user") };
+
+        const { error } = await createAdminClient()
             .from("profiles")
             .update(validation.data)
             .eq("id", id);
@@ -203,12 +213,13 @@ export interface PaginationOptions {
 export function normalizePagination(pagination: PaginationOptions = {}): Required<PaginationOptions> {
     const rawLimit = Number.isFinite(pagination.limit) ? Math.floor(pagination.limit as number) : 20;
     const rawOffset = Number.isFinite(pagination.offset) ? Math.floor(pagination.offset as number) : 0;
-    return { limit: Math.min(Math.max(rawLimit, 1), 100), offset: Math.max(rawOffset, 0) };
+    return { limit: Math.min(Math.max(rawLimit, 1), 1000), offset: Math.max(rawOffset, 0) };
 }
 
 export interface SortingOptions {
     sortBy?: "created_at" | "name" | "location";
     ascending?: boolean;
+    random?: boolean;
 }
 
 export async function searchProfiles(
@@ -218,7 +229,7 @@ export async function searchProfiles(
 ): Promise<QueryResult<Profile[]>> {
     try {
         const supabase = createPublicClient();
-        let query = supabase.from("profiles").select("id, name, slug, role, bio, location, school_or_firm");
+        let query = supabase.from("profiles").select("id, name, slug, role, bio, location, school_or_firm, avatar_url", { count: "exact" });
 
         if (filters.role) {
             query = query.eq("role", filters.role);
@@ -237,12 +248,19 @@ export async function searchProfiles(
         const { limit, offset } = normalizePagination(pagination);
         query = query.range(offset, offset + limit - 1);
 
-        const { data, error } = await query;
+        const { data, error, count } = await query;
 
         if (error) {
             return { data: null, error: new Error(error.message) };
         }
-        return { data: data as Profile[], error: null };
+        const profiles = [...(data as Profile[])];
+        if (sorting.random) {
+            for (let index = profiles.length - 1; index > 0; index -= 1) {
+                const swapIndex = Math.floor(Math.random() * (index + 1));
+                [profiles[index], profiles[swapIndex]] = [profiles[swapIndex], profiles[index]];
+            }
+        }
+        return { data: profiles, error: null, count: count ?? undefined };
     } catch (err) {
         console.error("Unhandled error in searchProfiles:", err);
         return { data: null, error: err instanceof Error ? err : new Error(String(err)) };
