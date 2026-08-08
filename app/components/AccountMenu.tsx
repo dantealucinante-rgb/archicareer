@@ -17,6 +17,7 @@ export default function AccountMenu() {
                     <nav className="flex flex-col gap-1 font-mono text-[10px] uppercase tracking-widest">
                         <Link href="/profile" onClick={() => setOpen(false)} className="rounded-xl px-3 py-3 text-ink hover:bg-sand/40">View profile</Link>
                         <Link href="/profile/edit" onClick={() => setOpen(false)} className="rounded-xl px-3 py-3 text-ink hover:bg-sand/40">Edit profile</Link>
+                        <Link href="/applications" onClick={() => setOpen(false)} className="rounded-xl px-3 py-3 text-ink hover:bg-sand/40">Applications</Link>
                         <Link href="/settings" onClick={() => setOpen(false)} className="rounded-xl px-3 py-3 text-ink hover:bg-sand/40">Settings</Link>
                         <div className="my-1 border-t border-line" />
                         <SignOutButton mobile />

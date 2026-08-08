@@ -33,6 +33,7 @@ export type PortfolioItemStatus = "academic" | "professional";
 export type JobType = "internship" | "job" | "competition";
 
 export type JobStatus = "open" | "closed";
+export type ApplicationStatus = "new" | "reviewing" | "shortlisted" | "interview" | "declined" | "hired";
 
 export interface Profile {
     id: string;
@@ -100,6 +101,27 @@ export interface JobListing {
     status: JobStatus;
     created_at: string;
     updated_at: string;
+}
+
+export interface Application {
+    id: string;
+    job_listing_id: string;
+    applicant_id: string;
+    cover_note: string | null;
+    cv_url: string | null;
+    status: ApplicationStatus;
+    created_at: string;
+    updated_at: string;
+    job_listing?: Pick<JobListing, "id" | "firm_name" | "title" | "type" | "status">;
+    applicant?: Pick<Profile, "id" | "user_id" | "name" | "slug" | "role" | "bio" | "cv_url" | "avatar_url">;
+}
+
+export interface ApplicationMessage {
+    id: string;
+    application_id: string;
+    sender_id: string;
+    body: string;
+    created_at: string;
 }
 
 export interface Bookmark {

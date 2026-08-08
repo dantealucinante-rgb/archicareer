@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { getJobListings } from "@/lib/queries/jobs";
 import { JobListing } from "@/types";
 import JobPostForm from "@/app/components/JobPostForm";
+import ApplyButton from "@/app/components/ApplyButton";
 import { getCurrentProfile } from "@/lib/queries/profiles";
 
 export const dynamic = "force-dynamic";
@@ -37,10 +37,7 @@ export default async function JobsPage() {
                                                 {job.firm_name}
                                             </p>
                                         </div>
-                                        {job.apply_link_or_email && <Link
-                                            href={/^https?:\/\//i.test(job.apply_link_or_email) ? job.apply_link_or_email : `mailto:${job.apply_link_or_email}`}
-                                                className="inline-flex items-center justify-center rounded-full border border-ink bg-ink px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-paper transition-all duration-300 hover:-translate-y-0.5 hover:bg-redline"
-                                        >Apply Externally</Link>}
+                                <ApplyButton jobListingId={job.id} authenticated={Boolean(profile)} />
                                     </div>
                                     <p className="mt-6 max-w-2xl text-sm leading-relaxed text-graphite">{job.description}</p>
                                 </article>

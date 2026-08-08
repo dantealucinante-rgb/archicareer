@@ -60,6 +60,27 @@ function simulateQuery(action, table, session, targetRow) {
     return { success: false, error: "Unknown query parameters" };
 }
 
+function simulateApplicationQuery(action, session, application, jobListing, message = {}) {
+    const userId = session?.userId;
+    const isApplicant = userId === application.applicant_id;
+    const isListingOwner = userId === jobListing.user_id;
+    const isParticipant = isApplicant || isListingOwner;
+
+    if (action === "SELECT_APPLICATION" || action === "SELECT_MESSAGE") {
+        return { success: Boolean(userId && isParticipant) };
+    }
+    if (action === "INSERT_APPLICATION") {
+        return { success: Boolean(userId && isApplicant) };
+    }
+    if (action === "UPDATE_APPLICATION") {
+        return { success: Boolean(userId && isListingOwner) };
+    }
+    if (action === "INSERT_MESSAGE") {
+        return { success: Boolean(userId && isParticipant && userId === message.sender_id) };
+    }
+    return { success: false, error: "Unknown application query" };
+}
+
 // Data fixtures
 const profileB = {
     id: "profile-uuid-1234",
@@ -120,7 +141,31 @@ try {
     assert.strictEqual(itemUpdateByOwner.success, true, "Owner write on portfolio items should expand");
     console.log("-> Result: SUCCESS (Owner portfolio update accepted)");
 
-    console.log("\nALL 6 SECURITY POLICIES ASSERTED CORRECTLY!");
+    const application = { id: "application-uuid", applicant_id: "student-uuid" };
+    const jobListing = { id: "job-uuid", user_id: "firm-uuid" };
+    const sessionStudent = { userId: "student-uuid" };
+    const sessionFirm = { userId: "firm-uuid" };
+
+    console.log("\n[Test 7] Stranger attempts to read an application conversation");
+    assert.strictEqual(simulateApplicationQuery("SELECT_MESSAGE", sessionUserA, application, jobListing).success, false);
+    console.log("-> Result: SUCCESS (Stranger conversation read rejected)");
+
+    console.log("\n[Test 8] Applicant reads and sends in their conversation");
+    assert.strictEqual(simulateApplicationQuery("SELECT_MESSAGE", sessionStudent, application, jobListing).success, true);
+    assert.strictEqual(simulateApplicationQuery("INSERT_MESSAGE", sessionStudent, application, jobListing, { sender_id: sessionStudent.userId }).success, true);
+    console.log("-> Result: SUCCESS (Applicant conversation access accepted)");
+
+    console.log("\n[Test 9] Listing owner reads, sends, and updates an application");
+    assert.strictEqual(simulateApplicationQuery("SELECT_APPLICATION", sessionFirm, application, jobListing).success, true);
+    assert.strictEqual(simulateApplicationQuery("INSERT_MESSAGE", sessionFirm, application, jobListing, { sender_id: sessionFirm.userId }).success, true);
+    assert.strictEqual(simulateApplicationQuery("UPDATE_APPLICATION", sessionFirm, application, jobListing).success, true);
+    console.log("-> Result: SUCCESS (Firm conversation and status access accepted)");
+
+    console.log("\n[Test 10] Applicant attempts to update application status");
+    assert.strictEqual(simulateApplicationQuery("UPDATE_APPLICATION", sessionStudent, application, jobListing).success, false);
+    console.log("-> Result: SUCCESS (Applicant status update rejected)");
+
+    console.log("\nALL 10 SECURITY POLICIES ASSERTED CORRECTLY!");
 
 } catch (err) {
     console.error("\nTEST ASSERTER FAILURE:", err.message);

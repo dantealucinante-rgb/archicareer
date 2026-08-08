@@ -73,3 +73,16 @@ export const jobListingCreateSchema = z.object({
 export const jobListingUpdateSchema = jobListingCreateSchema
     .omit({ user_id: true })
     .partial();
+
+export const applicationCreateSchema = z.object({
+    job_listing_id: z.string().uuid("Invalid job listing"),
+    cover_note: z.string().max(2000, "Cover note must be 2000 characters or less").nullable().optional(),
+});
+
+export const applicationStatusSchema = z.object({
+    status: z.enum(["new", "reviewing", "shortlisted", "interview", "declined", "hired"]),
+});
+
+export const applicationMessageSchema = z.object({
+    body: z.string().trim().min(1, "Message cannot be empty").max(4000, "Message is too long"),
+});
