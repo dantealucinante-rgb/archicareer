@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import MobileNav from "./MobileNav";
 import AccountMenu from "./AccountMenu";
 import PrimaryNav from "./PrimaryNav";
+import BrandLogo from "./BrandLogo";
 
 export default async function SiteHeader() {
     const supabase = await createClient();
@@ -16,8 +17,8 @@ export default async function SiteHeader() {
                         A-00 / NETWORK
                     </span>
                     <div className="hidden h-5 w-px bg-line sm:block" />
-                    <Link href="/" className="group flex items-center font-display text-[1.3rem] font-bold tracking-[-0.055em] text-ink transition-colors hover:text-redline sm:text-[1.75rem]">
-                        <span>ArchiCareer</span>
+                    <Link href="/" aria-label="ArchiCareer home" className="group flex items-center font-display text-[1.3rem] font-bold tracking-[-0.055em] text-ink transition-colors hover:text-redline sm:text-[1.75rem]">
+                        <BrandLogo />
                     </Link>
                 </div>
 

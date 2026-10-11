@@ -1,5 +1,6 @@
 import Link from "next/link";
 import NotFoundGame from "@/app/components/NotFoundGame";
+import BrandLogo from "@/app/components/BrandLogo";
 
 export const metadata = {
     title: "404 - Page not found",
@@ -12,7 +13,7 @@ export default function NotFound() {
             <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
                 <div className="flex items-center justify-between gap-4">
                     <Link href="/" className="font-display text-2xl font-bold tracking-[-0.055em] text-ink transition-colors hover:text-redline sm:text-3xl">
-                        ArchiCareer
+                        <BrandLogo />
                     </Link>
                     <Link href="/discover" className="font-mono text-[10px] uppercase tracking-widest text-graphite transition-colors hover:text-ink">
                         Discover

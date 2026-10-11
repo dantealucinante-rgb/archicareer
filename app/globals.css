@@ -9,18 +9,18 @@
 }
 
 @theme {
-  --color-paper: #F4F1EA;
-  --color-ink: #172126;
-  --color-graphite: #5B6265;
-  --color-line: #D7D0C4;
-  --color-redline: #C95535;
+  --color-paper: #F7F9FC;
+  --color-ink: #17191D;
+  --color-graphite: #5E6875;
+  --color-line: #DCE2EA;
+  --color-redline: #1D70E8;
   --color-sage: #6F806C;
-  --color-sand: #E7D8C4;
-  --color-night: #1D2C2F;
-  --color-warm-white: #FBF9F4;
+  --color-sand: #E7F0FF;
+  --color-night: #17191D;
+  --color-warm-white: #FFFFFF;
 
   --font-display: "Stack Sans Notch", "Aptos", "Segoe UI", sans-serif;
-  --font-sans: Inter, "Aptos", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Stack Sans Notch", Inter, "Aptos", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
 }
 
@@ -46,10 +46,7 @@ body {
   background-color: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-sans);
-  background-image:
-    linear-gradient(rgba(23, 33, 38, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(23, 33, 38, 0.035) 1px, transparent 1px);
-  background-size: 32px 32px;
+  background-image: none;
   line-height: 1.5;
   overflow-x: hidden;
 }
@@ -65,14 +62,14 @@ body {
 .surface {
   background: color-mix(in srgb, var(--color-warm-white) 94%, var(--color-paper));
   border: 1px solid var(--color-line);
-  border-radius: 22px;
-  box-shadow: 0 16px 40px rgba(23, 33, 38, 0.055);
+  border-radius: 14px;
+  box-shadow: 0 14px 34px rgba(23, 33, 38, 0.045);
 }
 
 .surface-dark {
   background: var(--color-night);
   border: 1px solid color-mix(in srgb, var(--color-paper) 20%, transparent);
-  border-radius: 18px;
+  border-radius: 14px;
   box-shadow: 0 18px 50px rgba(23, 33, 38, 0.14);
 }
 
