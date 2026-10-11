@@ -105,8 +105,9 @@ export default function ProfileEditor({ profile, variant = "individual" }: Props
         if (Object.keys(nextErrors).length > 0) {
             setStatus("error");
             setMessage("Please correct the highlighted fields.");
-            const firstInvalidId = { name: "profile-name", instagram: "profile-instagram", site: "profile-site", linkedin: "profile-linkedin" }[Object.keys(nextErrors)[0]];
-            requestAnimationFrame(() => document.getElementById(firstInvalidId)?.focus());
+            const firstInvalidField = Object.keys(nextErrors)[0];
+            const firstInvalidId = ({ name: "profile-name", instagram: "profile-instagram", site: "profile-site", linkedin: "profile-linkedin" } as Record<string, string>)[firstInvalidField];
+            if (firstInvalidId) requestAnimationFrame(() => document.getElementById(firstInvalidId)?.focus());
             return;
         }
         setStatus("saving"); setMessage("");
