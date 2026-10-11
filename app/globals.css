@@ -90,8 +90,11 @@ body {
 .t-stagger-line--3 { transition-delay: calc(var(--stagger-stagger) * 2); }
 .t-stagger.is-shown .t-stagger-line { opacity: 1; transform: translateY(0); filter: blur(0); }
 
-.card-lift { transition: transform 360ms var(--ease-smoother), border-color 360ms var(--ease-smoother), box-shadow 360ms var(--ease-smoother); }
-.card-lift:hover { transform: translateY(-4px); border-color: color-mix(in srgb, var(--color-redline) 60%, var(--color-line)); box-shadow: 0 18px 40px rgba(23, 33, 38, 0.1); }
+.card-lift { transition: transform 200ms var(--ease-smooth-out), border-color 200ms ease, box-shadow 200ms var(--ease-smooth-out); }
+
+@media (hover: hover) and (pointer: fine) {
+  .card-lift:hover { transform: translateY(-4px); border-color: color-mix(in srgb, var(--color-redline) 60%, var(--color-line)); box-shadow: 0 18px 40px rgba(23, 33, 38, 0.1); }
+}
 
 .grain {
   background-image: radial-gradient(rgba(23, 33, 38, .12) .55px, transparent .55px);
@@ -120,7 +123,7 @@ body {
 }
 
 .interactive {
-  transition: transform 360ms var(--ease-smoother), background-color 360ms var(--ease-smoother), border-color 360ms var(--ease-smoother), color 360ms var(--ease-smoother), box-shadow 360ms var(--ease-smoother);
+  transition: transform 160ms var(--ease-smooth-out), background-color 200ms ease, border-color 200ms ease, color 200ms ease, box-shadow 200ms var(--ease-smooth-out);
 }
 
 .interactive:active { transform: scale(.98); }
@@ -176,11 +179,14 @@ button {
   .interactive { transition-duration: 180ms; }
 }
 
-@keyframes sheet-reveal {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+.sheet-reveal {
+  transform-origin: top right;
+  transition: opacity 180ms var(--ease-smooth-out), transform 180ms var(--ease-smooth-out);
 }
 
-.sheet-reveal {
-  animation: sheet-reveal 180ms ease-out both;
+@starting-style {
+  .sheet-reveal {
+    opacity: 0;
+    transform: translateY(-4px) scale(.97);
+  }
 }

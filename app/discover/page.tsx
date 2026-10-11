@@ -121,7 +121,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                             </>
                         ) : (
                             <div className="border border-dashed border-line p-12 text-center text-graphite bg-paper font-mono text-xs uppercase tracking-widest">
-                                <p>No profiles found matching search criteria.</p><p className="mt-3 font-sans text-sm normal-case tracking-normal">Try a broader role or location search.</p>
+                                <p>No profiles found matching this role.</p><p className="mt-3 font-sans text-sm normal-case tracking-normal">Try viewing the full community instead.</p><Link href="/discover" className="mt-5 inline-block text-redline underline underline-offset-4 hover:text-ink">View all profiles</Link>
                             </div>
                         )}
                     </div>

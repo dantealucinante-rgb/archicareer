@@ -102,7 +102,13 @@ export default function ProfileEditor({ profile, variant = "individual" }: Props
             } catch { nextErrors[field] = "Enter a valid URL beginning with https://."; }
         }
         setErrors(nextErrors);
-        if (Object.keys(nextErrors).length > 0) { setStatus("error"); setMessage("Please correct the highlighted fields."); return; }
+        if (Object.keys(nextErrors).length > 0) {
+            setStatus("error");
+            setMessage("Please correct the highlighted fields.");
+            const firstInvalidId = { name: "profile-name", instagram: "profile-instagram", site: "profile-site", linkedin: "profile-linkedin" }[Object.keys(nextErrors)[0]];
+            requestAnimationFrame(() => document.getElementById(firstInvalidId)?.focus());
+            return;
+        }
         setStatus("saving"); setMessage("");
         try {
             const uploadedCv = await uploadCv();
