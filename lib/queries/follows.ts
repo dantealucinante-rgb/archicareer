@@ -10,6 +10,34 @@ export interface FollowCounts {
     following: number;
 }
 
+export async function getFollowCountsForTargets(userIds: string[]): Promise<Record<string, FollowCounts>> {
+    const uniqueUserIds = [...new Set(userIds)].filter((userId) => Boolean(userId));
+    if (uniqueUserIds.length === 0) return {};
+
+    try {
+        const counts = Object.fromEntries(uniqueUserIds.map((userId) => [userId, { followers: 0, following: 0 }])) as Record<string, FollowCounts>;
+        const publicClient = createPublicClient();
+        const [{ data: followers, error: followersError }, { data: following, error: followingError }] = await Promise.all([
+            publicClient.from("follows").select("following_id").in("following_id", uniqueUserIds),
+            publicClient.from("follows").select("follower_id").in("follower_id", uniqueUserIds),
+        ]);
+
+        if (followersError || followingError) return {};
+
+        for (const follow of followers ?? []) {
+            if (follow.following_id && counts[follow.following_id]) counts[follow.following_id].followers += 1;
+        }
+
+        for (const follow of following ?? []) {
+            if (follow.follower_id && counts[follow.follower_id]) counts[follow.follower_id].following += 1;
+        }
+
+        return counts;
+    } catch {
+        return {};
+    }
+}
+
 export async function getProfileOwnerUserId(profileId: string): Promise<string | null> {
     try {
         const { data, error } = await createAdminClient()
@@ -49,7 +77,9 @@ export async function followUser(followingId: string) {
         .insert({ follower_id: user.id, following_id: followingId })
         .select("id, follower_id, following_id, created_at")
         .single();
-    return { data, error: error ? new Error(error.message) : null };
+    if (error) return { data: null, error: new Error(error.message) };
+    const followState = await getFollowState(user.id, followingId);
+    return { data: { ...(data ?? {}), mutual: followState.isMutual }, error: null };
 }
 
 export async function unfollowUser(followingId: string) {

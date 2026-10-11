@@ -35,7 +35,9 @@ export default function FollowButton({ followingId, initialFollowing, initialMut
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ followingId }),
             });
-            if (!response.ok) throw new Error("Follow request failed");
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.error ?? "Follow request failed");
+            setMutual(Boolean(payload.mutual));
         } catch {
             setFollowing(previousFollowing);
             setMutual(previousMutual);

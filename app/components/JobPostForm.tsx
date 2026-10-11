@@ -8,6 +8,7 @@ export default function JobPostForm() {
     const [title, setTitle] = useState("");
     const [type, setType] = useState("internship");
     const [description, setDescription] = useState("");
+    const [applicationDestination, setApplicationDestination] = useState("");
     const [status, setStatus] = useState<"idle" | "saving" | "error">("idle");
     const [message, setMessage] = useState("");
 
@@ -23,11 +24,12 @@ export default function JobPostForm() {
                     title,
                     type,
                     description,
+                    apply_link_or_email: applicationDestination.trim() || null,
                 }),
             });
             const payload = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(payload.error ?? "Unable to submit posting");
-            setTitle(""); setType("internship"); setDescription("");
+            setTitle(""); setType("internship"); setDescription(""); setApplicationDestination("");
             setStatus("idle");
             setMessage("Posting submitted.");
             router.refresh();
@@ -43,10 +45,11 @@ export default function JobPostForm() {
     return (
         <form className="mt-6 space-y-4" onSubmit={submit}>
             <p className="border border-dashed border-line p-3 font-mono text-[10px] uppercase tracking-widest text-graphite">Your firm profile name will be used on this listing.</p>
-            <div><label className={label}>Role Title</label><input required value={title} onChange={(event) => setTitle(event.target.value)} className={input} /></div>
-            <div><label className={label}>Type</label><select value={type} onChange={(event) => setType(event.target.value)} className={input}><option value="internship">Internship</option><option value="job">Job</option><option value="competition">Competition</option></select></div>
-            <p className="border border-dashed border-line p-3 font-mono text-[10px] uppercase tracking-widest text-graphite">Applications and conversations stay on ArchiCareer.</p>
-            <div><label className={label}>Description</label><textarea required minLength={10} rows={5} value={description} onChange={(event) => setDescription(event.target.value)} className={`${input} resize-y`} /></div>
+            <div><label htmlFor="job-title" className={label}>Role Title</label><input id="job-title" required value={title} onChange={(event) => setTitle(event.target.value)} className={input} /></div>
+            <div><label htmlFor="job-type" className={label}>Type</label><select id="job-type" value={type} onChange={(event) => setType(event.target.value)} className={input}><option value="internship">Internship</option><option value="job">Job</option><option value="competition">Competition</option></select></div>
+            <p className="border border-dashed border-line p-3 font-mono text-[10px] uppercase tracking-widest text-graphite">Applicants can apply on ArchiCareer, or use the external contact you provide.</p>
+            <div><label htmlFor="job-description" className={label}>Description</label><textarea id="job-description" required minLength={10} rows={5} value={description} onChange={(event) => setDescription(event.target.value)} className={`${input} resize-y`} /></div>
+            <div><label htmlFor="job-application-destination" className={label}>Application link or email <span className="normal-case tracking-normal">(optional)</span></label><input id="job-application-destination" type="text" value={applicationDestination} onChange={(event) => setApplicationDestination(event.target.value)} className={input} placeholder="https://... or hiring@studio.com" /></div>
             <div className="flex items-center justify-between gap-3"><p aria-live="polite" className={`font-mono text-[10px] uppercase tracking-widest ${status === "error" ? "text-redline" : "text-graphite"}`}>{message}</p><button type="submit" disabled={status === "saving"} className="inline-flex items-center justify-center rounded-[2px] border border-redline bg-redline px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-paper transition-colors hover:bg-paper hover:text-redline disabled:opacity-60">{status === "saving" ? "Submitting..." : "Submit Posting"}</button></div>
         </form>
     );

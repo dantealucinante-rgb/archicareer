@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import MobileNav from "./MobileNav";
 import AccountMenu from "./AccountMenu";
+import PrimaryNav from "./PrimaryNav";
 
 export default async function SiteHeader() {
     const supabase = await createClient();
@@ -20,17 +21,7 @@ export default async function SiteHeader() {
                     </Link>
                 </div>
 
-                <nav className="hidden flex-1 items-center justify-center gap-2 font-sans text-sm sm:flex">
-                    <Link href="/discover" className="rounded-full px-3 py-2 text-graphite transition-colors hover:bg-sand/40 hover:text-ink">
-                        Discover
-                    </Link>
-                    <Link href="/jobs" className="rounded-full px-3 py-2 text-graphite transition-colors hover:bg-sand/40 hover:text-ink">
-                        Jobs
-                    </Link>
-                    <Link href="/feed" className="rounded-full px-3 py-2 text-graphite transition-colors hover:bg-sand/40 hover:text-ink">
-                        Feed
-                    </Link>
-                </nav>
+                <PrimaryNav />
 
                 <div className="ml-auto flex items-center gap-3 font-sans text-xs sm:gap-5 sm:text-sm">
                     {user ? (

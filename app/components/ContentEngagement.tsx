@@ -20,13 +20,40 @@ export default function ContentEngagement({ target, initial, currentUserId, canM
     const [message, setMessage] = useState("");
     const [reactionPending, setReactionPending] = useState(false);
 
+    function collectCommentThreadIds(rootId: string) {
+        const ids = new Set([rootId]);
+        let expanded = true;
+
+        while (expanded) {
+            expanded = false;
+            for (const comment of comments) {
+                if (comment.parent_comment_id && ids.has(comment.parent_comment_id) && !ids.has(comment.id)) {
+                    ids.add(comment.id);
+                    expanded = true;
+                }
+            }
+        }
+
+        return ids;
+    }
+
     async function loadComments() {
-        setLoading(true); setMessage("");
-        const query = target.portfolio_item_id ? `portfolio_item_id=${target.portfolio_item_id}` : `post_id=${target.post_id}`;
-        const response = await fetch(`/api/comments?${query}`);
-        const payload = await response.json().catch(() => ({}));
-        if (response.ok) setComments(payload.comments ?? []); else setMessage(payload.error ?? "Unable to load comments");
-        setLoading(false);
+        setLoading(true);
+        setMessage("");
+        try {
+            const query = target.portfolio_item_id ? `portfolio_item_id=${target.portfolio_item_id}` : `post_id=${target.post_id}`;
+            const response = await fetch(`/api/comments?${query}`);
+            const payload = await response.json().catch(() => ({}));
+            if (response.ok) {
+                setComments(payload.comments ?? []);
+            } else {
+                setMessage(payload.error ?? "Unable to load comments");
+            }
+        } catch {
+            setMessage("Unable to load comments");
+        } finally {
+            setLoading(false);
+        }
     }
 
     async function toggleReaction() {
@@ -60,10 +87,27 @@ export default function ContentEngagement({ target, initial, currentUserId, canM
     }
 
     async function removeComment(id: string) {
-        const response = await fetch("/api/comments", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
-        if (!response.ok) return;
-        setComments((current) => current.filter((comment) => comment.id !== id && comment.parent_comment_id !== id));
-        setSummary((current) => ({ ...current, commentCount: Math.max(0, current.commentCount - 1) }));
+        setMessage("");
+        try {
+            const response = await fetch("/api/comments", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                setMessage(payload.error ?? "Unable to delete comment");
+                return;
+            }
+        } catch {
+            setMessage("Unable to delete comment");
+            return;
+        }
+        const removedIds = collectCommentThreadIds(id);
+
+        setComments((current) => current.filter((comment) => !removedIds.has(comment.id)));
+        setSummary((current) => ({ ...current, commentCount: Math.max(0, current.commentCount - removedIds.size) }));
+        if (removedIds.has(replyingTo ?? "")) setReplyingTo(null);
+        if (removedIds.has(editingId ?? "")) {
+            setEditingId(null);
+            setEditingBody("");
+        }
     }
 
     function toggleComments() {
@@ -73,7 +117,7 @@ export default function ContentEngagement({ target, initial, currentUserId, canM
 
     function renderComment(comment: Comment, depth = 0): React.ReactNode {
         const replies = comments.filter((child) => child.parent_comment_id === comment.id);
-        return <div key={comment.id} className={depth > 0 ? "ml-8 border-l border-line pl-3" : ""}>
+        return <div key={comment.id} className={depth > 0 ? `${depth > 3 ? "ml-3" : "ml-8"} border-l border-line pl-3` : ""}>
             <div className="flex gap-3">
                 <ProfileAvatar profile={comment.author ?? { name: "Community member" }} size={28} className="h-7 w-7 shrink-0 rounded-full border border-line object-cover" />
                 <div className="min-w-0 flex-1">
@@ -89,7 +133,7 @@ export default function ContentEngagement({ target, initial, currentUserId, canM
 
     return <div className="mt-5 border-t border-line pt-4">
         <div className="flex items-center gap-4 font-mono text-[10px] uppercase tracking-widest text-graphite">
-            <button type="button" onClick={() => void toggleReaction()} disabled={!currentUserId || reactionPending} className={`inline-flex items-center gap-1.5 transition-colors disabled:cursor-wait disabled:opacity-60 ${summary.userReacted ? "text-redline" : "hover:text-redline"}`} aria-label={summary.userReacted ? "Unlike" : "Like"} aria-pressed={summary.userReacted}><svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill={summary.userReacted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8"><path d="M20.8 8.7c0 5.4-8.8 10.1-8.8 10.1S3.2 14.1 3.2 8.7A4.7 4.7 0 0 1 12 6.2a4.7 4.7 0 0 1 8.8 2.5Z" strokeLinecap="round" strokeLinejoin="round" /></svg><span>{summary.reactionCount}</span></button>
+            {currentUserId ? <button type="button" onClick={() => void toggleReaction()} disabled={reactionPending} className={`inline-flex items-center gap-1.5 transition-colors disabled:cursor-wait disabled:opacity-60 ${summary.userReacted ? "text-redline" : "hover:text-redline"}`} aria-label={summary.userReacted ? "Unlike" : "Like"} aria-pressed={summary.userReacted}><svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill={summary.userReacted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8"><path d="M20.8 8.7c0 5.4-8.8 10.1-8.8 10.1S3.2 14.1 3.2 8.7A4.7 4.7 0 0 1 12 6.2a4.7 4.7 0 0 1 8.8 2.5Z" strokeLinecap="round" strokeLinejoin="round" /></svg><span>{summary.reactionCount}</span></button> : <Link href="/login" className="inline-flex items-center gap-1.5 hover:text-redline" aria-label="Sign in to like"><svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20.8 8.7c0 5.4-8.8 10.1-8.8 10.1S3.2 14.1 3.2 8.7A4.7 4.7 0 0 1 12 6.2a4.7 4.7 0 0 1 8.8 2.5Z" strokeLinecap="round" strokeLinejoin="round" /></svg><span>{summary.reactionCount}</span><span className="sr-only">Sign in to like</span></Link>}
             <button type="button" onClick={toggleComments} aria-expanded={open} className="transition-colors hover:text-redline">Comments <span className="ml-1">{summary.commentCount}</span></button>
         </div>
         {open && <div className="mt-4 space-y-4"><div className="space-y-3">{loading ? <p className="text-sm text-graphite">Loading comments...</p> : topLevelComments.length === 0 ? <p className="text-sm text-graphite">No comments yet. Add the first note.</p> : topLevelComments.map((comment) => renderComment(comment))}</div>{currentUserId ? <form onSubmit={submitComment} className="flex gap-2">{replyingTo && <button type="button" onClick={() => setReplyingTo(null)} className="shrink-0 font-mono text-[9px] uppercase tracking-widest text-redline">Cancel reply</button>}<input autoFocus={Boolean(replyingTo)} value={body} onChange={(event) => setBody(event.target.value)} maxLength={500} className="field-input text-sm" placeholder={replyingTo ? "Write a reply" : "Add a note"} /><button type="submit" className="shrink-0 rounded-full border border-ink bg-ink px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-paper hover:bg-redline">{replyingTo ? "Reply" : "Post"}</button></form> : <p className="font-mono text-[10px] uppercase tracking-widest text-graphite"><Link href="/login" className="text-redline hover:text-ink">Sign in</Link> to join the conversation.</p>}{message && <p role="alert" className="font-mono text-[10px] uppercase tracking-widest text-redline">{message}</p>}</div>}

@@ -4,7 +4,7 @@ import { Profile, UserRole } from "@/types";
 import ProfileAvatar from "@/app/components/ProfileAvatar";
 import FollowButton from "@/app/components/FollowButton";
 import { getCurrentProfile } from "@/lib/queries/profiles";
-import { getFollowStatesForTargets, getProfileOwnerUserIds } from "@/lib/queries/follows";
+import { getFollowCountsForTargets, getFollowStatesForTargets, getProfileOwnerUserIds } from "@/lib/queries/follows";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 interface DiscoverPageProps {
-    searchParams: Promise<{ role?: string }>;
+    searchParams: Promise<{ role?: string; page?: string }>;
 }
 
 export default async function DiscoverPage({ searchParams }: DiscoverPageProps) {
@@ -22,13 +22,21 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
     const role = ["student", "architect", "firm"].includes(params.role ?? "")
         ? params.role as UserRole
         : undefined;
-    const { data: profiles, error: profilesError } = await searchProfiles(
+    const requestedPage = Number.parseInt(params.page ?? "1", 10);
+    const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+    const pageSize = 24;
+    const { data: profiles, error: profilesError, count } = await searchProfiles(
         { role },
-        { limit: 1000, offset: 0 },
-        { sortBy: "created_at", ascending: false, random: true },
+        { limit: pageSize, offset: (page - 1) * pageSize },
+        { sortBy: "created_at", ascending: false },
     );
+    const totalPages = Math.max(1, Math.ceil((count ?? 0) / pageSize));
+    const canGoBack = page > 1;
+    const canGoForward = page < totalPages;
+    const pageHref = (nextPage: number) => `/discover?${new URLSearchParams({ ...(role ? { role } : {}), page: String(nextPage) })}`;
     const { data: currentProfile } = await getCurrentProfile();
     const ownerIds = await getProfileOwnerUserIds((profiles ?? []).map((profile) => profile.id));
+    const followCounts = await getFollowCountsForTargets(Object.values(ownerIds));
     const followStates = await getFollowStatesForTargets(currentProfile?.user_id ?? null, Object.values(ownerIds));
 
     return (
@@ -45,8 +53,8 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                         <p className="mt-2 text-xs leading-relaxed text-graphite">Start with the kind of practice you want to meet.</p>
                         <div className="space-y-4">
                             <div>
-                                <label className="block font-mono text-xs uppercase tracking-wider text-graphite mb-1.5">Role</label>
-                                <select name="role" defaultValue={role ?? ""} className="w-full rounded-xl border border-line bg-paper p-3 text-sm font-mono text-ink focus:outline-none focus:border-ink cursor-pointer">
+                                <label htmlFor="discover-role" className="block font-mono text-xs uppercase tracking-wider text-graphite mb-1.5">Role</label>
+                                <select id="discover-role" name="role" defaultValue={role ?? ""} className="w-full rounded-xl border border-line bg-paper p-3 text-sm font-mono text-ink focus:outline-none focus:border-ink cursor-pointer">
                                     <option value="">All Roles</option>
                                     <option value="student">Student</option>
                                     <option value="architect">Architect</option>
@@ -55,6 +63,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                                 <button type="submit" className="mt-3 w-full rounded-full border border-ink bg-ink px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-paper transition-all duration-300 hover:-translate-y-0.5 hover:bg-redline">
                                     Filter profiles ↗
                                 </button>
+                                {role && <Link href="/discover" className="mt-3 block text-center font-mono text-[10px] uppercase tracking-widest text-graphite underline underline-offset-4 hover:text-ink">Clear filter</Link>}
                             </div>
                         </div>
                     </form>
@@ -71,35 +80,44 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                                             key={profile.id}
                                             className="surface card-lift flex min-h-[220px] flex-col justify-between p-4 sm:min-h-[240px] sm:p-5"
                                         >
-                                            <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+                                        <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
                                                 <ProfileAvatar profile={profile} size={40} className="h-10 w-10 rounded-full border border-line object-cover" />
                                                 <div className="flex flex-wrap items-center justify-end gap-1.5">
-                                                    {currentProfile?.id !== profile.id && ownerIds[profile.id] && <FollowButton followingId={ownerIds[profile.id]} initialFollowing={followStates[ownerIds[profile.id]]?.isFollowing ?? false} initialMutual={followStates[ownerIds[profile.id]]?.isMutual ?? false} initialFollowerCount={0} compact />}
+                                                    {currentProfile?.id !== profile.id && ownerIds[profile.id] && (
+                                                        <FollowButton
+                                                            followingId={ownerIds[profile.id]}
+                                                            initialFollowing={followStates[ownerIds[profile.id]]?.isFollowing ?? false}
+                                                            initialMutual={followStates[ownerIds[profile.id]]?.isMutual ?? false}
+                                                            initialFollowerCount={followCounts[ownerIds[profile.id]]?.followers ?? 0}
+                                                            compact
+                                                        />
+                                                    )}
                                                     <span className="shrink-0 rounded-full border border-line bg-paper px-2 py-1 font-mono text-[8px] uppercase tracking-widest text-graphite">{profile.role}</span>
                                                 </div>
                                             </div>
                                             <Link href={`/p/${profile.slug}`} className="group flex flex-1 flex-col justify-between">
-                                            <div>
-                                                <h3 className="mt-5 font-display text-xl font-semibold tracking-tight text-ink group-hover:text-redline transition-colors">{profile.name}</h3>
-                                                {profile.school_or_firm && (
-                                                    <p className="font-mono text-[10px] text-graphite uppercase tracking-wider mb-2">{profile.school_or_firm}</p>
-                                                )}
-                                                {profile.bio && (
-                                                    <p className="text-xs text-graphite leading-relaxed line-clamp-2">{profile.bio}</p>
-                                                )}
-                                            </div>
-                                            <div className="mt-6 flex items-center justify-between border-t border-line/70 pt-3">
-                                                <span className="font-mono text-[9px] uppercase tracking-wider text-graphite">View profile</span>
-                                                <span aria-hidden="true" className="text-redline transition-transform duration-300 group-hover:translate-x-1">
-                                                    <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                                        <path d="M3 13 13 3M5 3h8v8" strokeLinecap="round" strokeLinejoin="round" />
-                                                    </svg>
-                                                </span>
-                                            </div>
+                                                <div>
+                                                    <h3 className="mt-5 font-display text-xl font-semibold tracking-tight text-ink transition-colors group-hover:text-redline">{profile.name}</h3>
+                                                    {profile.school_or_firm && (
+                                                        <p className="mb-2 font-mono text-[10px] uppercase tracking-wider text-graphite">{profile.school_or_firm}</p>
+                                                    )}
+                                                    {profile.bio && (
+                                                        <p className="line-clamp-2 text-xs leading-relaxed text-graphite">{profile.bio}</p>
+                                                    )}
+                                                </div>
+                                                <div className="mt-6 flex items-center justify-between border-t border-line/70 pt-3">
+                                                    <span className="font-mono text-[9px] uppercase tracking-wider text-graphite">View profile</span>
+                                                    <span aria-hidden="true" className="text-redline transition-transform duration-300 group-hover:translate-x-1">
+                                                        <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                                            <path d="M3 13 13 3M5 3h8v8" strokeLinecap="round" strokeLinejoin="round" />
+                                                        </svg>
+                                                    </span>
+                                                </div>
                                             </Link>
                                         </div>
                                     ))}
                                 </div>
+                                {totalPages > 1 && <nav aria-label="Profile results pages" className="mt-8 flex items-center justify-between gap-4 border-t border-line pt-5"><Link href={pageHref(page - 1)} aria-disabled={!canGoBack} tabIndex={canGoBack ? undefined : -1} className={`rounded-full border border-ink px-4 py-2 font-mono text-[10px] uppercase tracking-widest ${canGoBack ? "text-ink hover:bg-ink hover:text-paper" : "pointer-events-none border-line text-graphite/60"}`}>Previous</Link><p className="font-mono text-[10px] uppercase tracking-widest text-graphite">Page {page} of {totalPages}</p><Link href={pageHref(page + 1)} aria-disabled={!canGoForward} tabIndex={canGoForward ? undefined : -1} className={`rounded-full border border-ink px-4 py-2 font-mono text-[10px] uppercase tracking-widest ${canGoForward ? "text-ink hover:bg-ink hover:text-paper" : "pointer-events-none border-line text-graphite/60"}`}>Next</Link></nav>}
                             </>
                         ) : (
                             <div className="border border-dashed border-line p-12 text-center text-graphite bg-paper font-mono text-xs uppercase tracking-widest">

@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     if (!followingId) return NextResponse.json({ error: "A following profile is required" }, { status: 400 });
     const result = await followUser(followingId);
     if (result.error) return NextResponse.json({ error: result.error.message }, { status: result.error.message === "Unauthenticated" ? 401 : 400 });
-    return NextResponse.json({ following: true }, { status: 201 });
+    return NextResponse.json({ following: true, mutual: Boolean(result.data?.mutual) }, { status: 201 });
 }
 
 export async function DELETE(request: Request) {

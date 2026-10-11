@@ -25,10 +25,13 @@ export default function OnboardingFrame({ step, children }: { step: 1 | 2 | 3; c
                         const complete = number < step;
                         return (
                             <div key={item.href} className="flex flex-1 items-center gap-2">
-                                <Link href={complete ? item.href : active ? item.href : "#"} aria-current={active ? "step" : undefined} className={`flex min-w-0 items-center gap-2 font-mono text-[10px] uppercase tracking-widest ${active ? "text-ink" : complete ? "text-redline" : "text-graphite/50"}`}>
+                                {complete || active ? <Link href={item.href} aria-current={active ? "step" : undefined} className={`flex min-w-0 items-center gap-2 font-mono text-[10px] uppercase tracking-widest ${active ? "text-ink" : "text-redline"}`}>
                                     <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border ${active ? "border-ink bg-ink text-paper" : complete ? "border-redline text-redline" : "border-line text-graphite/50"}`}>{complete ? <Check /> : String(number).padStart(2, "0")}</span>
                                     <span className="hidden truncate sm:inline">{item.label}</span>
-                                </Link>
+                                </Link> : <span aria-disabled="true" className="flex min-w-0 items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-graphite/50">
+                                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-line text-graphite/50">{String(number).padStart(2, "0")}</span>
+                                    <span className="hidden truncate sm:inline">{item.label}</span>
+                                </span>}
                                 {number < steps.length && <span className={`h-px flex-1 ${complete ? "bg-redline/50" : "bg-line"}`} />}
                             </div>
                         );

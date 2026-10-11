@@ -1,4 +1,5 @@
 import { getCurrentProfile } from "@/lib/queries/profiles";
+import { redirect } from "next/navigation";
 import SettingsEditor from "./SettingsEditor";
 import DeleteAccountButton from "./DeleteAccountButton";
 
@@ -6,6 +7,7 @@ export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
     const { data: profile } = await getCurrentProfile();
+    if (!profile) redirect("/login");
 
     return (
         <div className="bg-paper text-ink flex flex-col font-sans selection:bg-redline selection:text-paper">

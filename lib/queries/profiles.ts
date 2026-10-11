@@ -219,7 +219,6 @@ export function normalizePagination(pagination: PaginationOptions = {}): Require
 export interface SortingOptions {
     sortBy?: "created_at" | "name" | "location";
     ascending?: boolean;
-    random?: boolean;
 }
 
 export async function searchProfiles(
@@ -254,12 +253,6 @@ export async function searchProfiles(
             return { data: null, error: new Error(error.message) };
         }
         const profiles = [...(data as Profile[])];
-        if (sorting.random) {
-            for (let index = profiles.length - 1; index > 0; index -= 1) {
-                const swapIndex = Math.floor(Math.random() * (index + 1));
-                [profiles[index], profiles[swapIndex]] = [profiles[swapIndex], profiles[index]];
-            }
-        }
         return { data: profiles, error: null, count: count ?? undefined };
     } catch (err) {
         console.error("Unhandled error in searchProfiles:", err);

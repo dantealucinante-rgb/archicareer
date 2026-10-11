@@ -14,6 +14,11 @@ export const metadata: Metadata = {
     alternates: { canonical: "/jobs" },
 };
 
+function applicationDestination(value: string | null) {
+    if (!value) return null;
+    return value.includes("@") && !value.startsWith("http") ? `mailto:${value}` : value;
+}
+
 export default async function JobsPage() {
     const [{ data: jobs, error: jobsError }, { data: profile }] = await Promise.all([getJobListings(), getCurrentProfile()]);
     const canPost = profile?.role === "firm";
@@ -52,7 +57,10 @@ export default async function JobsPage() {
                                                 {job.firm_name}
                                             </p>
                                         </div>
-                                <ApplyButton jobListingId={job.id} authenticated={Boolean(profile)} />
+                                <div className="flex flex-wrap items-center justify-end gap-3">
+                                    {job.apply_link_or_email && <a href={applicationDestination(job.apply_link_or_email) ?? undefined} target="_blank" rel="noreferrer" className="font-mono text-[10px] uppercase tracking-widest text-redline hover:text-ink">External application ↗</a>}
+                                    <ApplyButton jobListingId={job.id} authenticated={Boolean(profile)} />
+                                </div>
                                     </div>
                                     <p className="mt-6 max-w-2xl text-sm leading-relaxed text-graphite">{job.description}</p>
                                 </article>
@@ -73,7 +81,7 @@ export default async function JobsPage() {
                                 <JobPostForm />
                             </>
                         ) : (
-                            <p className="text-sm leading-relaxed text-graphite">Sign in with a studio or company profile to post an opportunity.</p>
+                            <p className="text-sm leading-relaxed text-paper/70">Sign in with a studio or company profile to post an opportunity.</p>
                         )}
                     </aside>
                 </div>

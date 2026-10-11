@@ -1,10 +1,12 @@
 import ProfileEditor from "../ProfileEditor";
 import { getCurrentProfile } from "@/lib/queries/profiles";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function ProfileEditPage() {
     const { data: profile } = await getCurrentProfile();
+    if (!profile) redirect("/onboarding/about");
 
     return (
         <div className="bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
