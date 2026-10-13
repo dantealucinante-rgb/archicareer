@@ -11,7 +11,7 @@ export default function FirmLoginPage() {
 
     async function continueWithGoogle() {
         setStatus("sending"); setMessage("");
-        const { error } = await createClient().auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/auth/callback?next=/firms/onboarding` } });
+        const { error } = await createClient().auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/auth/callback?next=/feed` } });
         if (error) { setStatus("error"); setMessage(error.message); }
     }
 
@@ -19,7 +19,7 @@ export default function FirmLoginPage() {
         event.preventDefault();
         if (!email.trim()) { setStatus("error"); setMessage("Enter your work email."); return; }
         setStatus("sending"); setMessage("");
-        const { error } = await createClient().auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/firms/onboarding` } });
+        const { error } = await createClient().auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/feed` } });
         if (error) { setStatus("error"); setMessage(error.message); return; }
         setStatus("sent"); setMessage("Magic link sent. Check your work email to continue.");
     }

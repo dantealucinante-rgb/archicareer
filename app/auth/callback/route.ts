@@ -4,9 +4,9 @@ import { createAdminClient, createClient } from "@/lib/supabase/server";
 export async function GET(request: Request) {
     const requestUrl = new URL(request.url);
     const code = requestUrl.searchParams.get("code");
-    const requestedNext = requestUrl.searchParams.get("next") || "/profile";
+    const requestedNext = requestUrl.searchParams.get("next") || "/feed";
     // Only allow relative in-app redirects after authentication.
-    let next = "/profile";
+    let next = "/feed";
     if (requestedNext.startsWith("/") && !requestedNext.startsWith("//") && !requestedNext.includes("\\")) {
         try {
             const candidate = new URL(requestedNext, requestUrl.origin);

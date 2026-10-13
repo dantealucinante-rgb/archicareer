@@ -22,7 +22,7 @@ export default function LoginPage() {
         setMessage("");
 
         const supabase = createClient();
-        const redirectTo = `${window.location.origin}/auth/callback?next=/profile`;
+        const redirectTo = `${window.location.origin}/auth/callback?next=/feed`;
         const { error } = await supabase.auth.signInWithOtp({
             email: email.trim(),
             options: {
@@ -45,7 +45,7 @@ export default function LoginPage() {
         setMessage("");
 
         const supabase = createClient();
-        const redirectTo = `${window.location.origin}/auth/callback?next=/profile`;
+        const redirectTo = `${window.location.origin}/auth/callback?next=/feed`;
         const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
