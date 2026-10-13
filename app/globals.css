@@ -48,7 +48,6 @@ body {
   font-family: var(--font-sans);
   background-image: none;
   line-height: 1.5;
-  overflow-x: hidden;
 }
 
 *,
@@ -185,5 +184,67 @@ button {
   .sheet-reveal {
     opacity: 0;
     transform: translateY(-4px) scale(.97);
+  }
+}
+
+/* Architecture Orbit Band Animation */
+@keyframes orbit-band-card {
+  0.00% { transform: translate3d(270px, -52px, 0) scale(0.930); opacity: 0.80; z-index: 20; }
+  4.17% { transform: translate3d(266px, -24px, 0) scale(0.958); opacity: 0.85; z-index: 20; }
+  8.33% { transform: translate3d(244px, 6px, 0) scale(0.985); opacity: 0.90; z-index: 20; }
+  12.50% { transform: translate3d(205px, 36px, 0) scale(1.008); opacity: 0.94; z-index: 20; }
+  16.67% { transform: translate3d(152px, 63px, 0) scale(1.025); opacity: 0.97; z-index: 20; }
+  20.83% { transform: translate3d(89px, 86px, 0) scale(1.036); opacity: 0.99; z-index: 20; }
+  25.00% { transform: translate3d(20px, 103px, 0) scale(1.040); opacity: 1.00; z-index: 20; }
+  29.17% { transform: translate3d(-51px, 113px, 0) scale(1.036); opacity: 0.99; z-index: 20; }
+  33.33% { transform: translate3d(-118px, 115px, 0) scale(1.025); opacity: 0.97; z-index: 20; }
+  37.50% { transform: translate3d(-177px, 110px, 0) scale(1.008); opacity: 0.94; z-index: 20; }
+  41.67% { transform: translate3d(-224px, 97px, 0) scale(0.985); opacity: 0.90; z-index: 20; }
+  45.83% { transform: translate3d(-256px, 77px, 0) scale(0.958); opacity: 0.85; z-index: 20; }
+  50.00% { transform: translate3d(-270px, 52px, 0) scale(0.930); opacity: 0.80; z-index: 20; }
+  50.01% { z-index: 5; }
+  54.17% { transform: translate3d(-266px, 24px, 0) scale(0.902); opacity: 0.75; z-index: 5; }
+  58.33% { transform: translate3d(-244px, -6px, 0) scale(0.875); opacity: 0.70; z-index: 5; }
+  62.50% { transform: translate3d(-205px, -36px, 0) scale(0.852); opacity: 0.66; z-index: 5; }
+  66.67% { transform: translate3d(-152px, -63px, 0) scale(0.835); opacity: 0.63; z-index: 5; }
+  70.83% { transform: translate3d(-89px, -86px, 0) scale(0.824); opacity: 0.61; z-index: 5; }
+  75.00% { transform: translate3d(-20px, -103px, 0) scale(0.820); opacity: 0.60; z-index: 5; }
+  79.17% { transform: translate3d(51px, -113px, 0) scale(0.824); opacity: 0.61; z-index: 5; }
+  83.33% { transform: translate3d(118px, -115px, 0) scale(0.835); opacity: 0.63; z-index: 5; }
+  87.50% { transform: translate3d(177px, -110px, 0) scale(0.852); opacity: 0.66; z-index: 5; }
+  91.67% { transform: translate3d(224px, -97px, 0) scale(0.875); opacity: 0.70; z-index: 5; }
+  95.83% { transform: translate3d(256px, -77px, 0) scale(0.902); opacity: 0.75; z-index: 5; }
+  99.99% { z-index: 5; }
+  100.00% { transform: translate3d(270px, -52px, 0) scale(0.930); opacity: 0.80; z-index: 20; }
+}
+
+.orbit-card-anim {
+  animation: orbit-band-card 36s linear infinite;
+  will-change: transform, opacity;
+}
+
+.orbit-card-anim--0 { animation-delay: 0s; }
+.orbit-card-anim--1 { animation-delay: -6s; }
+.orbit-card-anim--2 { animation-delay: -12s; }
+.orbit-card-anim--3 { animation-delay: -18s; }
+.orbit-card-anim--4 { animation-delay: -24s; }
+.orbit-card-anim--5 { animation-delay: -30s; }
+
+.orbit-track--paused .orbit-card-anim {
+  animation-play-state: paused !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .orbit-track:hover .orbit-card-anim {
+    animation-play-state: paused;
+  }
+  .orbit-card-anim:hover {
+    z-index: 40 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orbit-card-anim {
+    animation-play-state: paused !important;
   }
 }

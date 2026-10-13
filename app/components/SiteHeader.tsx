@@ -36,7 +36,7 @@ export default async function SiteHeader() {
                             </Link>
                             <Link
                                 href="/signup"
-                                className="interactive inline-flex items-center justify-center rounded-full border border-ink bg-ink px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-paper hover:border-redline hover:bg-redline sm:px-5 sm:text-[11px]"
+                                className="interactive hidden items-center justify-center rounded-full border border-ink bg-ink px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-paper hover:border-redline hover:bg-redline sm:inline-flex sm:px-5 sm:text-[11px]"
                             >
                                 Join Now
                             </Link>

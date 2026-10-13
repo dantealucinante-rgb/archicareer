@@ -9,6 +9,7 @@ type Image = { id: string; image_url: string };
 export default function PortfolioGallery({ images, title }: { images: Image[]; title: string }) {
     const [active, setActive] = useState(0);
     const [fading, setFading] = useState(false);
+    const [expanded, setExpanded] = useState(false);
     const changeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => () => {
@@ -33,6 +34,7 @@ export default function PortfolioGallery({ images, title }: { images: Image[]; t
         <div className="mt-4">
             <div className="group relative aspect-video overflow-hidden border border-line">
                 <NextImage src={current.image_url} alt={`${title}, image ${active + 1} of ${images.length}`} fill sizes="(max-width: 768px) 100vw, 50vw" className={`object-cover transition-opacity duration-[160ms] ${fading ? "opacity-0" : "opacity-100"}`} />
+                <button type="button" onClick={() => setExpanded(true)} className="absolute inset-0 cursor-zoom-in" aria-label={`Enlarge ${title}`} />
                 {images.length > 1 && (
                     <>
                         <button type="button" aria-label="Previous project image" onClick={() => move(-1)} className="absolute left-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center border border-line bg-paper/90 text-ink opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100"><ArrowLeft /></button>
@@ -48,6 +50,7 @@ export default function PortfolioGallery({ images, title }: { images: Image[]; t
                     </div>
                 </div>
             )}
+            {expanded && <div role="dialog" aria-modal="true" aria-label={`${title} image viewer`} className="fixed inset-0 z-50 grid place-items-center bg-night/90 p-5" onClick={() => setExpanded(false)}><div className="relative max-h-full w-full max-w-6xl" onClick={(event) => event.stopPropagation()}><NextImage src={current.image_url} alt={`${title}, enlarged image ${active + 1} of ${images.length}`} width={1600} height={1000} className="max-h-[85vh] w-full object-contain" /><button type="button" onClick={() => setExpanded(false)} className="absolute right-3 top-3 rounded-full bg-paper px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-ink">Close</button></div></div>}
         </div>
     );
 }

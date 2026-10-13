@@ -37,6 +37,7 @@ export default function OnboardingFrame({ step, children }: { step: 1 | 2 | 3; c
                         );
                     })}
                 </div>
+                <p className="-mt-5 mb-7 font-mono text-[10px] uppercase tracking-widest text-graphite sm:hidden">Step {step} of {steps.length}: <span className="text-ink">{steps[step - 1].label}</span></p>
                 {children}
             </main>
         </div>

@@ -56,7 +56,10 @@ export default function MobileNav({ authenticated }: Props) {
                                 <SignOutButton mobile />
                             </>
                         ) : (
-                            <Link href="/login" onClick={() => setOpen(false)} className="text-ink">Sign In</Link>
+                            <>
+                                <Link href="/signup" onClick={() => setOpen(false)} className="interactive rounded-xl bg-ink px-4 py-3 text-paper">Join Now</Link>
+                                <Link href="/login" onClick={() => setOpen(false)} className="interactive rounded-xl px-4 py-3 text-ink">Sign In</Link>
+                            </>
                         )}
                     </div>
                 </nav>

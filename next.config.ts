@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://supabase.invalid").hostname,
+        pathname: "/storage/v1/object/public/post-images/**",
+      },
+      {
+        protocol: "https",
+        hostname: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://supabase.invalid").hostname,
         pathname: "/storage/v1/object/public/avatars/**",
       },
       {

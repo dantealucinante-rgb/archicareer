@@ -117,18 +117,41 @@ export default function PortfolioEditor({ initialItems, variant = "individual", 
         if (target < 0 || target >= item.images.length) return;
         const images = [...item.images];
         [images[index], images[target]] = [images[target], images[index]];
-        const response = await fetch("/api/portfolio", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id, imageOrder: images.map((image) => image.id) }) });
-        if (response.ok) setItems((current) => current.map((currentItem) => currentItem.id === item.id ? { ...currentItem, images } : currentItem));
+        setMessage("");
+        try {
+            const response = await fetch("/api/portfolio", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id, imageOrder: images.map((image) => image.id) }) });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.error ?? "Unable to reorder portfolio images.");
+            setItems((current) => current.map((currentItem) => currentItem.id === item.id ? { ...currentItem, images } : currentItem));
+        } catch (error) {
+            setMessage(error instanceof Error ? error.message : "Unable to reorder portfolio images.");
+        }
     }
 
     async function removeImage(item: PortfolioItem, imageId: string) {
-        const response = await fetch("/api/portfolio", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ imageId }) });
-        if (response.ok) setItems((current) => current.map((currentItem) => currentItem.id === item.id ? { ...currentItem, images: currentItem.images.filter((image) => image.id !== imageId) } : currentItem));
+        if (!window.confirm("Remove this image from the project? This cannot be undone.")) return;
+        setMessage("");
+        try {
+            const response = await fetch("/api/portfolio", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ imageId }) });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.error ?? "Unable to remove portfolio image.");
+            setItems((current) => current.map((currentItem) => currentItem.id === item.id ? { ...currentItem, images: currentItem.images.filter((image) => image.id !== imageId) } : currentItem));
+        } catch (error) {
+            setMessage(error instanceof Error ? error.message : "Unable to remove portfolio image.");
+        }
     }
 
     async function removeItem(id: string) {
-        const response = await fetch("/api/portfolio", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
-        if (response.ok) setItems((current) => current.filter((item) => item.id !== id));
+        if (!window.confirm("Remove this project? This cannot be undone.")) return;
+        setMessage("");
+        try {
+            const response = await fetch("/api/portfolio", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.error ?? "Unable to remove portfolio item.");
+            setItems((current) => current.filter((item) => item.id !== id));
+        } catch (error) {
+            setMessage(error instanceof Error ? error.message : "Unable to remove portfolio item.");
+        }
     }
 
     const input = "field-input text-sm";
@@ -136,7 +159,8 @@ export default function PortfolioEditor({ initialItems, variant = "individual", 
 
     return <section id="portfolio" className="scroll-mt-28">
         <div className="mb-6 flex items-end justify-between gap-4"><div><p className="eyebrow font-mono text-redline">{variant === "firm" ? "SELECTED WORK" : "PORTFOLIO"}</p><h2 className="mt-2 font-display text-2xl font-semibold tracking-tight text-ink">{variant === "firm" ? "Company projects" : "Your project work"}</h2><p className="mt-2 max-w-md text-sm leading-relaxed text-graphite">{variant === "firm" ? "Add the work that shows what the practice can do." : "Add projects as you finish them. This is the work people come to your profile to see."}</p></div><div className="flex items-center gap-4"><span className="font-mono text-[10px] text-graphite">{String(items.length).padStart(2, "0")} ITEMS</span><button type="button" aria-label={composerOpen ? "Close add project menu" : "Add a new project"} aria-expanded={composerOpen} title={composerOpen ? "Close add project menu" : "Add a new project"} onClick={() => setComposerOpen((open) => !open)} className="grid h-10 w-10 place-items-center rounded-full bg-ink text-paper transition-colors hover:bg-redline" >{composerOpen ? <span aria-hidden="true" className="text-xl leading-none">×</span> : <svg aria-hidden="true" viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M8 3v10M3 8h10" strokeLinecap="round" /></svg>}</button></div></div>
-        <div className="space-y-3">{items.length === 0 ? <div className="rounded-2xl border border-dashed border-line p-7 text-center text-sm text-graphite">No projects yet. Add your first one below.</div> : items.map((item) => <div key={item.id} className="rounded-2xl border border-line bg-warm-white p-5"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-display text-base font-semibold text-ink">{item.title}</p><p className="mt-1 font-mono text-[10px] uppercase tracking-wider text-graphite">{item.status}{" // "}{item.images.length} images</p></div><div className="flex gap-4"><button type="button" onClick={() => editItem(item)} className="font-mono text-[10px] uppercase tracking-widest text-ink transition-colors hover:text-redline">Edit</button><button type="button" onClick={() => removeItem(item.id)} className="font-mono text-[10px] uppercase tracking-widest text-redline">Remove</button></div></div>{item.images.length > 0 && <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">{item.images.map((image, index) => <div key={image.id} className="relative overflow-hidden rounded-xl"><NextImage src={image.image_url} alt={item.title} width={640} height={360} className="aspect-video w-full object-cover" /><div className="absolute bottom-1 left-1 flex gap-1"><button type="button" aria-label="Move image up" onClick={() => moveImage(item, index, -1)} className="rounded bg-paper px-1.5 font-mono text-[10px] text-ink">↑</button><button type="button" aria-label="Move image down" onClick={() => moveImage(item, index, 1)} className="rounded bg-paper px-1.5 font-mono text-[10px] text-ink">↓</button><button type="button" aria-label="Remove image" onClick={() => removeImage(item, image.id)} className="rounded bg-paper px-1.5 font-mono text-[10px] text-redline">×</button></div></div>)}</div>}</div>)}</div>
+        <div className="space-y-3">{items.length === 0 ? <div className="rounded-2xl border border-line bg-warm-white p-8 text-center"><p className="font-display text-xl text-ink">Start with a project you are proud of.</p><p className="mt-2 text-sm text-graphite">Add a title, a few images, and the story behind the work.</p><button type="button" onClick={() => setComposerOpen(true)} className="mt-5 rounded-full bg-ink px-5 py-2.5 font-mono text-[10px] uppercase tracking-widest text-paper hover:bg-redline">Add your first project</button></div> : items.map((item) => <div key={item.id} className="rounded-2xl border border-line bg-warm-white p-5"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><p className="font-display text-base font-semibold text-ink">{item.title}</p><p className="mt-1 font-mono text-[10px] uppercase tracking-wider text-graphite">{item.status}{" // "}{item.images.length} images</p></div><div className="flex gap-4"><button type="button" onClick={() => editItem(item)} className="font-mono text-[10px] uppercase tracking-widest text-ink transition-colors hover:text-redline">Edit</button><button type="button" onClick={() => void removeItem(item.id)} className="font-mono text-[10px] uppercase tracking-widest text-redline">Remove</button></div></div>{item.images.length > 0 && <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">{item.images.map((image, index) => <div key={image.id} className="relative overflow-hidden rounded-xl"><NextImage src={image.image_url} alt={item.title} width={640} height={360} className="aspect-video w-full object-cover" /><div className="absolute bottom-1 left-1 flex gap-1"><button type="button" aria-label="Move image up" onClick={() => void moveImage(item, index, -1)} className="rounded bg-paper px-1.5 font-mono text-[10px] text-ink">↑</button><button type="button" aria-label="Move image down" onClick={() => void moveImage(item, index, 1)} className="rounded bg-paper px-1.5 font-mono text-[10px] text-ink">↓</button><button type="button" aria-label="Remove image" onClick={() => void removeImage(item, image.id)} className="rounded bg-paper px-1.5 font-mono text-[10px] text-redline">×</button></div></div>)}</div>}</div>)}</div>
+        {message && <p role="alert" aria-live="polite" className={`mt-4 font-mono text-[10px] uppercase tracking-widest ${message.startsWith("Unable") ? "text-redline" : "text-graphite"}`}>{message}</p>}
         {composerOpen && <form onSubmit={handleSubmit} className="surface mt-6 space-y-5 rounded-2xl p-5 sm:p-7"><div><p className="eyebrow font-mono text-redline">{editingId ? "EDIT PROJECT" : "ADD A PROJECT"}</p><h3 className="mt-2 font-display text-xl font-semibold tracking-tight">{editingId ? "Update the project" : "What are you working on?"}</h3><p className="mt-2 text-sm text-graphite">Start with the name, a short description, and the images people should see first.</p></div>
             <div><label className={label}>Project title</label><input required value={title} onChange={(event) => setTitle(event.target.value)} className={input} placeholder="A title people will remember" /></div>
             <div><label className={label}>Short description</label><textarea value={description} onChange={(event) => setDescription(event.target.value)} className={`${input} resize-y`} rows={3} placeholder="What is it, and what were you trying to explore?" /></div>
@@ -148,7 +172,7 @@ export default function PortfolioEditor({ initialItems, variant = "individual", 
                 <div><label className={label}>Software used</label><TagInput values={software} onChange={setSoftware} placeholder="Type a tool and press Enter" /></div>
                 <div><label className={label}>Process note <span className="normal-case tracking-normal">({processNote.length}/280)</span></label><textarea maxLength={280} value={processNote} onChange={(event) => setProcessNote(event.target.value)} className={`${input} resize-y`} rows={2} placeholder="One-line concept note" />{processNote.length >= 280 && <p className="mt-1 font-mono text-[10px] uppercase tracking-widest text-redline">Process note is at its 280-character limit.</p>}</div>
             </div>}
-            <div className="flex flex-col items-start justify-between gap-4 border-t border-line pt-4 sm:flex-row sm:items-center"><p aria-live="polite" className={`font-mono text-[10px] uppercase tracking-widest ${message.startsWith("Unable") || message.includes("must be") ? "text-redline" : "text-graphite"}`}>{message}</p><div className="flex gap-3">{editingId && <button type="button" onClick={resetForm} className="border border-line px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-ink">Cancel</button>}<button disabled={saving} className="border border-ink bg-ink px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-paper transition-colors hover:bg-paper hover:text-ink disabled:cursor-not-allowed disabled:opacity-60">{saving ? (files.length > 0 && !editingId ? "Uploading..." : "Saving...") : editingId ? "Update Project" : "Add Project"}</button></div></div>
+            <div className="flex flex-col items-start justify-end gap-4 border-t border-line pt-4 sm:flex-row sm:items-center"><div className="flex gap-3">{editingId && <button type="button" onClick={resetForm} className="border border-line px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-ink">Cancel</button>}<button disabled={saving} className="border border-ink bg-ink px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-paper transition-colors hover:bg-paper hover:text-ink disabled:cursor-not-allowed disabled:opacity-60">{saving ? (files.length > 0 && !editingId ? "Uploading..." : "Saving...") : editingId ? "Update Project" : "Add Project"}</button></div></div>
         </form>}
     </section>;
 }

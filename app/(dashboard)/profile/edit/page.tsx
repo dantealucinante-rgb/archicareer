@@ -21,6 +21,7 @@ export default async function ProfileEditPage() {
                 </div>
 
                 <div className="grid gap-8 lg:grid-cols-[220px_1fr] lg:items-start">
+                    <nav className="flex gap-4 overflow-x-auto border-y border-line py-3 text-sm lg:hidden"><a href="#about" className="shrink-0 text-ink">{profile?.role === "firm" ? "About the practice" : "About you"}</a><a href="#links" className="shrink-0 text-graphite">Links & files</a></nav>
                     <aside className="hidden lg:block lg:sticky lg:top-28">
                         <p className="font-mono text-[10px] uppercase tracking-widest text-graphite">Profile sections</p>
                         <nav className="mt-4 space-y-2 border-l border-line pl-4 text-sm">

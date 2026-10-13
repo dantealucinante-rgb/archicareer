@@ -61,17 +61,14 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="flex-1 bg-paper text-ink flex items-center justify-center py-12 px-6 relative font-sans selection:bg-redline selection:text-paper">
-            <div className="absolute top-6 left-6 flex items-center gap-2">
-                <span className="font-mono text-xs text-graphite tracking-widest">A-02 // AUTH</span>
-            </div>
+        <div className="flex-1 bg-paper text-ink flex items-center justify-center px-6 py-10 font-sans selection:bg-redline selection:text-paper">
 
-            <div className="surface relative z-10 w-full max-w-md p-7 sm:p-9">
-                <div className="text-center mb-8 border-b border-line pb-6">
+            <div className="relative z-10 w-full max-w-md rounded-2xl border border-line bg-warm-white p-6 sm:p-8">
+                <div className="mb-7 border-b border-line pb-5">
                     <Link href="/" className="inline-flex items-center font-display text-2xl font-bold tracking-tight text-ink hover:text-redline transition-colors">
                         ArchiCareer
                     </Link>
-                    <h2 className="mt-4 font-display text-2xl font-normal tracking-tight uppercase text-ink">Sign in to your account</h2>
+                    <h2 className="mt-4 font-display text-2xl font-semibold tracking-tight text-ink">Sign in</h2>
                     <p className="mt-2 text-xs font-mono uppercase tracking-wider text-graphite">
                         Or{" "}
                         <Link href="/signup" className="text-redline hover:underline font-mono">
@@ -89,6 +86,7 @@ export default function LoginPage() {
                     >
                         {status === "sending" ? "Connecting..." : "Continue with Google"}
                     </button>
+                    <p className="text-center text-xs text-graphite">Google sign-in is for student or architect profiles. Firms should use <Link href="/firms/login" className="text-ink underline underline-offset-2 hover:text-redline">firm sign-in</Link>.</p>
 
                     <div className="flex items-center gap-3">
                         <span className="h-px flex-1 bg-line" />
@@ -122,15 +120,11 @@ export default function LoginPage() {
                     </button>
 
                     {message && (
-                        <p className={`font-mono text-[10px] uppercase tracking-widest ${status === "error" ? "text-redline" : "text-graphite"}`}>
-                            {message}
-                        </p>
+                        <p role={status === "error" ? "alert" : undefined} className={`rounded-lg px-3 py-2 text-sm ${status === "error" ? "border border-redline/30 bg-redline/10 text-redline" : "text-graphite"}`}>{status === "error" && <span aria-hidden="true">⚠ </span>}{message}</p>
                     )}
                 </form>
             </div>
 
-            <div className="absolute top-0 bottom-0 left-12 w-[1px] bg-line/20 -z-0 pointer-events-none"></div>
-            <div className="absolute left-0 right-0 top-12 h-[1px] bg-line/20 -z-0 pointer-events-none"></div>
         </div>
     );
 }

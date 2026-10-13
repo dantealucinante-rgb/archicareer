@@ -1,0 +1,3 @@
+export default function OnboardingLoading() {
+    return <div className="min-h-screen bg-paper px-5 py-10 sm:px-8 sm:py-16"><main className="mx-auto w-full max-w-4xl"><div className="h-8 w-48 animate-pulse rounded bg-line/60" /><div className="mt-10 rounded-2xl border border-line bg-warm-white p-6 sm:p-10"><div className="h-7 w-44 animate-pulse rounded bg-line/60" /><div className="mt-8 space-y-5"><div className="h-12 animate-pulse rounded-xl bg-line/40" /><div className="h-12 animate-pulse rounded-xl bg-line/40" /><div className="h-28 animate-pulse rounded-xl bg-line/40" /></div></div></main></div>;
+}

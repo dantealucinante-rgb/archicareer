@@ -16,6 +16,7 @@ export default function FollowButton({ followingId, initialFollowing, initialMut
     const [mutual, setMutual] = useState(initialMutual);
     const [followerCount, setFollowerCount] = useState(initialFollowerCount);
     const [pending, setPending] = useState(false);
+    const [message, setMessage] = useState("");
 
     async function toggleFollow() {
         if (pending) return;
@@ -24,6 +25,7 @@ export default function FollowButton({ followingId, initialFollowing, initialMut
         const previousFollowerCount = followerCount;
         const nextFollowing = !following;
 
+        setMessage("");
         // Update the visible state immediately; the network request follows.
         setFollowing(nextFollowing);
         setMutual(nextFollowing ? mutual : false);
@@ -42,14 +44,18 @@ export default function FollowButton({ followingId, initialFollowing, initialMut
             setFollowing(previousFollowing);
             setMutual(previousMutual);
             setFollowerCount(previousFollowerCount);
+            setMessage("Couldn’t update follow. Try again.");
         }
         setPending(false);
     }
 
     const label = mutual ? "Friends" : following ? "Following" : "Follow";
-    return <button type="button" disabled={pending} onClick={toggleFollow} className={`interactive inline-flex items-center rounded-full border ${compact ? "px-3" : "px-4"} py-2 font-mono text-[10px] uppercase tracking-widest disabled:cursor-wait disabled:opacity-60 ${mutual ? "border-redline bg-paper text-redline hover:bg-redline hover:text-paper" : following ? "border-line bg-warm-white text-ink hover:border-ink" : "border-ink bg-paper text-ink hover:bg-ink hover:text-paper"}`}>
-        {following && !mutual && <Check className="mr-1.5 h-3 w-3" />}
-        {label}
-        <span className="sr-only">. {followerCount} followers</span>
-    </button>;
+    return <div className="flex flex-col items-end gap-1">
+        <button type="button" disabled={pending} onClick={toggleFollow} className={`interactive inline-flex items-center rounded-full border ${compact ? "px-3" : "px-4"} py-2 font-mono text-[10px] uppercase tracking-widest disabled:cursor-wait disabled:opacity-60 ${mutual ? "border-redline bg-paper text-redline hover:bg-redline hover:text-paper" : following ? "border-line bg-warm-white text-ink hover:border-ink" : "border-ink bg-paper text-ink hover:bg-ink hover:text-paper"}`}>
+            {following && !mutual && <Check className="mr-1.5 h-3 w-3" />}
+            {label}
+            <span className="sr-only">. {followerCount} followers</span>
+        </button>
+        {message && <p role="alert" className="max-w-40 text-right font-mono text-[9px] uppercase tracking-wider text-redline">{message}</p>}
+    </div>;
 }

@@ -43,15 +43,15 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
         <div className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
             <main className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 sm:py-16">
                 <div className="mb-10 grid gap-6 border-b border-line pb-10 lg:grid-cols-[1fr_auto] lg:items-end">
-                    <div><div className="eyebrow mb-4 font-mono text-redline">A-04 / DISCOVER</div><h1 className="display-balance max-w-2xl font-display text-4xl font-semibold leading-[0.92] tracking-[-0.06em] sm:text-7xl">Meet the people behind the work.</h1><p className="mt-5 max-w-xl text-base leading-relaxed text-graphite">Explore profiles from emerging talent, experienced professionals, studios, and companies.</p></div>
+                    <div className="min-w-0"><div className="eyebrow mb-4 font-mono text-redline">A-04 / DISCOVER</div><h1 className="display-balance max-w-2xl break-words font-display text-4xl font-semibold leading-[0.92] tracking-[-0.06em] sm:text-7xl">Meet the people behind the work.</h1><p className="mt-5 max-w-xl break-words text-base leading-relaxed text-graphite">Explore profiles from emerging talent, experienced professionals, studios, and companies.</p></div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-[240px_1fr]">
                     {/* Filters column */}
-                    <form method="get" className="surface h-fit p-5 lg:sticky lg:top-28">
-                        <h2 className="font-display text-lg font-semibold tracking-tight text-ink">Tune the field</h2>
+                    <details className="surface h-fit p-5 lg:sticky lg:top-28" open={false}>
+                        <summary className="cursor-pointer list-none font-display text-lg font-semibold tracking-tight text-ink lg:pointer-events-none">Tune the field <span className="float-right font-mono text-[10px] font-normal uppercase tracking-widest text-graphite lg:hidden">Filter +</span></summary>
                         <p className="mt-2 text-xs leading-relaxed text-graphite">Start with the kind of practice you want to meet.</p>
-                        <div className="space-y-4">
+                        <form method="get" className="mt-4 space-y-4">
                             <div>
                                 <label htmlFor="discover-role" className="block font-mono text-xs uppercase tracking-wider text-graphite mb-1.5">Role</label>
                                 <select id="discover-role" name="role" defaultValue={role ?? ""} className="w-full rounded-xl border border-line bg-paper p-3 text-sm font-mono text-ink focus:outline-none focus:border-ink cursor-pointer">
@@ -65,25 +65,26 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                                 </button>
                                 {role && <Link href="/discover" className="mt-3 block text-center font-mono text-[10px] uppercase tracking-widest text-graphite underline underline-offset-4 hover:text-ink">Clear filter</Link>}
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </details>
 
                     {/* Results column */}
                     <div>
                         {profilesError ? (
-                            <div className="border border-dashed border-redline p-12 text-center text-redline font-mono text-xs uppercase tracking-widest">Unable to load profiles right now. Please try again.</div>
+                            <div className="rounded-2xl border border-redline/30 bg-redline/5 p-10 text-center"><p className="font-display text-xl text-ink">We could not load the field.</p><p className="mt-2 text-sm text-graphite">Please try again.</p><Link href={`/discover?${new URLSearchParams({ ...(role ? { role } : {}), page: String(page) })}`} className="mt-4 inline-block font-mono text-[10px] uppercase tracking-widest text-redline underline underline-offset-4">Retry</Link></div>
                         ) : profiles && profiles.length > 0 ? (
                             <>
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                                     {profiles.map((profile: Profile) => (
                                         <div
                                             key={profile.id}
-                                            className="surface card-lift flex min-h-[220px] flex-col justify-between p-4 sm:min-h-[240px] sm:p-5"
+                                            className="surface card-lift relative flex min-h-[220px] flex-col justify-between p-4 sm:min-h-[240px] sm:p-5"
                                         >
-                                        <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+                                        <Link href={`/p/${profile.slug}`} aria-label={`View ${profile.name}'s profile`} className="absolute inset-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redline" />
+                                        <div className="relative z-10 mb-3 flex flex-wrap items-start justify-between gap-2 pointer-events-none">
                                                 <ProfileAvatar profile={profile} size={40} className="h-10 w-10 rounded-full border border-line object-cover" />
                                                 <div className="flex flex-wrap items-center justify-end gap-1.5">
-                                                    {currentProfile?.id !== profile.id && ownerIds[profile.id] && (
+                                                    {currentProfile?.id !== profile.id && ownerIds[profile.id] && (<span className="pointer-events-auto">
                                                         <FollowButton
                                                             followingId={ownerIds[profile.id]}
                                                             initialFollowing={followStates[ownerIds[profile.id]]?.isFollowing ?? false}
@@ -91,11 +92,11 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                                                             initialFollowerCount={followCounts[ownerIds[profile.id]]?.followers ?? 0}
                                                             compact
                                                         />
-                                                    )}
+                                                    </span>)}
                                                     <span className="shrink-0 rounded-full border border-line bg-paper px-2 py-1 font-mono text-[8px] uppercase tracking-widest text-graphite">{profile.role}</span>
                                                 </div>
                                             </div>
-                                            <Link href={`/p/${profile.slug}`} className="group flex flex-1 flex-col justify-between">
+                                            <div className="group relative z-10 flex flex-1 flex-col justify-between pointer-events-none">
                                                 <div>
                                                     <h3 className="mt-5 font-display text-xl font-semibold tracking-tight text-ink transition-colors group-hover:text-redline">{profile.name}</h3>
                                                     {profile.school_or_firm && (
@@ -113,7 +114,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                                                         </svg>
                                                     </span>
                                                 </div>
-                                            </Link>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>

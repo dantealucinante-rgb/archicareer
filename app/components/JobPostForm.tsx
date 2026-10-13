@@ -39,7 +39,7 @@ export default function JobPostForm() {
         }
     }
 
-    const input = "block w-full rounded-[2px] border border-line bg-paper px-3 py-2 font-mono text-sm text-ink focus:border-ink focus:outline-none";
+    const input = "block w-full rounded-xl border border-line bg-paper px-3 py-2.5 text-sm text-ink focus:border-ink focus:outline-none";
     const label = "block font-mono text-xs uppercase tracking-wider text-graphite mb-1.5";
 
     return (
@@ -50,7 +50,7 @@ export default function JobPostForm() {
             <p className="border border-dashed border-line p-3 font-mono text-[10px] uppercase tracking-widest text-graphite">Applicants can apply on ArchiCareer, or use the external contact you provide.</p>
             <div><label htmlFor="job-description" className={label}>Description</label><textarea id="job-description" required minLength={10} rows={5} value={description} onChange={(event) => setDescription(event.target.value)} className={`${input} resize-y`} /></div>
             <div><label htmlFor="job-application-destination" className={label}>Application link or email <span className="normal-case tracking-normal">(optional)</span></label><input id="job-application-destination" type="text" value={applicationDestination} onChange={(event) => setApplicationDestination(event.target.value)} className={input} placeholder="https://... or hiring@studio.com" /></div>
-            <div className="flex items-center justify-between gap-3"><p aria-live="polite" className={`font-mono text-[10px] uppercase tracking-widest ${status === "error" ? "text-redline" : "text-graphite"}`}>{message}</p><button type="submit" disabled={status === "saving"} className="inline-flex items-center justify-center rounded-[2px] border border-redline bg-redline px-4 py-2 font-mono text-[11px] uppercase tracking-widest text-paper transition-colors hover:bg-paper hover:text-redline disabled:opacity-60">{status === "saving" ? "Submitting..." : "Submit Posting"}</button></div>
+            <div className="flex items-center justify-between gap-3"><p aria-live="polite" className={`text-sm ${status === "error" ? "text-redline" : "text-graphite"}`}>{message}</p><button type="submit" disabled={status === "saving"} className="inline-flex items-center justify-center rounded-full border border-redline bg-redline px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper transition-colors hover:bg-paper hover:text-redline disabled:opacity-60">{status === "saving" ? "Submitting..." : "Submit Posting"}</button></div>
         </form>
     );
 }

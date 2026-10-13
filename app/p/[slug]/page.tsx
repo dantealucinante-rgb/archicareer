@@ -92,20 +92,17 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
             <main className="mx-auto w-full max-w-5xl px-5 py-10 sm:px-8 sm:py-16">
                 {isOwner && <div className="mb-5 flex items-center justify-end gap-4 font-mono text-[10px] uppercase tracking-widest"><a href="/profile/edit" className="text-redline hover:text-ink">Edit profile ↗</a><a href="/settings" className="text-graphite hover:text-ink">Settings ↗</a></div>}
                 <div className="surface overflow-hidden p-6 sm:p-10">
-                    <div className="relative mb-8 flex flex-col gap-5 overflow-hidden rounded-2xl bg-night p-6 text-paper sm:flex-row sm:items-start sm:justify-between sm:p-8">
+                    <div className="relative mb-6 flex flex-col gap-4 overflow-hidden rounded-2xl bg-night p-5 text-paper sm:flex-row sm:items-center sm:justify-between sm:p-7">
                         <div className="absolute -right-12 -top-20 h-52 w-52 rounded-full border border-paper/10" />
                         <div className="absolute -bottom-20 right-24 h-40 w-40 rounded-full border border-redline/50" />
-                        <div className="flex items-center gap-4">
-                            <ProfileAvatar profile={profile} size={72} className="relative h-16 w-16 rounded-full border border-paper/30 object-cover" />
+                        <div className="flex items-center gap-3">
+                            <ProfileAvatar profile={profile} size={56} className="relative h-12 w-12 rounded-full border border-paper/30 object-cover" />
                             <div>
                             <p className="eyebrow mb-2 font-mono text-sand">{profile.role} / public profile</p>
                             <h1 className="font-display text-3xl font-semibold tracking-[-0.04em] text-paper sm:text-4xl">{profile.name}</h1>
-                            <p className="mt-2 font-mono text-xs uppercase tracking-wider text-paper/60">
-                                {profile.school_or_firm ?? "Independent"}
-                            </p>
                             </div>
                         </div>
-                        <div className="relative flex flex-col items-end gap-3"><span className="rounded-full border border-paper/30 px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest text-paper/70">{profile.role}</span><span className="font-mono text-[10px] uppercase tracking-widest text-paper/60">{followCounts.following} Following · {followCounts.followers} Followers</span>{!isOwner && profileOwnerId && <FollowButton followingId={profileOwnerId} initialFollowing={followState.isFollowing} initialMutual={followState.isMutual} initialFollowerCount={followCounts.followers} />}</div>
+                        <div className="relative flex items-center gap-3"><span className="rounded-full border border-paper/30 px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest text-paper/70">{profile.role}</span>{!isOwner && profileOwnerId && <FollowButton followingId={profileOwnerId} initialFollowing={followState.isFollowing} initialMutual={followState.isMutual} initialFollowerCount={followCounts.followers} />}</div>
                     </div>
 
                     <div className="grid gap-8 border-b border-line pb-8 pt-2 lg:grid-cols-[0.7fr_1.3fr]">
@@ -139,7 +136,8 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
                                         key={item.id}
                                     className="surface card-lift flex flex-col justify-between p-5"
                                     >
-                                        <div className="font-mono text-[9px] text-graphite tracking-wider mb-2">
+                                        <PortfolioGallery images={item.images} title={item.title} />
+                                        <div className="mt-4 font-mono text-[9px] text-graphite tracking-wider mb-2">
                                             [ SHEET {String(idx + 1).padStart(2, "0")} / {item.category.toUpperCase()} ]
                                         </div>
                                         <div className="font-display text-xs uppercase text-ink mb-1">{item.title}</div>
@@ -154,7 +152,6 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
                                         {item.software_used.length > 0 && <div className="mt-3 flex flex-wrap gap-2">{item.software_used.map((tool) => <span key={tool} className="border border-line px-1.5 py-1 font-mono text-[9px] uppercase tracking-wider text-graphite">{tool}</span>)}</div>}
                                         {item.process_note && <p className="mt-3 border-l border-redline pl-3 text-[11px] italic leading-relaxed text-graphite">{item.process_note}</p>}
                                         {item.role === "team" && item.team_contribution && <p className="mt-3 font-mono text-[10px] uppercase tracking-wider text-graphite">Team contribution: {item.team_contribution}</p>}
-                                        <PortfolioGallery images={item.images} title={item.title} />
                                         <ContentEngagement target={{ portfolio_item_id: item.id }} initial={engagement[item.id]} currentUserId={currentProfile?.user_id ?? null} canModerate={isOwner} />
                                     </div>
                                 ))}
