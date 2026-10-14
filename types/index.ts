@@ -161,7 +161,7 @@ export interface FeedPost {
     image_url: string | null;
     created_at: string;
     updated_at: string;
-    author: Pick<Profile, "id" | "name" | "slug" | "role" | "avatar_url">;
+    author: Pick<Profile, "id" | "name" | "slug" | "role" | "location" | "avatar_url">;
     reaction_count: number;
     comment_count: number;
     user_reacted: boolean;

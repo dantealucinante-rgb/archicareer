@@ -17,7 +17,7 @@ async function addPostDetails(posts: FeedPost[], userId: string | null): Promise
     const [{ data: reactions }, { data: comments }, { data: profiles }] = await Promise.all([
         publicClient.from("reactions").select("post_id, user_id").in("post_id", ids),
         publicClient.from("comments").select("post_id").in("post_id", ids),
-        createAdminClient().from("profiles").select("id, user_id, name, slug, role, avatar_url").in("user_id", posts.map((post) => post.user_id)),
+        createAdminClient().from("profiles").select("id, user_id, name, slug, role, location, avatar_url").in("user_id", posts.map((post) => post.user_id)),
     ]);
     const reactionCounts = new Map<string, number>();
     const userReacted = new Set<string>();
@@ -30,7 +30,7 @@ async function addPostDetails(posts: FeedPost[], userId: string | null): Promise
     const byUserId = new Map((profiles ?? []).map((profile) => [profile.user_id, profile]));
     return posts.map((post) => ({
         ...post,
-        author: byUserId.get(post.user_id) ?? { id: "", name: "Community member", slug: "", role: "student", avatar_url: null },
+        author: byUserId.get(post.user_id) ?? { id: "", name: "Community member", slug: "", role: "student", location: null, avatar_url: null },
         reaction_count: reactionCounts.get(post.id) ?? 0,
         comment_count: commentCounts.get(post.id) ?? 0,
         user_reacted: userReacted.has(post.id),
