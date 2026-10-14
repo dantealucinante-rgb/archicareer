@@ -118,6 +118,37 @@ export async function toggleReaction(target: Target, type: ReactionType = "like"
     return { data: { reacted: true, count: await getReactionCount(target) }, error: null };
 }
 
+/**
+ * Makes a reaction write idempotent. Client controls send the state the user
+ * intends to end on, so a delayed or retried request cannot accidentally
+ * reverse a newer optimistic update.
+ */
+export async function setReaction(target: Target, reacted: boolean, type: ReactionType = "like"): Promise<QueryResult<{ reacted: boolean; count: number }>> {
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return { data: null, error: new Error("Unauthenticated") };
+
+    if (reacted) {
+        const { error } = await supabase.from("reactions").insert({
+            portfolio_item_id: target.portfolio_item_id ?? null,
+            post_id: target.post_id ?? null,
+            user_id: user.id,
+            type,
+        });
+        // The unique indexes make a concurrent retry safe: it already reached
+        // the desired state, so report success rather than reversing it.
+        if (error && error.code !== "23505") return { data: null, error: new Error(error.message) };
+    } else {
+        const base = supabase.from("reactions").delete().eq("user_id", user.id);
+        const { error } = target.portfolio_item_id
+            ? await base.eq("portfolio_item_id", target.portfolio_item_id)
+            : await base.eq("post_id", target.post_id as string);
+        if (error) return { data: null, error: new Error(error.message) };
+    }
+
+    return { data: { reacted, count: await getReactionCount(target) }, error: null };
+}
+
 export async function getEngagementSummary(target: Target, userId?: string | null) {
     const publicClient = createPublicClient();
     const commentsQuery = target.portfolio_item_id

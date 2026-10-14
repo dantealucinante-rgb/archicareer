@@ -72,14 +72,12 @@ export async function followUser(followingId: string) {
     if (authError || !user) return { data: null, error: new Error("Unauthenticated") };
     if (user.id === followingId) return { data: null, error: new Error("You cannot follow yourself") };
 
-    const { data, error } = await supabase
+    const { error } = await supabase
         .from("follows")
-        .insert({ follower_id: user.id, following_id: followingId })
-        .select("id, follower_id, following_id, created_at")
-        .single();
+        .upsert({ follower_id: user.id, following_id: followingId }, { onConflict: "follower_id,following_id", ignoreDuplicates: true });
     if (error) return { data: null, error: new Error(error.message) };
     const followState = await getFollowState(user.id, followingId);
-    return { data: { ...(data ?? {}), mutual: followState.isMutual }, error: null };
+    return { data: { mutual: followState.isMutual }, error: null };
 }
 
 export async function unfollowUser(followingId: string) {

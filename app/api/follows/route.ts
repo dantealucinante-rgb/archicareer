@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { followUser, unfollowUser } from "@/lib/queries/follows";
+import { followUser, getFollowerCount, unfollowUser } from "@/lib/queries/follows";
 
 async function followingIdFromRequest(request: Request) {
     try {
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     if (!followingId) return NextResponse.json({ error: "A following profile is required" }, { status: 400 });
     const result = await followUser(followingId);
     if (result.error) return NextResponse.json({ error: result.error.message }, { status: result.error.message === "Unauthenticated" ? 401 : 400 });
-    return NextResponse.json({ following: true, mutual: Boolean(result.data?.mutual) }, { status: 201 });
+    return NextResponse.json({ following: true, mutual: Boolean(result.data?.mutual), followerCount: await getFollowerCount(followingId) }, { status: 201 });
 }
 
 export async function DELETE(request: Request) {
@@ -23,5 +23,5 @@ export async function DELETE(request: Request) {
     if (!followingId) return NextResponse.json({ error: "A following profile is required" }, { status: 400 });
     const result = await unfollowUser(followingId);
     if (result.error) return NextResponse.json({ error: result.error.message }, { status: result.error.message === "Unauthenticated" ? 401 : 400 });
-    return NextResponse.json({ following: false });
+    return NextResponse.json({ following: false, followerCount: await getFollowerCount(followingId) });
 }
