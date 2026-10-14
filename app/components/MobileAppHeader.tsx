@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import type { Profile } from "@/types";
 import BrandLogo from "./BrandLogo";
 import MobileNav from "./MobileNav";
@@ -94,7 +95,7 @@ export default function MobileAppHeader({ authenticated, profile }: MobileAppHea
                 <Link href="/feed" aria-label="ArchiCareer feed" className="justify-self-center text-ink"><BrandLogo showWordmark={false} /></Link>
                 <span aria-hidden="true" />
             </div>
-            <MobileBottomNav pathname={pathname} />
+            {typeof document !== "undefined" && createPortal(<MobileBottomNav pathname={pathname} />, document.body)}
         </>
     );
 }

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import MobileNav from "./MobileNav";
 import AccountMenu from "./AccountMenu";
 import PrimaryNav from "./PrimaryNav";
 import BrandLogo from "./BrandLogo";
