@@ -157,7 +157,7 @@ export default function ProfileEditor({ profile, variant = "individual" }: Props
                 </div>
             </section>
 
-            <div className="sticky bottom-4 z-10 flex flex-col gap-3 rounded-2xl border border-line bg-warm-white/95 p-3 shadow-xl backdrop-blur-md sm:flex-row sm:items-center sm:justify-between">
+            <div className="sticky bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-10 flex flex-col gap-3 rounded-2xl border border-line bg-warm-white/95 p-3 shadow-xl backdrop-blur-md sm:bottom-4 sm:flex-row sm:items-center sm:justify-between">
                 <div aria-live="polite" className="flex flex-wrap items-center gap-3 px-2 font-mono text-[10px] uppercase tracking-widest"><p className={status === "error" ? "text-redline" : "text-graphite"}>{status === "saving" ? "Saving..." : status === "idle" ? "Changes apply to your profile." : message}</p>{status === "saved" && publicSlug && <a href={`/p/${publicSlug}`} className="text-ink underline underline-offset-4">View public profile</a>}</div>
                 <button type="submit" disabled={status === "saving"} className="interactive inline-flex items-center justify-center rounded-full border border-ink bg-ink px-6 py-3 font-mono text-xs uppercase tracking-widest text-paper hover:border-redline hover:bg-redline disabled:cursor-not-allowed disabled:opacity-70">{status === "saving" ? "Saving..." : "Save profile"}</button>
             </div>

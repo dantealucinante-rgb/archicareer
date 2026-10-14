@@ -3,9 +3,8 @@ import { getCurrentProfile, getProfileBySlug } from "@/lib/queries/profiles";
 import { getPortfolioItemsForProfile } from "@/lib/queries/portfolio";
 import PortfolioGallery from "@/app/components/PortfolioGallery";
 import FirmPublicProfile from "@/app/components/FirmPublicProfile";
-import ProfileAvatar from "@/app/components/ProfileAvatar";
-import FollowButton from "@/app/components/FollowButton";
 import ContentEngagement from "@/app/components/ContentEngagement";
+import PublicProfileHeader from "@/app/components/PublicProfileHeader";
 import { getFollowCounts, getFollowState, getProfileOwnerUserId } from "@/lib/queries/follows";
 import { getEngagementSummary } from "@/lib/queries/engagement";
 import type { EngagementSummary } from "@/types";
@@ -89,23 +88,11 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
 
     return (
         <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(profileSchema) }} /><div className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
-            <main className="mx-auto w-full max-w-5xl px-5 py-10 sm:px-8 sm:py-16">
+            <main className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-8 sm:py-14">
                 {isOwner && <div className="mb-5 flex items-center justify-end gap-4 font-mono text-[10px] uppercase tracking-widest"><a href="/profile/edit" className="text-redline hover:text-ink">Edit profile ↗</a><a href="/settings" className="text-graphite hover:text-ink">Settings ↗</a></div>}
-                <div className="surface overflow-hidden p-6 sm:p-10">
-                    <div className="relative mb-6 flex flex-col gap-4 overflow-hidden rounded-2xl bg-night p-5 text-paper sm:flex-row sm:items-center sm:justify-between sm:p-7">
-                        <div className="absolute -right-12 -top-20 h-52 w-52 rounded-full border border-paper/10" />
-                        <div className="absolute -bottom-20 right-24 h-40 w-40 rounded-full border border-redline/50" />
-                        <div className="flex items-center gap-3">
-                            <ProfileAvatar profile={profile} size={56} className="relative h-12 w-12 rounded-full border border-paper/30 object-cover" />
-                            <div>
-                            <p className="eyebrow mb-2 font-mono text-sand">{profile.role} / public profile</p>
-                            <h1 className="font-display text-3xl font-semibold tracking-[-0.04em] text-paper sm:text-4xl">{profile.name}</h1>
-                            </div>
-                        </div>
-                        <div className="relative flex items-center gap-3"><span className="rounded-full border border-paper/30 px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest text-paper/70">{profile.role}</span>{!isOwner && profileOwnerId && <FollowButton followingId={profileOwnerId} initialFollowing={followState.isFollowing} initialMutual={followState.isMutual} initialFollowerCount={followCounts.followers} />}</div>
-                    </div>
+                <PublicProfileHeader profile={profile} eyebrow={`${roleLabel} / PUBLIC PROFILE`} roleLabel={roleLabel} fallbackBio="A public profile on ArchiCareer." isOwner={isOwner} profileOwnerId={profileOwnerId} followerCount={followCounts.followers} followingCount={followCounts.following} isFollowing={followState.isFollowing} isMutual={followState.isMutual} />
 
-                    <div className="grid gap-8 border-b border-line pb-8 pt-2 lg:grid-cols-[0.7fr_1.3fr]">
+                <section className="surface mt-5 grid gap-8 p-6 sm:p-8 lg:grid-cols-[0.7fr_1.3fr]">
                         <div><p className="eyebrow font-mono text-redline">A-05 / ABOUT</p><h2 className="mt-3 font-display text-2xl font-semibold tracking-tight">The practice in a few words.</h2></div>
                         <div>
                         <p className="text-graphite text-sm leading-relaxed">{profile.bio ?? "No bio provided."}</p>
@@ -123,9 +110,9 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
                             </div>
                         )}
                         </div>
-                    </div>
+                </section>
 
-                    <div className="py-8">
+                    <section className="surface mt-5 p-6 sm:p-8">
                         <div className="mb-5 flex items-end justify-between"><div><p className="eyebrow font-mono text-redline">A-05.1 / SELECTED WORK</p><h2 className="mt-3 font-display text-2xl font-semibold tracking-tight">Portfolio items</h2></div><span className="font-mono text-[10px] uppercase tracking-widest text-graphite">{portfolioItems?.length ?? 0} sheets</span></div>
                         {portfolioError ? (
                             <div className="border border-dashed border-redline p-8 text-center text-redline bg-paper font-mono text-xs uppercase tracking-widest">Unable to load this portfolio right now. Please try again.</div>
@@ -161,8 +148,7 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
                                 <p>{isOwner ? "No portfolio items uploaded yet." : "This profile has no portfolio items yet."}</p><p className="mt-3 font-sans text-sm normal-case tracking-normal">{isOwner ? "Add your first project sheet from the profile editor." : "Check back when this profile has been updated."}</p>
                             </div>
                         )}
-                    </div>
-                </div>
+                    </section>
             </main>
         </div></>
     );

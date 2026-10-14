@@ -4,14 +4,17 @@ import MobileNav from "./MobileNav";
 import AccountMenu from "./AccountMenu";
 import PrimaryNav from "./PrimaryNav";
 import BrandLogo from "./BrandLogo";
+import MobileAppHeader from "./MobileAppHeader";
+import { getCurrentProfile } from "@/lib/queries/profiles";
 
 export default async function SiteHeader() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
+    const { data: profile } = user ? await getCurrentProfile() : { data: null };
 
     return (
         <header className="sticky top-0 z-40 border-b border-line/80 bg-paper/88 backdrop-blur-xl">
-            <div className="mx-auto flex w-full max-w-7xl items-center gap-4 px-5 py-3.5 sm:gap-8 sm:px-8 sm:py-4">
+            <div className="mx-auto hidden w-full max-w-7xl items-center gap-4 px-5 py-3.5 sm:flex sm:gap-8 sm:px-8 sm:py-4">
                 <div className="flex items-center gap-5 shrink-0">
                     <span className="hidden font-mono text-[10px] uppercase tracking-[0.28em] text-graphite sm:inline">
                         A-00 / NETWORK
@@ -42,9 +45,9 @@ export default async function SiteHeader() {
                             </Link>
                         </>
                     )}
-                    <MobileNav authenticated={Boolean(user)} />
                 </div>
             </div>
+            <MobileAppHeader authenticated={Boolean(user)} profile={profile} />
         </header>
     );
 }

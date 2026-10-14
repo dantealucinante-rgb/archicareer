@@ -101,6 +101,12 @@ body {
 
 .display-balance { text-wrap: balance; }
 
+@media (max-width: 639px) {
+  body.has-mobile-app-nav #main-content {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+}
+
 
 .field-input {
   width: 100%;
