@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { FeedPost } from "@/types";
@@ -17,9 +17,12 @@ export default function FeedList({ initialPosts, currentUserId }: { initialPosts
     const [feedHasError, setFeedHasError] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [confirmingId, setConfirmingId] = useState<string | null>(null);
+    const loadMoreInFlight = useRef(false);
+    const loadMoreSentinelRef = useRef<HTMLDivElement>(null);
 
-    async function loadMore() {
-        if (loading || !hasMore) return;
+    const loadMore = useCallback(async () => {
+        if (loadMoreInFlight.current || !hasMore) return;
+        loadMoreInFlight.current = true;
         setLoading(true);
         setFeedMessage("");
         setFeedHasError(false);
@@ -31,14 +34,14 @@ export default function FeedList({ initialPosts, currentUserId }: { initialPosts
             setPosts((current) => [...current, ...(payload.posts ?? [])]);
             setOffset((current) => current + addedCount);
             setHasMore(Boolean(payload.hasMore));
-            setFeedMessage(addedCount > 0 ? `${addedCount} more post${addedCount === 1 ? "" : "s"} loaded.` : "There are no more posts.");
         } catch (error) {
             setFeedHasError(true);
             setFeedMessage(error instanceof Error ? error.message : "Unable to load more posts.");
         } finally {
+            loadMoreInFlight.current = false;
             setLoading(false);
         }
-    }
+    }, [hasMore, offset]);
 
     function addPost(post: FeedPost) {
         setPosts((current) => [post, ...current.filter((currentPost) => currentPost.id !== post.id)]);
@@ -54,6 +57,16 @@ export default function FeedList({ initialPosts, currentUserId }: { initialPosts
         window.addEventListener("post-created", onPostCreated);
         return () => window.removeEventListener("post-created", onPostCreated);
     }, []);
+
+    useEffect(() => {
+        const sentinel = loadMoreSentinelRef.current;
+        if (!sentinel || !hasMore) return;
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0]?.isIntersecting) void loadMore();
+        }, { rootMargin: "320px 0px" });
+        observer.observe(sentinel);
+        return () => observer.disconnect();
+    }, [hasMore, loadMore]);
 
     async function removePost(id: string) {
         setConfirmingId(null);
@@ -92,7 +105,7 @@ export default function FeedList({ initialPosts, currentUserId }: { initialPosts
                 {post.image_url && <><p className="mx-5 mt-5 font-mono text-[9px] uppercase tracking-widest text-redline sm:mx-0">Visual field note <span aria-hidden="true">/</span> {new Date(post.created_at).getFullYear()}</p><div className="relative mt-2 aspect-[4/3] overflow-hidden sm:mt-5 sm:rounded-2xl sm:border sm:border-line"><Image src={post.image_url} alt="Post image" fill sizes="(max-width: 672px) 100vw, 672px" className="object-cover" /></div></>}
                 <div className="px-5 sm:px-0"><ContentEngagement target={{ post_id: post.id }} initial={{ reactionCount: post.reaction_count, commentCount: post.comment_count, userReacted: post.user_reacted }} currentUserId={currentUserId} /></div>
             </article>)}
-            {hasMore && <button type="button" onClick={() => void loadMore()} disabled={loading} className="feedback-control mx-auto my-5 block rounded-full border border-ink px-5 py-2.5 font-mono text-[10px] uppercase tracking-widest text-ink hover:bg-ink hover:text-paper disabled:opacity-50">{loading ? "Loading…" : "Load more"}</button>}
+            {hasMore && <div ref={loadMoreSentinelRef} className="mx-5 my-6 min-h-10 text-center sm:mx-0" aria-live="polite">{loading && <span className="font-mono text-[10px] uppercase tracking-widest text-graphite">Loading more posts…</span>}{feedHasError && <button type="button" onClick={() => void loadMore()} className="feedback-control rounded-full border border-ink px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-ink hover:bg-ink hover:text-paper">Retry loading posts</button>}</div>}
         </div>
         {confirmingId && <div role="dialog" aria-modal="true" aria-labelledby="delete-post-title" className="fixed inset-0 z-50 grid place-items-center bg-night/50 p-5"><div className="w-full max-w-sm rounded-2xl border border-line bg-paper p-6"><h2 id="delete-post-title" className="font-display text-2xl font-semibold">Delete this post?</h2><p className="mt-3 text-sm text-graphite">This cannot be undone.</p><div className="mt-6 flex justify-end gap-3"><button type="button" onClick={() => setConfirmingId(null)} className="feedback-control rounded-full border border-line px-4 py-2 font-mono text-[10px] uppercase tracking-widest">Cancel</button><button type="button" onClick={() => void removePost(confirmingId)} className="feedback-control rounded-full bg-redline px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-paper">Delete post</button></div></div></div>}
     </>;
