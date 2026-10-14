@@ -92,7 +92,7 @@ export default function MobileAppHeader({ authenticated, profile }: MobileAppHea
                 <Link href="/profile" aria-label="Your profile" className="interactive grid h-10 w-10 place-items-center rounded-full">
                     {profile ? <ProfileAvatar profile={profile} size={40} className="h-10 w-10 rounded-full border border-line object-cover" /> : <span className="h-9 w-9 rounded-full border border-line bg-sand" />}
                 </Link>
-                <Link href="/feed" aria-label="ArchiCareer feed" className="justify-self-center text-ink"><BrandLogo showWordmark={false} /></Link>
+                <Link href="/feed" aria-label="ArchiCareer feed" className="group justify-self-center font-display text-[1.3rem] font-bold tracking-[-0.055em] text-ink transition-colors hover:text-redline"><BrandLogo /></Link>
                 <span aria-hidden="true" />
             </div>
             {typeof document !== "undefined" && createPortal(<MobileBottomNav pathname={pathname} />, document.body)}
