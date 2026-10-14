@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import AuthBrand from "@/app/components/AuthBrand";
 
@@ -10,9 +9,15 @@ export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
     const [message, setMessage] = useState("");
-    const searchParams = useSearchParams();
-    const callbackError = searchParams.get("error");
-    const callbackMessage = callbackError === "missing_code" ? "That sign-in link is incomplete. Request a new one below." : callbackError === "authentication_failed" ? "That sign-in link has expired or could not be verified. Request a new one below." : "";
+    const [callbackMessage, setCallbackMessage] = useState("");
+
+    useEffect(() => {
+        const callbackError = new URLSearchParams(window.location.search).get("error");
+        const nextMessage = callbackError === "missing_code" ? "That sign-in link is incomplete. Request a new one below." : callbackError === "authentication_failed" ? "That sign-in link has expired or could not be verified. Request a new one below." : "";
+        // This runs only after the browser has access to the callback URL.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setCallbackMessage(nextMessage);
+    }, []);
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
