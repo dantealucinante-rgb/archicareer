@@ -20,6 +20,8 @@ export default function ContentEngagement({ target, initial, currentUserId, canM
     const [message, setMessage] = useState("");
     const [reactionPending, setReactionPending] = useState(false);
     const [reactionError, setReactionError] = useState("");
+    const [shareMessage, setShareMessage] = useState("");
+    const [sharePending, setSharePending] = useState(false);
     const reactionRequestInFlight = useRef(false);
 
     function collectCommentThreadIds(rootId: string) {
@@ -138,6 +140,31 @@ export default function ContentEngagement({ target, initial, currentUserId, canM
         if (next && comments.length === 0) void loadComments();
     }
 
+    async function sharePost() {
+        if (!target.post_id || sharePending) return;
+        const url = `${window.location.origin}/feed#post-${target.post_id}`;
+        const shareData = { title: "ArchiCareer", text: "A post from the ArchiCareer field", url };
+
+        setSharePending(true);
+        setShareMessage("");
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+                setShareMessage("Shared.");
+            } else if (navigator.clipboard) {
+                await navigator.clipboard.writeText(url);
+                setShareMessage("Link copied.");
+            } else {
+                throw new Error("Sharing is not available");
+            }
+        } catch (error) {
+            if (error instanceof DOMException && error.name === "AbortError") return;
+            setShareMessage("Couldn’t share this post.");
+        } finally {
+            setSharePending(false);
+        }
+    }
+
     function renderComment(comment: Comment, depth = 0): React.ReactNode {
         const replies = comments.filter((child) => child.parent_comment_id === comment.id);
         return <div key={comment.id} className={depth > 0 ? `${depth > 3 ? "ml-3" : "ml-8"} border-l border-line pl-3` : ""}>
@@ -158,8 +185,10 @@ export default function ContentEngagement({ target, initial, currentUserId, canM
         <div className="flex items-center gap-3 font-mono text-[10px] uppercase tracking-widest text-graphite">
             {currentUserId ? <button type="button" onClick={() => void toggleReaction()} disabled={reactionPending} aria-busy={reactionPending} className={`feedback-control like-control inline-flex min-h-10 items-center gap-1.5 rounded-full px-2.5 disabled:cursor-wait disabled:opacity-60 ${summary.userReacted ? "is-active text-redline" : "hover:text-redline"}`} aria-label={summary.userReacted ? "Unlike" : "Like"} aria-pressed={summary.userReacted}><svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill={summary.userReacted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8"><path d="M20.8 8.7c0 5.4-8.8 10.1-8.8 10.1S3.2 14.1 3.2 8.7A4.7 4.7 0 0 1 12 6.2a4.7 4.7 0 0 1 8.8 2.5Z" strokeLinecap="round" strokeLinejoin="round" /></svg><span>{summary.reactionCount}</span></button> : <Link href="/login" className="feedback-control inline-flex min-h-10 items-center gap-1.5 rounded-full px-2.5 hover:text-redline" aria-label="Sign in to like"><svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20.8 8.7c0 5.4-8.8 10.1-8.8 10.1S3.2 14.1 3.2 8.7A4.7 4.7 0 0 1 12 6.2a4.7 4.7 0 0 1 8.8 2.5Z" strokeLinecap="round" strokeLinejoin="round" /></svg><span>{summary.reactionCount}</span><span className="sr-only">Sign in to like</span></Link>}
             <button type="button" onClick={toggleComments} aria-expanded={open} className={`feedback-control inline-flex min-h-10 items-center gap-1.5 px-2.5 ${open ? "text-ink" : "hover:text-redline"}`}><svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M5 18.5 3.5 21v-14A3.5 3.5 0 0 1 7 3.5h10A3.5 3.5 0 0 1 20.5 7v7a3.5 3.5 0 0 1-3.5 3.5H5Z" strokeLinecap="round" strokeLinejoin="round" /></svg>{open ? "Close comments" : "Comments"} <span>{summary.commentCount}</span></button>
+            {target.post_id && <button type="button" onClick={() => void sharePost()} disabled={sharePending} aria-busy={sharePending} className="feedback-control inline-flex min-h-10 items-center gap-1.5 rounded-full px-2.5 hover:text-redline disabled:cursor-wait disabled:opacity-60" aria-label="Share post"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5"><path d="M12 15.5V3.5m0 0L7.5 8M12 3.5 16.5 8M5 13.5v5A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5v-5" strokeLinecap="round" strokeLinejoin="round" /></svg><span>Share</span></button>}
         </div>
         {reactionError && <p role="alert" className="mt-1 font-mono text-[9px] uppercase tracking-wider text-redline">{reactionError} <button type="button" onClick={() => void toggleReaction()} className="underline underline-offset-2 hover:text-ink">Retry</button></p>}
+        {shareMessage && <p aria-live="polite" className="mt-1 font-mono text-[9px] uppercase tracking-wider text-graphite">{shareMessage}</p>}
         {open && <div className="mt-4 space-y-4"><div className="space-y-3">{loading ? <div role="status" className="rounded-xl bg-warm-white px-4 py-3 text-sm text-graphite"><span className="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-ink" />Loading discussion…</div> : message && comments.length === 0 ? <div role="alert" className="rounded-xl border border-redline/30 bg-redline/5 px-4 py-3 text-sm text-redline">{message}</div> : topLevelComments.length === 0 ? <div className="rounded-xl border border-dashed border-line bg-warm-white px-4 py-4 text-sm text-graphite">No comments yet. Be the first to add a note.</div> : topLevelComments.map((comment) => renderComment(comment))}</div>{currentUserId ? <form onSubmit={submitComment} className="flex gap-2">{replyingTo && <button type="button" onClick={() => setReplyingTo(null)} className="shrink-0 font-mono text-[9px] uppercase tracking-widest text-redline">Cancel reply</button>}<input autoFocus={Boolean(replyingTo)} value={body} onChange={(event) => setBody(event.target.value)} maxLength={500} className="field-input text-sm" placeholder={replyingTo ? "Write a reply" : "Add a note"} /><button type="submit" className="shrink-0 rounded-full border border-ink bg-ink px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-paper hover:bg-redline">{replyingTo ? "Reply" : "Post"}</button></form> : <p className="font-mono text-[10px] uppercase tracking-widest text-graphite"><Link href="/login" className="text-redline hover:text-ink">Sign in</Link> to join the conversation.</p>}{message && comments.length > 0 && <p role="alert" className="rounded-lg bg-redline/5 px-3 py-2 text-sm text-redline">{message}</p>}</div>}
     </div>;
 }
