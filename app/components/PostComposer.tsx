@@ -22,7 +22,10 @@ export default function PostComposer({ open, onClose, onCreated, author }: Props
     const [message, setMessage] = useState("");
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [closing, setClosing] = useState(false);
+    const [dragOffset, setDragOffset] = useState(0);
+    const [dragClosing, setDragClosing] = useState(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const dragRef = useRef<{ pointerId: number; startY: number; lastY: number; lastTime: number; velocity: number; offset: number } | null>(null);
 
     useEffect(() => () => {
         if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -30,11 +33,14 @@ export default function PostComposer({ open, onClose, onCreated, author }: Props
 
     const mounted = open || closing;
 
-    const requestClose = useCallback((force = false) => {
+    const requestClose = useCallback((force = false, fromDrag = false) => {
         if (closing || (!force && saving)) return;
+        if (fromDrag) setDragClosing(true);
         setClosing(true);
         window.setTimeout(() => {
             setClosing(false);
+            setDragClosing(false);
+            setDragOffset(0);
             onClose();
         }, 150);
     }, [closing, onClose, saving]);
@@ -66,6 +72,41 @@ export default function PostComposer({ open, onClose, onCreated, author }: Props
     function resizeTextarea(element: HTMLTextAreaElement) {
         element.style.height = "auto";
         element.style.height = `${element.scrollHeight}px`;
+    }
+
+    function startSheetDrag(event: React.PointerEvent<HTMLElement>) {
+        if (saving || event.pointerType === "mouse" || !window.matchMedia("(max-width: 639px)").matches) return;
+        if ((event.target as HTMLElement).closest("button, input, label, textarea")) return;
+        event.currentTarget.setPointerCapture(event.pointerId);
+        dragRef.current = { pointerId: event.pointerId, startY: event.clientY, lastY: event.clientY, lastTime: performance.now(), velocity: 0, offset: 0 };
+    }
+
+    function moveSheetDrag(event: React.PointerEvent<HTMLElement>) {
+        const drag = dragRef.current;
+        if (!drag || drag.pointerId !== event.pointerId) return;
+        const nextOffset = Math.max(0, event.clientY - drag.startY);
+        const now = performance.now();
+        drag.velocity = (event.clientY - drag.lastY) / Math.max(1, now - drag.lastTime);
+        drag.lastY = event.clientY;
+        drag.lastTime = now;
+        drag.offset = nextOffset;
+        setDragOffset(nextOffset);
+    }
+
+    function endSheetDrag(event: React.PointerEvent<HTMLElement>) {
+        const drag = dragRef.current;
+        if (!drag || drag.pointerId !== event.pointerId) return;
+        dragRef.current = null;
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+        if (drag.offset > 112 || drag.velocity > 0.65) requestClose(false, true);
+        else setDragOffset(0);
+    }
+
+    function cancelSheetDrag(event: React.PointerEvent<HTMLElement>) {
+        const drag = dragRef.current;
+        if (!drag || drag.pointerId !== event.pointerId) return;
+        dragRef.current = null;
+        setDragOffset(0);
     }
 
     async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -119,8 +160,9 @@ export default function PostComposer({ open, onClose, onCreated, author }: Props
     const canDismissFromBackdrop = !saving && !content.trim() && !file;
     return createPortal(
         <div className={`post-composer-overlay fixed inset-0 z-[70] flex items-end bg-night/45 p-0 sm:items-center sm:justify-center sm:p-6 ${closing ? "is-closing" : "is-open"}`} onMouseDown={() => { if (canDismissFromBackdrop) requestClose(); }}>
-            <section role="dialog" aria-modal="true" aria-labelledby="post-composer-title" className={`t-modal w-full rounded-t-[1.5rem] border border-line bg-warm-white px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5 shadow-2xl sm:max-w-xl sm:rounded-2xl sm:p-6 ${closing ? "is-closing" : "is-open"}`} onMouseDown={(event) => event.stopPropagation()}>
+            <section role="dialog" aria-modal="true" aria-labelledby="post-composer-title" className={`t-modal relative w-full rounded-t-[1.5rem] border border-line bg-warm-white px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5 shadow-2xl sm:max-w-xl sm:rounded-2xl sm:p-6 ${closing ? "is-closing" : "is-open"}`} style={dragOffset || dragClosing ? { transform: `translateY(${dragClosing ? "100vh" : `${dragOffset}px`})`, transition: dragClosing ? "transform 150ms cubic-bezier(0.22, 1, 0.36, 1)" : "transform 180ms cubic-bezier(0.22, 1, 0.36, 1)" } : undefined} onMouseDown={(event) => event.stopPropagation()} onPointerDown={startSheetDrag} onPointerMove={moveSheetDrag} onPointerUp={endSheetDrag} onPointerCancel={cancelSheetDrag}>
                 <div className="flex items-start justify-between gap-4">
+                    <span aria-hidden="true" className="absolute left-1/2 top-2 h-1 w-10 -translate-x-1/2 rounded-full bg-line sm:hidden" />
                     <div className="flex min-w-0 items-center gap-3">
                         {author && <ProfileAvatar profile={author} size={44} className="h-11 w-11 shrink-0 rounded-full border border-line object-cover" />}
                         <div className="min-w-0"><h2 id="post-composer-title" className="truncate font-display text-lg font-semibold text-ink">{author?.name ?? "Share a post"}</h2><p className="font-mono text-[9px] uppercase tracking-widest text-graphite">Share with the field</p></div>
