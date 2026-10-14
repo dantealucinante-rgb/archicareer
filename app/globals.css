@@ -35,6 +35,11 @@
   --ease-in-out: ease-in-out;
   --distance-medium: 12px;
   --blur-medium: 3px;
+  --modal-open-dur: 250ms;
+  --modal-close-dur: 150ms;
+  --modal-scale: 0.96;
+  --modal-scale-close: 0.96;
+  --modal-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --stagger-dur: var(--duration-very-slow);
   --stagger-distance: var(--distance-medium);
   --stagger-stagger: var(--duration-stagger);
@@ -161,6 +166,34 @@ body {
 .like-control svg { transition: transform 140ms var(--ease-smooth-out), fill 140ms ease; }
 .like-control.is-active svg { transform: scale(1.08); }
 .follow-control[aria-pressed="true"] { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-ink) 10%, transparent); }
+
+.t-modal {
+  transform-origin: center;
+  transform: scale(var(--modal-scale));
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--modal-open-dur) var(--modal-ease),
+    opacity   var(--modal-open-dur) var(--modal-ease);
+  will-change: transform, opacity;
+}
+.t-modal.is-open {
+  transform: scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+.t-modal.is-closing {
+  transform: scale(var(--modal-scale-close));
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--modal-close-dur) var(--modal-ease),
+    opacity   var(--modal-close-dur) var(--modal-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-modal { transition: none !important; }
+}
 
 .ink-grid {
   background-image: linear-gradient(rgba(244,241,234,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(244,241,234,.08) 1px, transparent 1px);

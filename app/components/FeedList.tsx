@@ -1,15 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import type { FeedPost, Profile } from "@/types";
+import type { FeedPost } from "@/types";
 import ProfileAvatar from "./ProfileAvatar";
 import ContentEngagement from "./ContentEngagement";
-import PostComposer from "./PostComposer";
 import { formatCommunityDate } from "@/lib/date-format";
 
-export default function FeedList({ initialPosts, currentUserId, currentProfile }: { initialPosts: FeedPost[]; currentUserId: string | null; currentProfile: Pick<Profile, "name" | "avatar_url"> | null }) {
+export default function FeedList({ initialPosts, currentUserId }: { initialPosts: FeedPost[]; currentUserId: string | null }) {
     const [posts, setPosts] = useState(initialPosts);
     const [offset, setOffset] = useState(initialPosts.length);
     const [hasMore, setHasMore] = useState(initialPosts.length === 10);
@@ -46,6 +45,16 @@ export default function FeedList({ initialPosts, currentUserId, currentProfile }
         setOffset((current) => current + 1);
     }
 
+    function openComposer() {
+        window.dispatchEvent(new Event("open-post-composer"));
+    }
+
+    useEffect(() => {
+        const onPostCreated = (event: Event) => addPost((event as CustomEvent<FeedPost>).detail);
+        window.addEventListener("post-created", onPostCreated);
+        return () => window.removeEventListener("post-created", onPostCreated);
+    }, []);
+
     async function removePost(id: string) {
         setConfirmingId(null);
         setDeletingId(id);
@@ -68,9 +77,8 @@ export default function FeedList({ initialPosts, currentUserId, currentProfile }
     return <>
         <div className="mx-auto w-full max-w-2xl sm:space-y-5">
             {!currentUserId && <div className="surface mx-5 border-dashed p-5 text-center text-sm text-graphite sm:mx-0"><Link href="/login" className="text-redline underline underline-offset-4 hover:text-ink">Sign in</Link> to share your own work and join the conversation.</div>}
-            {currentUserId && <PostComposer onCreated={addPost} author={currentProfile} />}
             {feedMessage && <p aria-live="polite" className={`mx-5 py-3 font-mono text-[10px] uppercase tracking-widest sm:mx-0 ${feedHasError ? "text-redline" : "text-graphite"}`}>{feedMessage}</p>}
-            {posts.length === 0 ? <div className="surface mx-5 border-dashed p-10 text-center sm:mx-0"><p className="eyebrow font-mono text-redline">The field is quiet</p><p className="mt-3 text-sm text-graphite">Be the first to share a thought, question, or piece of work.</p>{currentUserId && <a href="#post-composer" className="mt-4 inline-block font-mono text-[10px] uppercase tracking-widest text-redline underline underline-offset-4 hover:text-ink">Start a post</a>}</div> : posts.map((post) => <article key={post.id} className="feed-post overflow-hidden border-b border-line bg-warm-white py-5 sm:p-6">
+            {posts.length === 0 ? <div className="surface mx-5 border-dashed p-10 text-center sm:mx-0"><p className="eyebrow font-mono text-redline">The field is quiet</p><p className="mt-3 text-sm text-graphite">Be the first to share a thought, question, or piece of work.</p>{currentUserId && <button type="button" onClick={openComposer} className="mt-4 font-mono text-[10px] uppercase tracking-widest text-redline underline underline-offset-4 hover:text-ink">Start a post</button>}</div> : posts.map((post) => <article key={post.id} className="feed-post overflow-hidden border-b border-line bg-warm-white py-5 sm:p-6">
                 <div className="px-5 sm:px-0">
                     <div className="flex items-start justify-between gap-3">
                         <Link href={post.author.slug ? `/p/${post.author.slug}` : "/discover"} className="group flex min-w-0 items-center gap-3">

@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Profile } from "@/types";
 import BrandLogo from "./BrandLogo";
 import MobileNav from "./MobileNav";
 import ProfileAvatar from "./ProfileAvatar";
 import { Plus } from "./UiIcon";
+import PostComposer from "./PostComposer";
+import type { FeedPost } from "@/types";
 
 type MobileAppHeaderProps = {
     authenticated: boolean;
@@ -37,19 +39,12 @@ function BriefcaseIcon() {
     return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-5 w-5"><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18M10 12v2h4v-2" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
 
-function MobileBottomNav({ pathname }: { pathname: string }) {
-    const router = useRouter();
+function MobileBottomNav({ pathname, onOpenComposer }: { pathname: string; onOpenComposer: () => void }) {
     const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
     const itemClass = (active: boolean) => `mobile-nav-item flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 font-mono text-[9px] uppercase tracking-[0.12em] ${active ? "text-redline" : "text-graphite"}`;
 
     function openComposer() {
-        if (pathname === "/feed") {
-            const composer = document.getElementById("post-composer");
-            composer?.scrollIntoView({ behavior: "smooth", block: "start" });
-            composer?.querySelector<HTMLTextAreaElement>("textarea")?.focus({ preventScroll: true });
-            return;
-        }
-        router.push("/feed#post-composer");
+        onOpenComposer();
     }
 
     return (
@@ -71,11 +66,23 @@ function MobileBottomNav({ pathname }: { pathname: string }) {
 export default function MobileAppHeader({ authenticated, profile }: MobileAppHeaderProps) {
     const pathname = usePathname();
     const showAppChrome = authenticated && isAppRoute(pathname);
+    const [composerOpen, setComposerOpen] = useState(false);
+
+    const openComposer = useCallback(() => setComposerOpen(true), []);
+    const closeComposer = useCallback(() => setComposerOpen(false), []);
+    const addPostToFeed = useCallback((post: FeedPost) => {
+        window.dispatchEvent(new CustomEvent<FeedPost>("post-created", { detail: post }));
+    }, []);
 
     useEffect(() => {
         document.body.classList.toggle("has-mobile-app-nav", showAppChrome);
         return () => document.body.classList.remove("has-mobile-app-nav");
     }, [showAppChrome]);
+
+    useEffect(() => {
+        window.addEventListener("open-post-composer", openComposer);
+        return () => window.removeEventListener("open-post-composer", openComposer);
+    }, [openComposer]);
 
     if (!showAppChrome) {
         return (
@@ -95,7 +102,8 @@ export default function MobileAppHeader({ authenticated, profile }: MobileAppHea
                 <Link href="/feed" aria-label="ArchiCareer feed" className="group justify-self-center font-display text-[1.3rem] font-bold tracking-[-0.055em] text-ink transition-colors hover:text-redline"><BrandLogo /></Link>
                 <span aria-hidden="true" />
             </div>
-            {typeof document !== "undefined" && createPortal(<MobileBottomNav pathname={pathname} />, document.body)}
+            {profile && <PostComposer open={composerOpen} onClose={closeComposer} onCreated={addPostToFeed} author={{ name: profile.name, avatar_url: profile.avatar_url }} />}
+            {typeof document !== "undefined" && createPortal(<MobileBottomNav pathname={pathname} onOpenComposer={openComposer} />, document.body)}
         </>
     );
 }
