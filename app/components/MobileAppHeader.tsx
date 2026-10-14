@@ -40,7 +40,7 @@ function BriefcaseIcon() {
 function MobileBottomNav({ pathname }: { pathname: string }) {
     const router = useRouter();
     const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
-    const itemClass = (active: boolean) => `flex min-w-0 flex-col items-center gap-1 px-1 py-2 font-mono text-[9px] uppercase tracking-[0.12em] ${active ? "text-redline" : "text-graphite"}`;
+    const itemClass = (active: boolean) => `mobile-nav-item flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 font-mono text-[9px] uppercase tracking-[0.12em] ${active ? "text-redline" : "text-graphite"}`;
 
     function openComposer() {
         if (pathname === "/feed") {
@@ -57,7 +57,7 @@ function MobileBottomNav({ pathname }: { pathname: string }) {
             <div className="mx-auto grid max-w-md grid-cols-5 items-end">
                 <Link href="/feed" aria-current={isActive("/feed") ? "page" : undefined} className={itemClass(isActive("/feed"))}><HomeIcon /><span>Home</span></Link>
                 <Link href="/discover" aria-current={isActive("/discover") ? "page" : undefined} className={itemClass(isActive("/discover"))}><NetworkIcon /><span>Network</span></Link>
-                <button type="button" onClick={openComposer} className="group -translate-y-3 flex min-w-0 flex-col items-center gap-1 font-mono text-[9px] uppercase tracking-[0.12em] text-ink" aria-label="Create a post">
+                <button type="button" onClick={openComposer} className="mobile-nav-create group -translate-y-3 flex min-w-0 flex-col items-center gap-1 rounded-xl font-mono text-[9px] uppercase tracking-[0.12em] text-ink" aria-label="Create a post">
                     <span className="grid h-12 w-12 place-items-center rounded-full border-4 border-paper bg-ink text-paper shadow-lg transition-colors group-hover:bg-redline"><Plus className="h-5 w-5" /></span>
                     <span>Create</span>
                 </button>
