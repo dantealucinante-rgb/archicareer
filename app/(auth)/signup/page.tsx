@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useLayoutEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import AuthBrand from "@/app/components/AuthBrand";
 
 const roleOptions = [
     { value: "student" as const, number: "01", label: "Student", copy: "Show your work and start building your network." },
@@ -42,7 +43,7 @@ export default function SignupPage() {
         setMessage("");
 
         const supabase = createClient();
-        const redirectTo = `${window.location.origin}/auth/callback?next=/onboarding/about`;
+        const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(`/onboarding/about?role=${role}`)}`;
         const { error, data } = await supabase.auth.signUp({
             email: email.trim(),
             password: crypto.randomUUID(),
@@ -98,14 +99,15 @@ export default function SignupPage() {
 
             <div className="relative mx-auto w-full max-w-6xl">
                 <div className="mb-8 flex items-center justify-between sm:mb-12">
-                    <Link href="/" className="font-display text-2xl font-bold tracking-[-0.055em] transition-colors hover:text-redline sm:text-3xl">ArchiCareer</Link>
+                    <AuthBrand />
                     <Link href="/login" className="font-mono text-[10px] uppercase tracking-widest text-graphite transition-colors hover:text-ink">Already a member? Sign in ↗</Link>
                 </div>
 
                 <div className="mx-auto max-w-3xl">
                     <section className="rounded-2xl border border-line bg-warm-white p-6 sm:p-8">
                         <div className="mb-7 border-b border-line pb-5">
-                            <h2 className="font-display text-2xl font-semibold tracking-tight">Create your profile</h2>
+                            <p className="font-mono text-[10px] uppercase tracking-widest text-redline">Step 1 of 3</p>
+                            <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">Start your profile</h2>
                             <p className="mt-2 text-sm leading-relaxed text-graphite">Choose your path, then tell us where to reach you.</p>
                         </div>
 
@@ -123,6 +125,7 @@ export default function SignupPage() {
                                             <span className={`mt-3 block text-xs leading-relaxed ${role === option.value ? "text-paper/70" : "text-graphite"}`}>{option.copy}</span>
                                         </button>
                                     ))}
+                                    <Link href="/firms/signup" className="interactive rounded-2xl border border-line bg-warm-white p-4 text-left text-ink hover:-translate-y-0.5 hover:border-redline"><span className="font-mono text-[10px] uppercase tracking-widest text-redline">03</span><span className="mt-6 block font-display text-base font-semibold leading-tight">Studio / company</span><span className="mt-3 block text-xs leading-relaxed text-graphite">Create a practice profile and share opportunities.</span></Link>
                                 </div>
                             </div>
 
@@ -141,6 +144,7 @@ export default function SignupPage() {
                                 <button type="submit" disabled={status === "sending"} className="interactive w-full rounded-full border border-ink bg-ink px-4 py-3.5 font-mono text-[11px] uppercase tracking-widest text-paper hover:border-redline hover:bg-redline disabled:cursor-not-allowed disabled:opacity-70">
                                     {status === "sending" ? "Creating your profile..." : "Create my profile ↗"}
                                 </button>
+                                <p className="text-center text-xs leading-relaxed text-graphite">No password to remember. We’ll send a secure verification link.</p>
                                 <button type="button" onClick={handleGoogleSignIn} disabled={status === "sending"} className="interactive w-full rounded-full border border-line bg-warm-white px-4 py-3.5 font-mono text-[11px] uppercase tracking-widest text-ink hover:border-ink hover:bg-ink hover:text-paper disabled:cursor-not-allowed disabled:opacity-70">
                                     {status === "sending" ? "Connecting..." : "Continue with Google"}
                                 </button>

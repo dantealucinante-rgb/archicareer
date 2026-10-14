@@ -1,13 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import AuthBrand from "@/app/components/AuthBrand";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
     const [message, setMessage] = useState("");
+    const searchParams = useSearchParams();
+    const callbackError = searchParams.get("error");
+    const callbackMessage = callbackError === "missing_code" ? "That sign-in link is incomplete. Request a new one below." : callbackError === "authentication_failed" ? "That sign-in link has expired or could not be verified. Request a new one below." : "";
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -65,12 +70,9 @@ export default function LoginPage() {
 
             <div className="relative z-10 w-full max-w-md rounded-2xl border border-line bg-warm-white p-6 sm:p-8">
                 <div className="mb-7 border-b border-line pb-5">
-                    <Link href="/" className="inline-flex items-center font-display text-2xl font-bold tracking-tight text-ink hover:text-redline transition-colors">
-                        ArchiCareer
-                    </Link>
+                    <AuthBrand />
                     <h2 className="mt-4 font-display text-2xl font-semibold tracking-tight text-ink">Sign in</h2>
-                    <p className="mt-2 text-xs font-mono uppercase tracking-wider text-graphite">
-                        Or{" "}
+                    <p className="mt-2 text-xs font-mono uppercase tracking-wider text-graphite">New here?{" "}
                         <Link href="/signup" className="text-redline hover:underline font-mono">
                             create a new account
                         </Link>
@@ -78,6 +80,7 @@ export default function LoginPage() {
                 </div>
 
                 <form className="space-y-6" onSubmit={handleSubmit}>
+                    {callbackMessage && <p role="alert" className="rounded-lg border border-redline/30 bg-redline/10 px-3 py-2 text-sm text-redline">{callbackMessage}</p>}
                     <button
                         type="button"
                         onClick={handleGoogleSignIn}
@@ -118,6 +121,7 @@ export default function LoginPage() {
                     >
                         {status === "sending" ? "Sending..." : "Send Magic Link"}
                     </button>
+                    <p className="-mt-3 text-center text-xs leading-relaxed text-graphite">No password to remember. We’ll email you a secure sign-in link.</p>
 
                     {message && (
                         <p role={status === "error" ? "alert" : undefined} className={`rounded-lg px-3 py-2 text-sm ${status === "error" ? "border border-redline/30 bg-redline/10 text-redline" : "text-graphite"}`}>{status === "error" && <span aria-hidden="true">⚠ </span>}{message}</p>

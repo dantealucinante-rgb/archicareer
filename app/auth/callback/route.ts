@@ -27,17 +27,20 @@ export async function GET(request: Request) {
         return NextResponse.redirect(new URL("/login?error=authentication_failed", requestUrl.origin));
     }
 
-    // OAuth does not carry the selected role in the same way as email signup.
-    // Firm routes are an explicit account context, so enforce the firm role
-    // before sending the user into the firm experience.
-    if (next.startsWith("/firms")) {
+    const callbackUrl = new URL(next, requestUrl.origin);
+    const requestedRole = callbackUrl.searchParams.get("role");
+    const role = next.startsWith("/firms") ? "firm" : requestedRole === "architect" ? "architect" : requestedRole === "student" ? "student" : null;
+
+    // OAuth does not receive signup form metadata. Carry the explicit, validated
+    // account context through the callback before onboarding creates a profile.
+    if (role) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
             const admin = createAdminClient();
             await admin.auth.admin.updateUserById(user.id, {
-                user_metadata: { ...user.user_metadata, role: "firm" },
+                user_metadata: { ...user.user_metadata, role },
             });
-            await admin.from("profiles").update({ role: "firm" }).eq("user_id", user.id);
+            await admin.from("profiles").update({ role }).eq("user_id", user.id);
         }
     }
 

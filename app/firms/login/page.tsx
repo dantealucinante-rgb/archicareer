@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import AuthBrand from "@/app/components/AuthBrand";
 
 export default function FirmLoginPage() {
     const [email, setEmail] = useState("");
@@ -11,7 +12,7 @@ export default function FirmLoginPage() {
 
     async function continueWithGoogle() {
         setStatus("sending"); setMessage("");
-        const { error } = await createClient().auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/auth/callback?next=/feed` } });
+        const { error } = await createClient().auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/auth/callback?next=/firms/onboarding` } });
         if (error) { setStatus("error"); setMessage(error.message); }
     }
 
@@ -19,7 +20,7 @@ export default function FirmLoginPage() {
         event.preventDefault();
         if (!email.trim()) { setStatus("error"); setMessage("Enter your work email."); return; }
         setStatus("sending"); setMessage("");
-        const { error } = await createClient().auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/feed` } });
+        const { error } = await createClient().auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/firms/onboarding` } });
         if (error) { setStatus("error"); setMessage(error.message); return; }
         setStatus("sent"); setMessage("Magic link sent. Check your work email to continue.");
     }
@@ -28,6 +29,7 @@ export default function FirmLoginPage() {
         <main className="relative flex min-h-[calc(100vh-5rem)] items-center justify-center overflow-hidden bg-paper px-5 py-12 text-ink sm:px-8 sm:py-20">
             <div className="pointer-events-none absolute -left-32 bottom-0 h-96 w-96 rounded-full bg-sand/60 blur-3xl" />
             <section className="surface relative w-full max-w-md p-7 sm:p-10">
+                <AuthBrand />
                 <p className="eyebrow font-mono text-redline">FIRM / COMPANY ACCESS</p>
                 <h1 className="display-balance mt-4 font-display text-4xl font-semibold leading-[0.95] tracking-[-0.05em] sm:text-5xl">Welcome back to your practice.</h1>
                 <p className="mt-4 text-sm leading-relaxed text-graphite">Use your work email to receive a secure sign-in link.</p>
