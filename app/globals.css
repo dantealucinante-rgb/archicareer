@@ -189,7 +189,10 @@ button {
   .card-lift:hover { transform: none; }
   .eyebrow { letter-spacing: 0.14em; font-size: 0.62rem; }
   .interactive { transition-duration: 180ms; }
-  .feed-post { box-shadow: none; }
+  .feed-post {
+    border-bottom-width: 8px;
+    box-shadow: none;
+  }
 }
 
 @media (min-width: 640px) {
