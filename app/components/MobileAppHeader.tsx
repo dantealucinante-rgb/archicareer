@@ -100,7 +100,7 @@ export default function MobileAppHeader({ authenticated, profile }: MobileAppHea
                     {profile ? <ProfileAvatar profile={profile} size={40} className="h-10 w-10 rounded-full border border-line object-cover" /> : <span className="h-9 w-9 rounded-full border border-line bg-sand" />}
                 </Link>
                 <Link href="/feed" aria-label="ArchiCareer feed" className="group justify-self-center font-display text-[1.3rem] font-bold tracking-[-0.055em] text-ink transition-colors hover:text-redline"><BrandLogo /></Link>
-                <span aria-hidden="true" />
+                <MobileNav authenticated={authenticated} profile={profile} />
             </div>
             {profile && <PostComposer open={composerOpen} onClose={closeComposer} onCreated={addPostToFeed} author={{ name: profile.name, avatar_url: profile.avatar_url }} />}
             {typeof document !== "undefined" && createPortal(<MobileBottomNav pathname={pathname} onOpenComposer={openComposer} />, document.body)}
