@@ -387,6 +387,52 @@ button {
   transition: opacity 180ms var(--ease-smooth-out), transform 180ms var(--ease-smooth-out);
 }
 
+.mobile-nav-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  cursor: default;
+  background: rgba(23, 25, 29, 0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms var(--ease-smooth-out);
+}
+
+.mobile-nav-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobile-nav-panel {
+  position: fixed;
+  inset: 0 0 0 auto;
+  z-index: 51;
+  display: flex;
+  width: min(50vw, 28rem);
+  flex-direction: column;
+  overflow-y: auto;
+  border-left: 1px solid var(--color-line);
+  background: var(--color-paper);
+  box-shadow: -18px 0 50px rgba(23, 25, 29, 0.12);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(100%);
+  transition: opacity 220ms var(--ease-smooth-out), transform 250ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.mobile-nav-panel.is-open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav-overlay,
+  .mobile-nav-panel {
+    transition-duration: 0.01ms;
+  }
+}
+
 @starting-style {
   .sheet-reveal {
     opacity: 0;
