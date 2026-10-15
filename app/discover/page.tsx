@@ -98,7 +98,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                                             </div>
                                             <div className="group relative z-10 flex flex-1 flex-col justify-between pointer-events-none">
                                                 <div>
-                                                    <h3 className="mt-5 font-display text-xl font-semibold tracking-tight text-ink transition-colors group-hover:text-redline">{profile.name}</h3>
+                                                    <h3 className="mt-5 line-clamp-2 font-display text-xl font-semibold tracking-tight text-ink transition-colors group-hover:text-redline">{profile.name}</h3>
                                                     {profile.school_or_firm && (
                                                         <p className="mb-2 font-mono text-[10px] uppercase tracking-wider text-graphite">{profile.school_or_firm}</p>
                                                     )}

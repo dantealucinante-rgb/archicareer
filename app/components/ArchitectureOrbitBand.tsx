@@ -37,7 +37,7 @@ const DEFAULT_TILES: OrbitTile[] = [
                 {/* Architectural dimension annotation */}
                 <line x1="26" y1="52" x2="134" y2="52" stroke="#5E6875" strokeWidth="0.5" />
                 <path d="M26 49 V55 M134 49 V55" stroke="#5E6875" strokeWidth="0.8" />
-                <text x="80" y="58" textAnchor="middle" fill="#5E6875" fontSize="6" fontFamily="monospace">6.00 m</text>
+                <text x="80" y="58" textAnchor="middle" fill="#5E6875" fontSize="6">6.00 m</text>
             </svg>
         ),
     },
@@ -72,7 +72,7 @@ const DEFAULT_TILES: OrbitTile[] = [
                         <circle cx={x} cy="52" r="1.5" fill="#1D70E8" />
                     </g>
                 ))}
-                <text x="80" y="66" textAnchor="middle" fill="#5E6875" fontSize="5.5" fontFamily="monospace">ELEVATION 1:50</text>
+                <text x="80" y="66" textAnchor="middle" fill="#5E6875" fontSize="5.5">ELEVATION 1:50</text>
             </svg>
         ),
     },
@@ -118,7 +118,7 @@ const DEFAULT_TILES: OrbitTile[] = [
                 {/* Up direction arrow */}
                 <path d="M96 22 A 20 20 0 0 1 104 35" stroke="#1D70E8" strokeWidth="1" strokeDasharray="2 2" />
                 <polygon points="105,37 102,32 107,32" fill="#1D70E8" />
-                <text x="135" y="42" fill="#5E6875" fontSize="5.5" fontFamily="monospace">UP 24R</text>
+                <text x="135" y="42" fill="#5E6875" fontSize="5.5">UP 24R</text>
             </svg>
         ),
     },
@@ -143,8 +143,8 @@ const DEFAULT_TILES: OrbitTile[] = [
                 <circle cx="80" cy="39" r="1.5" fill="#1D70E8" />
                 {/* Dimension callouts */}
                 <path d="M18 16 H22 M18 24 H22 M20 16 V24" stroke="#5E6875" strokeWidth="0.6" />
-                <text x="15" y="22" textAnchor="end" fill="#5E6875" fontSize="5" fontFamily="monospace">28mm</text>
-                <text x="122" y="38" fill="#5E6875" fontSize="5.5" fontFamily="monospace">DGU SECTION</text>
+                <text x="15" y="22" textAnchor="end" fill="#5E6875" fontSize="5">28mm</text>
+                <text x="122" y="38" fill="#5E6875" fontSize="5.5">DGU SECTION</text>
             </svg>
         ),
     },
@@ -171,7 +171,7 @@ const DEFAULT_TILES: OrbitTile[] = [
                 <polygon points="75,36 135,36 142,56 75,56" fill="#17191D" opacity="0.18" />
                 {/* Tension arrow */}
                 <path d="M125 10 L135 10" stroke="#1D70E8" strokeWidth="1" markerEnd="url(#arrow)" />
-                <text x="80" y="24" textAnchor="middle" fill="#1D70E8" fontSize="5.5" fontFamily="monospace">+8.50m OVERHANG</text>
+                <text x="80" y="24" textAnchor="middle" fill="#1D70E8" fontSize="5.5">+8.50m OVERHANG</text>
             </svg>
         ),
     },
@@ -189,12 +189,12 @@ const DEFAULT_TILES: OrbitTile[] = [
                 <path d="M15 42 C60 52 95 38 145 48" stroke="#17191D" strokeWidth="1.2" />
                 <path d="M15 56 C70 64 110 50 145 60" stroke="#6F806C" strokeWidth="0.8" />
                 {/* Elevation marks */}
-                <text x="110" y="21" fill="#6F806C" fontSize="5" fontFamily="monospace">+12.0</text>
-                <text x="115" y="35" fill="#6F806C" fontSize="5" fontFamily="monospace">+13.0</text>
-                <text x="120" y="49" fill="#1D70E8" fontSize="5" fontFamily="monospace" fontWeight="bold">+14.0</text>
+                <text x="110" y="21" fill="#6F806C" fontSize="5">+12.0</text>
+                <text x="115" y="35" fill="#6F806C" fontSize="5">+13.0</text>
+                <text x="120" y="49" fill="#1D70E8" fontSize="5" fontWeight="700">+14.0</text>
                 {/* Benchmark triangle */}
                 <polygon points="35,42 39,47 31,47" fill="#1D70E8" />
-                <text x="44" y="46" fill="#1D70E8" fontSize="5.5" fontFamily="monospace">BM 14.00</text>
+                <text x="44" y="46" fill="#1D70E8" fontSize="5.5">BM 14.00</text>
             </svg>
         ),
     },
@@ -246,13 +246,13 @@ export function ArchitectureOrbitBand({
                         <line x1="340" y1="55" x2="340" y2="65" stroke="#1D70E8" strokeWidth="1.2" />
                         <line x1="340" y1="255" x2="340" y2="265" stroke="#1D70E8" strokeWidth="1.2" />
                         {/* Technical coordinates and orientation labels */}
-                        <text x="65" y="152" fill="#5E6875" fontSize="8" fontFamily="monospace" letterSpacing="0.1em">
+                        <text x="65" y="152" fill="#5E6875" fontSize="8" letterSpacing="0.1em">
                             SEC 270°
                         </text>
-                        <text x="575" y="152" fill="#5E6875" fontSize="8" fontFamily="monospace" letterSpacing="0.1em">
+                        <text x="575" y="152" fill="#5E6875" fontSize="8" letterSpacing="0.1em">
                             SEC 090°
                         </text>
-                        <text x="345" y="52" fill="#1D70E8" fontSize="8" fontFamily="monospace" letterSpacing="0.1em">
+                        <text x="345" y="52" fill="#1D70E8" fontSize="8" letterSpacing="0.1em">
                             AXIS N
                         </text>
                     </g>
@@ -273,17 +273,17 @@ export function ArchitectureOrbitBand({
                             className={`orbit-card-anim orbit-card-anim--${idx} absolute left-0 top-0`}
                             style={{
                                 width: "164px",
-                                height: "92px",
+                                height: "110px",
                                 marginLeft: "-82px",
-                                marginTop: "-46px",
+                                marginTop: "-55px",
                             }}
                         >
                             <Link
                                 href={tile.href || "/discover"}
                                 aria-label={`${tile.title} — ${tile.category}`}
-                                className="orbit-card-item group pointer-events-auto block h-full w-full overflow-hidden rounded-xl border border-line bg-paper/95 p-2 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-redline hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redline"
+                                className="orbit-card-item group pointer-events-auto block h-full w-full rounded-xl border border-line bg-paper/95 p-2 shadow-sm backdrop-blur-md transition-all duration-200 hover:border-redline hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redline"
                             >
-                                {/* Header Strip: Monospace Code & Arrow */}
+                                {/* Header Strip: Technical Code & Arrow */}
                                 <div className="mb-1 flex items-center justify-between font-mono text-[8px] uppercase tracking-wider text-graphite">
                                     <span className="font-semibold text-redline group-hover:underline">
                                         {tile.code}
@@ -294,7 +294,7 @@ export function ArchitectureOrbitBand({
                                 </div>
 
                                 {/* Architectural Visual Container */}
-                                <div className="relative h-[48px] w-full overflow-hidden rounded-md border border-line/50 bg-warm-white">
+                                <div className="relative h-[42px] w-full overflow-hidden rounded-md border border-line/50 bg-warm-white">
                                     {tile.imageUrl ? (
                                         <Image
                                             src={tile.imageUrl}
@@ -312,7 +312,7 @@ export function ArchitectureOrbitBand({
                                 </div>
 
                                 {/* Tile Title */}
-                                <div className="mt-1 truncate font-sans text-[10px] font-medium leading-tight text-ink group-hover:text-redline">
+                                <div className="mt-1 line-clamp-2 font-display text-[10px] leading-tight text-ink group-hover:text-redline">
                                     {tile.title}
                                 </div>
                             </Link>

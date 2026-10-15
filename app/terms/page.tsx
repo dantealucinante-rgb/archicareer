@@ -11,7 +11,7 @@ export default function TermsPage() {
     return (
         <main className="mx-auto w-full max-w-4xl px-5 py-12 sm:px-8 sm:py-20">
             <div className="eyebrow font-mono text-redline">LEGAL / TERMS</div>
-            <h1 className="display-balance mt-5 max-w-3xl font-display text-5xl font-bold leading-[0.92] tracking-[-0.06em] sm:text-7xl">A clear agreement for a useful platform.</h1>
+            <h1 className="display-balance mt-5 max-w-3xl font-display text-5xl font-semibold leading-[0.92] tracking-[-0.06em] sm:text-7xl">A clear agreement for a useful platform.</h1>
             <p className="mt-6 max-w-2xl text-sm leading-relaxed text-graphite">These draft Terms of Use explain the basic rules for using ArchiCareer, creating profiles, sharing work, and posting opportunities.</p>
             <article className="surface mt-12 space-y-8 p-6 text-sm leading-relaxed text-graphite sm:p-10">
                 <section><h2 className="font-display text-2xl font-semibold text-ink">Using ArchiCareer</h2><p className="mt-3">You agree to provide accurate information, keep your account secure, and use the platform lawfully and respectfully.</p></section>

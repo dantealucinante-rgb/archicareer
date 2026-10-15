@@ -1,13 +1,5 @@
 @import "tailwindcss";
 
-@font-face {
-  font-family: "Stack Sans Notch";
-  src: url("/fonts/StackSansNotch-VariableFont_wght.ttf") format("truetype");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
 @theme {
   --color-paper: #F7F9FC;
   --color-ink: #17191D;
@@ -19,12 +11,23 @@
   --color-night: #17191D;
   --color-warm-white: #FFFFFF;
 
-  --font-display: "Stack Sans Notch", "Aptos", "Segoe UI", sans-serif;
-  --font-sans: "Stack Sans Notch", Inter, "Aptos", "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  --font-display: var(--font-plus-jakarta-sans), system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: var(--font-plus-jakarta-sans), system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: var(--font-plus-jakarta-sans), system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 :root {
+  --heading-1-size: clamp(2rem, 5vw + 1rem, 4rem);
+  --heading-2-size: clamp(1.625rem, 3.5vw + 0.75rem, 2.75rem);
+  --heading-3-size: clamp(1.25rem, 2vw + 0.75rem, 1.75rem);
+  --heading-4-size: clamp(1.125rem, 1.25vw + 0.75rem, 1.375rem);
+  --heading-5-size: clamp(1rem, 1vw + 0.75rem, 1.125rem);
+  --heading-6-size: 1rem;
+  --heading-line-height: 1.12;
+  --heading-tracking: -0.02em;
+  --heading-weight-primary: 800;
+  --heading-weight-secondary: 700;
+  --anchor-scroll-offset: 6rem;
   --duration-stagger: 40ms;
   --duration-quick: 150ms;
   --duration-fast: 250ms;
@@ -47,12 +50,98 @@
   --stagger-ease: var(--ease-smooth-out);
 }
 
+html,
 body {
   background-color: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-sans);
+}
+
+body {
   background-image: none;
   line-height: 1.5;
+}
+
+/* Shared heading system: semantic headings and display-styled titles use the
+   same Plus Jakarta Sans weight, wrapping, and fluid type scale. */
+:where(h1, h2, h3, h4, h5, h6, .font-display) {
+  max-inline-size: 100%;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-sans);
+  line-height: var(--heading-line-height);
+  letter-spacing: var(--heading-tracking);
+  scroll-margin-top: var(--anchor-scroll-offset);
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-weight: var(--heading-weight-primary);
+}
+
+h1 { font-size: var(--heading-1-size); }
+h2 { font-size: var(--heading-2-size); }
+h3 { font-size: var(--heading-3-size); }
+
+h4,
+h5,
+h6 {
+  font-weight: var(--heading-weight-secondary);
+}
+
+h4 { font-size: var(--heading-4-size); }
+h5 { font-size: var(--heading-5-size); }
+h6 { font-size: var(--heading-6-size); }
+
+h4.font-display,
+h5.font-display,
+h6.font-display {
+  font-weight: var(--heading-weight-secondary);
+}
+
+/* Title-like elements use the same robust line geometry even when they are
+   represented by a link, paragraph, or card title rather than a heading tag. */
+.font-display {
+  line-height: var(--heading-line-height);
+  letter-spacing: var(--heading-tracking);
+}
+
+/* Flex and grid children otherwise default to min-width:auto, which lets a
+   long title force horizontal scrolling instead of wrapping within its track. */
+:where(.flex, .grid) > * {
+  min-inline-size: 0;
+}
+
+@media (max-width: 639px) {
+  :where(h1, h2, h3, h4, h5, h6, .font-display) {
+    letter-spacing: -0.015em;
+    text-wrap: pretty;
+  }
+}
+
+button,
+input,
+textarea,
+select,
+option,
+optgroup,
+label,
+table,
+code,
+pre,
+kbd,
+samp {
+  font-family: inherit;
 }
 
 *,

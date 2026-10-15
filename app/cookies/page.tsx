@@ -4,7 +4,7 @@ export default function CookiesPage() {
     return (
         <main className="mx-auto w-full max-w-4xl px-5 py-12 sm:px-8 sm:py-20">
             <div className="eyebrow font-mono text-redline">LEGAL / COOKIES</div>
-            <h1 className="display-balance mt-5 max-w-3xl font-display text-5xl font-bold leading-[0.92] tracking-[-0.06em] sm:text-7xl">Small files, clearly explained.</h1>
+            <h1 className="display-balance mt-5 max-w-3xl font-display text-5xl font-semibold leading-[0.92] tracking-[-0.06em] sm:text-7xl">Small files, clearly explained.</h1>
             <p className="mt-6 max-w-2xl text-sm leading-relaxed text-graphite">This draft Cookie Policy explains how ArchiCareer may use cookies and similar technologies as the service grows.</p>
             <article className="surface mt-12 space-y-8 p-6 text-sm leading-relaxed text-graphite sm:p-10">
                 <section><h2 className="font-display text-2xl font-semibold text-ink">What cookies do</h2><p className="mt-3">Cookies are small files stored by your browser. They can help a site remember a session, understand basic usage, and keep features working.</p></section>

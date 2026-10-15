@@ -64,7 +64,7 @@ export default function SiteFooter() {
                 </div>
 
                 <div className="mt-14 border-t border-paper/20 pt-8">
-                    <div className="max-w-full break-words font-display text-[clamp(2.4rem,11vw,9rem)] font-black uppercase leading-[0.8] tracking-[-0.085em] text-paper">
+                    <div className="max-w-full break-words font-display text-[clamp(2.4rem,11vw,9rem)] font-bold uppercase leading-[0.8] tracking-[-0.085em] text-paper">
                         ARCHICAREER
                     </div>
                     <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 font-mono text-[10px] uppercase tracking-[0.2em] text-paper/50">

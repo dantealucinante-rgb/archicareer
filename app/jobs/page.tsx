@@ -46,11 +46,11 @@ export default async function JobsPage() {
                             jobs.map((job: JobListing) => (
                                 <Link key={job.id} href={`/jobs/${job.id}`} className="surface card-lift block p-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redline">
                                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                        <div>
+                                        <div className="min-w-0">
                                             <div className="mb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-redline">
                                                 {job.type} {"//"} {job.status}
                                             </div>
-                                            <h2 className="font-display text-2xl font-semibold tracking-tight text-ink">{job.title}</h2>
+                                            <h2 className="line-clamp-2 font-display text-2xl font-semibold tracking-tight text-ink">{job.title}</h2>
                                             <p className="mt-2 font-mono text-[10px] uppercase tracking-wider text-graphite">
                                                 {job.firm_name}
                                             </p>

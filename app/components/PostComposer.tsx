@@ -165,7 +165,7 @@ export default function PostComposer({ open, onClose, onCreated, author }: Props
                     <span aria-hidden="true" className="absolute left-1/2 top-2 h-1 w-10 -translate-x-1/2 rounded-full bg-line sm:hidden" />
                     <div className="flex min-w-0 items-center gap-3">
                         {author && <ProfileAvatar profile={author} size={44} className="h-11 w-11 shrink-0 rounded-full border border-line object-cover" />}
-                        <div className="min-w-0"><h2 id="post-composer-title" className="truncate font-display text-lg font-semibold text-ink">{author?.name ?? "Share a post"}</h2><p className="font-mono text-[9px] uppercase tracking-widest text-graphite">Share with the field</p></div>
+                        <div className="min-w-0"><h2 id="post-composer-title" className="line-clamp-2 font-display text-lg font-semibold text-ink">{author?.name ?? "Share a post"}</h2><p className="font-mono text-[9px] uppercase tracking-widest text-graphite">Share with the field</p></div>
                     </div>
                     <button type="button" onClick={() => requestClose()} disabled={saving} aria-label="Close post composer" className="feedback-control grid h-10 w-10 shrink-0 place-items-center rounded-full text-xl text-graphite hover:bg-sand hover:text-ink disabled:opacity-50">×</button>
                 </div>
