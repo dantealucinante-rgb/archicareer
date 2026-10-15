@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { createPortal } from "react-dom";
 import { useCallback, useEffect, useRef, useState } from "react";
 import SignOutButton from "./SignOutButton";
 import type { Profile } from "@/types";
@@ -104,6 +105,40 @@ export default function MobileNav({ authenticated, profile }: Props) {
 
     const linkClass = (href: string) => `interactive rounded-xl px-4 py-3 text-base ${pathname === href || pathname.startsWith(`${href}/`) ? "bg-sand/60 text-ink" : "text-ink hover:bg-sand/40"}`;
 
+    const navigationLayer = mounted && typeof document !== "undefined" ? createPortal(
+        <>
+            <button type="button" aria-label="Close navigation menu" onClick={closeNavigation} className={`mobile-nav-overlay ${open ? "is-open" : ""}`} />
+            <aside ref={panelRef} id="mobile-navigation" aria-label="Primary navigation" aria-hidden={!open} className={`mobile-nav-panel ${open ? "is-open" : ""}`}>
+                <div className="flex items-center justify-between border-b border-line px-5 py-4">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-graphite">Navigation</p>
+                    <button type="button" aria-label="Close navigation menu" onClick={closeNavigation} className="interactive grid h-10 w-10 place-items-center rounded-full text-ink hover:bg-sand/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-redline">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5"><path d="m6 6 12 12M18 6 6 18" strokeLinecap="round" /></svg>
+                    </button>
+                </div>
+                <nav className="flex flex-col gap-2 p-4 font-sans" aria-label="Primary navigation links">
+                    {navigationLinks.map((link) => <Link key={link.href} href={link.href} aria-current={pathname === link.href ? "page" : undefined} onClick={closeNavigation} className={linkClass(link.href)}>{link.label}</Link>)}
+                    {authenticated ? (
+                        <>
+                            {profile && <Link href={`/p/${profile.slug}`} onClick={closeNavigation} className="interactive rounded-xl px-4 py-3 text-base text-ink hover:bg-sand/40">View profile</Link>}
+                            <Link href="/profile/edit" onClick={closeNavigation} className="interactive rounded-xl px-4 py-3 text-base text-ink hover:bg-sand/40">Edit profile</Link>
+                            <Link href="/applications" onClick={closeNavigation} className="interactive rounded-xl px-4 py-3 text-base text-ink hover:bg-sand/40">Applications</Link>
+                            <Link href="/settings" onClick={closeNavigation} className="interactive rounded-xl px-4 py-3 text-base text-ink hover:bg-sand/40">Settings</Link>
+                            <div className="my-2 border-t border-line" />
+                            <SignOutButton mobile />
+                        </>
+                    ) : (
+                        <>
+                            <div className="my-2 border-t border-line" />
+                            <Link href="/signup" onClick={closeNavigation} className="interactive rounded-xl bg-ink px-4 py-3 text-base text-paper hover:bg-redline">Join Now</Link>
+                            <Link href="/login" onClick={closeNavigation} className="interactive rounded-xl px-4 py-3 text-base text-ink hover:bg-sand/40">Sign In</Link>
+                        </>
+                    )}
+                </nav>
+            </aside>
+        </>,
+        document.body,
+    ) : null;
+
     return (
         <div className="sm:hidden">
             <button
@@ -122,39 +157,7 @@ export default function MobileNav({ authenticated, profile }: Props) {
                     <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5"><path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" /></svg>
                 )}
             </button>
-
-            {mounted && (
-                <>
-                    <button type="button" aria-label="Close navigation menu" onClick={closeNavigation} className={`mobile-nav-overlay ${open ? "is-open" : ""}`} />
-                    <aside ref={panelRef} id="mobile-navigation" aria-label="Primary navigation" aria-hidden={!open} className={`mobile-nav-panel ${open ? "is-open" : ""}`}>
-                        <div className="flex items-center justify-between border-b border-line px-5 py-4">
-                            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-graphite">Navigation</p>
-                            <button type="button" aria-label="Close navigation menu" onClick={closeNavigation} className="interactive grid h-10 w-10 place-items-center rounded-full text-ink hover:bg-sand/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-redline">
-                                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5"><path d="m6 6 12 12M18 6 6 18" strokeLinecap="round" /></svg>
-                            </button>
-                        </div>
-                        <nav className="flex flex-col gap-2 p-4 font-sans" aria-label="Primary navigation links">
-                            {navigationLinks.map((link) => <Link key={link.href} href={link.href} aria-current={pathname === link.href ? "page" : undefined} onClick={closeNavigation} className={linkClass(link.href)}>{link.label}</Link>)}
-                            {authenticated ? (
-                                <>
-                                    {profile && <Link href={`/p/${profile.slug}`} onClick={closeNavigation} className="interactive rounded-xl px-4 py-3 text-base text-ink hover:bg-sand/40">View profile</Link>}
-                                    <Link href="/profile/edit" onClick={closeNavigation} className="interactive rounded-xl px-4 py-3 text-base text-ink hover:bg-sand/40">Edit profile</Link>
-                                    <Link href="/applications" onClick={closeNavigation} className="interactive rounded-xl px-4 py-3 text-base text-ink hover:bg-sand/40">Applications</Link>
-                                    <Link href="/settings" onClick={closeNavigation} className="interactive rounded-xl px-4 py-3 text-base text-ink hover:bg-sand/40">Settings</Link>
-                                    <div className="my-2 border-t border-line" />
-                                    <SignOutButton mobile />
-                                </>
-                            ) : (
-                                <>
-                                    <div className="my-2 border-t border-line" />
-                                    <Link href="/signup" onClick={closeNavigation} className="interactive rounded-xl bg-ink px-4 py-3 text-base text-paper hover:bg-redline">Join Now</Link>
-                                    <Link href="/login" onClick={closeNavigation} className="interactive rounded-xl px-4 py-3 text-base text-ink hover:bg-sand/40">Sign In</Link>
-                                </>
-                            )}
-                        </nav>
-                    </aside>
-                </>
-            )}
+            {navigationLayer}
         </div>
     );
 }

@@ -390,7 +390,7 @@ button {
 .mobile-nav-overlay {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 9998;
   cursor: default;
   background: rgba(23, 25, 29, 0.3);
   opacity: 0;
@@ -405,8 +405,10 @@ button {
 
 .mobile-nav-panel {
   position: fixed;
-  inset: 0 0 0 auto;
-  z-index: 51;
+  top: 0;
+  right: 0;
+  z-index: 9999;
+  height: 100dvh;
   display: flex;
   width: min(50vw, 28rem);
   flex-direction: column;
