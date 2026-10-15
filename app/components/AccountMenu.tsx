@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import SignOutButton from "./SignOutButton";
 import { ChevronDown } from "./UiIcon";
+import type { Profile } from "@/types";
 
-export default function AccountMenu() {
+export default function AccountMenu({ profile }: { profile: Profile }) {
     const [open, setOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -33,7 +34,7 @@ export default function AccountMenu() {
             {open && (
                 <div id="account-menu" className="sheet-reveal absolute right-0 top-[calc(100%+0.75rem)] z-50 w-52 rounded-2xl border border-line bg-paper p-2 shadow-xl">
                     <nav aria-label="Account navigation" className="flex flex-col gap-1 font-mono text-[10px] uppercase tracking-widest">
-                        <Link href="/profile" onClick={() => setOpen(false)} className="rounded-xl px-3 py-3 text-ink hover:bg-sand/40">View profile</Link>
+                        <Link href={`/p/${profile.slug}`} onClick={() => setOpen(false)} className="rounded-xl px-3 py-3 text-ink hover:bg-sand/40">View profile</Link>
                         <Link href="/profile/edit" onClick={() => setOpen(false)} className="rounded-xl px-3 py-3 text-ink hover:bg-sand/40">Edit profile</Link>
                         <Link href="/applications" onClick={() => setOpen(false)} className="rounded-xl px-3 py-3 text-ink hover:bg-sand/40">Applications</Link>
                         <Link href="/settings" onClick={() => setOpen(false)} className="rounded-xl px-3 py-3 text-ink hover:bg-sand/40">Settings</Link>

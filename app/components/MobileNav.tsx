@@ -4,10 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import SignOutButton from "./SignOutButton";
+import type { Profile } from "@/types";
 
-type Props = { authenticated: boolean };
+type Props = { authenticated: boolean; profile: Profile | null };
 
-export default function MobileNav({ authenticated }: Props) {
+export default function MobileNav({ authenticated, profile }: Props) {
     const [open, setOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const pathname = usePathname();
@@ -49,7 +50,7 @@ export default function MobileNav({ authenticated }: Props) {
                         <Link href="/feed" aria-current={pathname === "/feed" ? "page" : undefined} onClick={() => setOpen(false)} className={linkClass("/feed")}>Feed</Link>
                         {authenticated ? (
                             <>
-                                <Link href="/profile" onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 text-ink">View profile</Link>
+                                {profile && <Link href={`/p/${profile.slug}`} onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 text-ink">View profile</Link>}
                                 <Link href="/profile/edit" onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 text-ink">Edit profile</Link>
                                 <Link href="/applications" onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 text-ink">Applications</Link>
                                 <Link href="/settings" onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 text-ink">Settings</Link>

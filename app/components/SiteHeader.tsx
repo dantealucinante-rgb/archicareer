@@ -29,7 +29,7 @@ export default async function SiteHeader() {
                 <div className="ml-auto flex items-center gap-3 font-sans text-xs sm:gap-5 sm:text-sm">
                     {user ? (
                         <>
-                            <AccountMenu />
+                            {profile && <AccountMenu profile={profile} />}
                         </>
                     ) : (
                         <>
