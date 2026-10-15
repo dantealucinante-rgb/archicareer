@@ -3,7 +3,7 @@ import { JobListing, JobType, JobStatus } from "@/types";
 import { jobListingCreateSchema } from "@/lib/validations";
 import { QueryResult, PaginationOptions, SortingOptions, normalizePagination } from "@/lib/queries/profiles";
 
-const JOB_LIST_COLS = "id, firm_name, title, type, description, apply_link_or_email, status, created_at, updated_at";
+const JOB_LIST_COLS = "id, firm_name, title, type, description, status, created_at, updated_at";
 const JOB_DETAIL_COLS = "id, firm_name, title, type, description, apply_link_or_email, status, created_at, updated_at";
 
 export async function getJobListings(
@@ -66,7 +66,7 @@ export async function createJobListing(
         const { data, error } = await supabase
             .from("job_listings")
             .insert(validation.data)
-            .select(JOB_LIST_COLS)
+            .select(JOB_DETAIL_COLS)
             .single();
 
         if (error) return { data: null, error: new Error(error.message) };

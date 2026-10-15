@@ -1,9 +1,44 @@
-import type { Comment, ReactionType } from "@/types";
+import type { Comment, EngagementSummary, ReactionType } from "@/types";
 import { commentCreateSchema, commentUpdateSchema } from "@/lib/validations";
 import { createAdminClient, createClient, createPublicClient } from "@/lib/supabase/server";
 
 type Target = { portfolio_item_id?: string; post_id?: string };
 type QueryResult<T> = { data: T | null; error: Error | null };
+
+type EngagementTargets = {
+    portfolioItemIds?: string[];
+    postIds?: string[];
+};
+
+type EngagementRow = {
+    target_type: "portfolio_item" | "post";
+    target_id: string;
+    comment_count: number;
+    reaction_count: number;
+    user_reacted: boolean;
+};
+
+export async function getEngagementSummaries(targets: EngagementTargets, userId?: string | null): Promise<Record<string, EngagementSummary>> {
+    const portfolioItemIds = targets.portfolioItemIds ?? [];
+    const postIds = targets.postIds ?? [];
+    if (portfolioItemIds.length === 0 && postIds.length === 0) return {};
+
+    try {
+        const { data, error } = await createPublicClient().rpc("get_engagement_summaries", {
+            p_portfolio_item_ids: portfolioItemIds,
+            p_post_ids: postIds,
+            p_user_id: userId ?? null,
+        });
+        if (error) throw new Error(error.message);
+        return Object.fromEntries(((data ?? []) as EngagementRow[]).map((row) => [row.target_id, {
+            commentCount: Number(row.comment_count) || 0,
+            reactionCount: Number(row.reaction_count) || 0,
+            userReacted: Boolean(row.user_reacted),
+        }]));
+    } catch {
+        return {};
+    }
+}
 
 async function attachAuthors(comments: Comment[]): Promise<Comment[]> {
     if (comments.length === 0) return comments;

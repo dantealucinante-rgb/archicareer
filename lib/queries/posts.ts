@@ -2,6 +2,7 @@ import type { FeedPost } from "@/types";
 import { postCreateSchema } from "@/lib/validations";
 import { createAdminClient, createClient, createPublicClient } from "@/lib/supabase/server";
 import { ownedStoragePath, verifyStoredAsset } from "@/lib/storage-validation";
+import { getEngagementSummaries } from "@/lib/queries/engagement";
 
 type QueryResult<T> = { data: T | null; error: Error | null };
 
@@ -13,27 +14,17 @@ async function currentUserId() {
 async function addPostDetails(posts: FeedPost[], userId: string | null): Promise<FeedPost[]> {
     if (posts.length === 0) return posts;
     const ids = posts.map((post) => post.id);
-    const publicClient = createPublicClient();
-    const [{ data: reactions }, { data: comments }, { data: profiles }] = await Promise.all([
-        publicClient.from("reactions").select("post_id, user_id").in("post_id", ids),
-        publicClient.from("comments").select("post_id").in("post_id", ids),
+    const [{ data: profiles }, engagement] = await Promise.all([
         createAdminClient().from("profiles").select("id, user_id, name, slug, role, location, avatar_url").in("user_id", posts.map((post) => post.user_id)),
+        getEngagementSummaries({ postIds: ids }, userId),
     ]);
-    const reactionCounts = new Map<string, number>();
-    const userReacted = new Set<string>();
-    for (const reaction of reactions ?? []) {
-        if (reaction.post_id) reactionCounts.set(reaction.post_id, (reactionCounts.get(reaction.post_id) ?? 0) + 1);
-        if (userId && reaction.user_id === userId && reaction.post_id) userReacted.add(reaction.post_id);
-    }
-    const commentCounts = new Map<string, number>();
-    for (const comment of comments ?? []) if (comment.post_id) commentCounts.set(comment.post_id, (commentCounts.get(comment.post_id) ?? 0) + 1);
     const byUserId = new Map((profiles ?? []).map((profile) => [profile.user_id, profile]));
     return posts.map((post) => ({
         ...post,
         author: byUserId.get(post.user_id) ?? { id: "", name: "Community member", slug: "", role: "student", location: null, avatar_url: null },
-        reaction_count: reactionCounts.get(post.id) ?? 0,
-        comment_count: commentCounts.get(post.id) ?? 0,
-        user_reacted: userReacted.has(post.id),
+        reaction_count: engagement[post.id]?.reactionCount ?? 0,
+        comment_count: engagement[post.id]?.commentCount ?? 0,
+        user_reacted: engagement[post.id]?.userReacted ?? false,
     })) as FeedPost[];
 }
 

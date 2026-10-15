@@ -1,5 +1,6 @@
 import { createAdminClient, createClient, createPublicClient } from "@/lib/supabase/server";
 import type { User } from "@supabase/supabase-js";
+import { cache } from "react";
 import { Profile, UserRole } from "@/types";
 import { profileUpdateSchema } from "@/lib/validations";
 
@@ -85,7 +86,7 @@ export async function getProfileBySlug(slug: string): Promise<QueryResult<Profil
     }
 }
 
-export async function getCurrentProfile(): Promise<QueryResult<Profile>> {
+export const getCurrentProfile = cache(async function getCurrentProfile(): Promise<QueryResult<Profile>> {
     try {
         const supabase = await createClient();
         const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -104,7 +105,7 @@ export async function getCurrentProfile(): Promise<QueryResult<Profile>> {
         console.error("Unhandled error in getCurrentProfile:", err);
         return { data: null, error: err instanceof Error ? err : new Error(String(err)) };
     }
-}
+});
 
 export async function getProfileForUser(
     supabase: ServerClient,
@@ -228,7 +229,7 @@ export async function searchProfiles(
 ): Promise<QueryResult<Profile[]>> {
     try {
         const supabase = createPublicClient();
-        let query = supabase.from("profiles").select("id, name, slug, role, bio, location, school_or_firm, avatar_url", { count: "exact" }).eq("search_indexable", true);
+        let query = supabase.from("profiles").select("id, name, slug, role, bio, location, school_or_firm, avatar_url", { count: "estimated" }).eq("search_indexable", true);
 
         if (filters.role) {
             query = query.eq("role", filters.role);

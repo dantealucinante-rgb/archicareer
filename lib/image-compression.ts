@@ -1,6 +1,7 @@
 import imageCompression from "browser-image-compression";
 
 type ImageUploadKind = "portfolio" | "post" | "avatar";
+export const MAX_IMAGE_UPLOAD_BYTES = 3 * 1024 * 1024;
 
 const compressionOptions: Record<ImageUploadKind, Parameters<typeof imageCompression>[1]> = {
     portfolio: {
@@ -36,10 +37,14 @@ export async function compressImageForUpload(file: File, kind: ImageUploadKind) 
 
     try {
         const compressed = await imageCompression(file, compressionOptions[kind]);
-        return new File([compressed], webpName(file.name), { type: "image/webp", lastModified: file.lastModified });
+        const result = new File([compressed], webpName(file.name), { type: "image/webp", lastModified: file.lastModified });
+        if (result.size > MAX_IMAGE_UPLOAD_BYTES) throw new Error("Image is too large, please try a smaller file");
+        return result;
     } catch {
         // A browser codec or worker can fail for an unusual image. The server
-        // still validates the original file, so preserve the upload path.
+        // still validates the original file, so preserve the upload path only
+        // when it remains within the hard storage cap.
+        if (file.size > MAX_IMAGE_UPLOAD_BYTES) throw new Error("Image is too large, please try a smaller file");
         return file;
     }
 }

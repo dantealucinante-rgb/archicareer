@@ -4,8 +4,8 @@ import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { validateAssetBytes } from "@/lib/storage-validation";
 
 const config = {
-    "portfolio-images": { kind: "image" as const, maxBytes: 10 * 1024 * 1024, types: new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]) },
-    "post-images": { kind: "image" as const, maxBytes: 10 * 1024 * 1024, types: new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]) },
+    "portfolio-images": { kind: "image" as const, maxBytes: 3 * 1024 * 1024, types: new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]) },
+    "post-images": { kind: "image" as const, maxBytes: 3 * 1024 * 1024, types: new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]) },
     avatars: { kind: "image" as const, maxBytes: 2 * 1024 * 1024, types: new Set(["image/jpeg", "image/png", "image/webp"]) },
     "cv-documents": { kind: "pdf" as const, maxBytes: 5 * 1024 * 1024, types: new Set(["application/pdf"]) },
 } as const;
@@ -28,6 +28,7 @@ export async function POST(request: Request) {
         }
         const rules = config[bucket];
         if (!rules.types.has(file.type) || file.size === 0 || file.size > rules.maxBytes) {
+            if (rules.kind === "image" && file.size > rules.maxBytes) return NextResponse.json({ error: "Image is too large, please try a smaller file" }, { status: 400 });
             return NextResponse.json({ error: "File type or size is not allowed" }, { status: 400 });
         }
 

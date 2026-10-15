@@ -7,8 +7,7 @@ import FirmPublicProfile from "@/app/components/FirmPublicProfile";
 import PublicProfileHeader from "@/app/components/PublicProfileHeader";
 import ProfileTabs from "@/app/components/ProfileTabs";
 import { getFollowCounts, getFollowState, getProfileOwnerUserId } from "@/lib/queries/follows";
-import { getEngagementSummary } from "@/lib/queries/engagement";
-import type { EngagementSummary } from "@/types";
+import { getEngagementSummaries } from "@/lib/queries/engagement";
 import { absoluteUrl, locationLabel, safeJsonLd } from "@/lib/seo";
 
 interface PageProps { params: Promise<{ slug: string }> }
@@ -30,12 +29,11 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
     const isOwner = currentProfile?.id === profile.id;
     const profileOwnerId = await getProfileOwnerUserId(profile.id);
     const [followCounts, followState] = profileOwnerId ? await Promise.all([getFollowCounts(profileOwnerId), getFollowState(currentProfile?.user_id ?? null, profileOwnerId)]) : [{ followers: 0, following: 0 }, { isFollowing: false, isMutual: false }];
-    const [projectEngagement, postEngagement] = await Promise.all([
-        Promise.all((portfolioItems ?? []).map(async (item) => [item.id, await getEngagementSummary({ portfolio_item_id: item.id }, currentProfile?.user_id)] as const)),
-        Promise.all((posts ?? []).map(async (post) => [post.id, await getEngagementSummary({ post_id: post.id }, currentProfile?.user_id)] as const)),
-    ]);
-    const engagement = Object.fromEntries(projectEngagement) as Record<string, EngagementSummary>;
-    const postsEngagement = Object.fromEntries(postEngagement) as Record<string, EngagementSummary>;
+    const engagement = await getEngagementSummaries({
+        portfolioItemIds: (portfolioItems ?? []).map((item) => item.id),
+        postIds: (posts ?? []).map((post) => post.id),
+    }, currentProfile?.user_id);
+    const postsEngagement = engagement;
     const roleLabel = profile.role === "firm" ? "Architecture Firm" : profile.role === "architect" ? "Architect" : "Architecture Student";
     const profileSchema = { "@context": "https://schema.org", "@type": profile.role === "firm" ? "Organization" : "Person", name: profile.name, description: profile.bio ?? undefined, url: absoluteUrl(`/p/${profile.slug}`), image: profile.avatar_url ?? undefined, jobTitle: profile.role === "firm" ? undefined : roleLabel, address: { "@type": "PostalAddress", addressLocality: profile.location ?? undefined, addressCountry: "NG" }, sameAs: [profile.instagram_url, profile.personal_site_url, profile.linkedin_url].filter(Boolean) };
 

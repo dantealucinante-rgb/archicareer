@@ -1,15 +1,28 @@
+"use client";
+
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { useEffect, useState } from "react";
 import AccountMenu from "./AccountMenu";
 import PrimaryNav from "./PrimaryNav";
 import BrandLogo from "./BrandLogo";
 import MobileAppHeader from "./MobileAppHeader";
-import { getCurrentProfile } from "@/lib/queries/profiles";
+import type { Profile } from "@/types";
 
-export default async function SiteHeader() {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    const { data: profile } = user ? await getCurrentProfile() : { data: null };
+export default function SiteHeader() {
+    const [account, setAccount] = useState<{ authenticated: boolean; profile: Profile | null }>({ authenticated: false, profile: null });
+
+    useEffect(() => {
+        const controller = new AbortController();
+        fetch("/api/account", { credentials: "include", cache: "no-store", signal: controller.signal })
+            .then((response) => response.ok ? response.json() : null)
+            .then((data: { authenticated?: boolean; profile?: Profile | null } | null) => {
+                if (data) setAccount({ authenticated: Boolean(data.authenticated), profile: data.profile ?? null });
+            })
+            .catch(() => undefined);
+        return () => controller.abort();
+    }, []);
+
+    const { authenticated, profile } = account;
 
     return (
         <header className="sticky top-0 z-40 border-b border-line/80 bg-paper/88 backdrop-blur-xl">
@@ -27,7 +40,7 @@ export default async function SiteHeader() {
                 <PrimaryNav />
 
                 <div className="ml-auto flex items-center gap-3 font-sans text-xs sm:gap-5 sm:text-sm">
-                    {user ? (
+                    {authenticated ? (
                         <>
                             {profile && <AccountMenu profile={profile} />}
                         </>
@@ -46,7 +59,7 @@ export default async function SiteHeader() {
                     )}
                 </div>
             </div>
-            <MobileAppHeader authenticated={Boolean(user)} profile={profile} />
+            <MobileAppHeader authenticated={authenticated} profile={profile} />
         </header>
     );
 }
