@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 
-const buckets = ["avatars", "cv-documents", "portfolio-images"] as const;
+const buckets = ["avatars", "cv-documents", "portfolio-images", "post-images"] as const;
 
 async function removeUserFiles(userId: string) {
     const admin = createAdminClient();

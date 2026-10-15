@@ -22,9 +22,9 @@ export default function DeleteAccountButton() {
     }
 
     return (
-        <section className="mt-12 border-t border-redline/30 pt-8">
-            <p className="eyebrow font-mono text-redline">DANGER ZONE</p>
-            <h2 className="mt-3 font-display text-2xl font-semibold tracking-tight">Delete your account</h2>
+        <section className="rounded-2xl border border-redline/35 bg-redline/5 p-5 sm:p-7" aria-labelledby="danger-zone-heading">
+            <p className="eyebrow font-mono text-redline">Danger Zone</p>
+            <h2 id="danger-zone-heading" className="mt-2 font-display text-2xl font-semibold tracking-tight">Delete your account</h2>
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-graphite">This permanently removes your profile, portfolio, uploads, and account access. Job listings connected to a firm account are closed and preserved without the account owner.</p>
             <div className="mt-5 max-w-md">
                 <label htmlFor="delete-confirmation" className="block font-mono text-[10px] uppercase tracking-widest text-graphite">Type DELETE to confirm</label>

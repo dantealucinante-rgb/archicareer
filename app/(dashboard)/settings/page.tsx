@@ -1,26 +1,50 @@
 import { getCurrentProfile } from "@/lib/queries/profiles";
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import SettingsEditor from "./SettingsEditor";
 import DeleteAccountButton from "./DeleteAccountButton";
+import SettingsBackButton from "./SettingsBackButton";
 
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
     const { data: profile } = await getCurrentProfile();
     if (!profile) redirect("/login");
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    const providers = [...new Set((user?.identities ?? []).map((identity) => identity.provider))];
+    const signInMethod = providers.includes("google") && providers.includes("email")
+        ? "Google and magic link"
+        : providers.includes("google")
+            ? "Google"
+            : "Magic link";
+    const roleLabel = profile.role === "firm" ? "Firm" : profile.role === "architect" ? "Architect" : "Student";
 
     return (
-        <div className="bg-paper text-ink flex flex-col font-sans selection:bg-redline selection:text-paper">
-            <main className="max-w-4xl w-full mx-auto px-6 py-12 border-x border-line border-dashed">
-                <div className="border-b border-line pb-6 mb-8 flex justify-between items-end">
-                    <h1 className="font-display text-2xl uppercase tracking-tight text-ink font-normal">Settings</h1>
-                    <div className="font-mono text-[10px] text-graphite uppercase tracking-widest">[ SECURITY STATE: ACTIVE ]</div>
-                </div>
+        <div className="settings-panel-enter min-h-full bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
+            <main className="mx-auto w-full max-w-3xl px-5 py-6 sm:px-8 sm:py-10">
+                <header className="mb-8 flex items-start justify-between gap-5 border-b border-line pb-6">
+                    <div>
+                        <p className="eyebrow font-mono text-redline">Account controls</p>
+                        <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">Settings</h1>
+                        <p className="mt-3 max-w-xl text-sm leading-relaxed text-graphite">Manage how your account appears and how ArchiCareer stays in touch.</p>
+                    </div>
+                    <SettingsBackButton />
+                </header>
 
-                <div className="border border-line bg-paper p-8 rounded-[2px]">
-                    <p className="font-mono text-xs text-graphite uppercase tracking-widest mb-6">[ PREFERENCES METADATA DETAILS ]</p>
-                    <p className="mb-6 text-sm leading-relaxed text-graphite">Your preference is saved now. Email delivery will activate when notifications are connected.</p>
-                    <SettingsEditor initialMarketingEmails={profile?.marketing_emails ?? false} initialSearchIndexable={profile?.search_indexable ?? true} />
+                <div className="space-y-5">
+                    <section className="surface p-5 sm:p-7" aria-labelledby="account-heading">
+                        <p className="eyebrow font-mono text-redline">Account</p>
+                        <h2 id="account-heading" className="mt-2 font-display text-2xl font-semibold tracking-tight">Your account</h2>
+                        <dl className="mt-6 divide-y divide-line border-y border-line">
+                            <div className="flex flex-col gap-1 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6"><dt className="text-sm text-graphite">Email</dt><dd className="break-all text-sm font-medium text-ink sm:text-right">{user?.email ?? "Not available"}</dd></div>
+                            <div className="flex flex-col gap-1 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6"><dt className="text-sm text-graphite">Sign-in method</dt><dd className="text-sm font-medium text-ink sm:text-right">{signInMethod}</dd></div>
+                            <div className="flex flex-col gap-1 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6"><dt className="text-sm text-graphite">Account type</dt><dd className="text-sm font-medium text-ink sm:text-right">{roleLabel}</dd></div>
+                        </dl>
+                    </section>
+
+                    <SettingsEditor initialMarketingEmails={profile.marketing_emails} initialSearchIndexable={profile.search_indexable} />
+
                     <DeleteAccountButton />
                 </div>
             </main>

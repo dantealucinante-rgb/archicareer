@@ -5,6 +5,7 @@ import { useState } from "react";
 export default function SettingsEditor({ initialMarketingEmails, initialSearchIndexable }: { initialMarketingEmails: boolean; initialSearchIndexable: boolean }) {
     const [marketingEmails, setMarketingEmails] = useState(initialMarketingEmails);
     const [searchIndexable, setSearchIndexable] = useState(initialSearchIndexable);
+    const [toggleInitialized, setToggleInitialized] = useState(false);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState("");
     const [error, setError] = useState(false);
@@ -32,35 +33,29 @@ export default function SettingsEditor({ initialMarketingEmails, initialSearchIn
     }
 
     return (
-        <form className="space-y-6" onSubmit={submit}>
-            <div className="flex items-center">
-                <input
-                    id="marketing_emails"
-                    type="checkbox"
-                    checked={marketingEmails}
-                    onChange={(event) => setMarketingEmails(event.target.checked)}
-                    className="h-4 w-4 accent-redline border-line rounded-[2px] cursor-pointer bg-paper"
-                />
-                <label htmlFor="marketing_emails" className="ml-2 block font-mono text-xs uppercase tracking-wider text-graphite select-none cursor-pointer">
-                    Allow future job-alert emails
-                </label>
-            </div>
-            <div className="flex items-start">
-                <input
-                    id="search_indexable"
-                    type="checkbox"
-                    checked={searchIndexable}
-                    onChange={(event) => setSearchIndexable(event.target.checked)}
-                    className="mt-0.5 h-4 w-4 accent-redline border-line rounded-[2px] cursor-pointer bg-paper"
-                />
-                <label htmlFor="search_indexable" className="ml-2 block font-mono text-xs uppercase tracking-wider text-graphite select-none cursor-pointer">
-                    Show my profile in search engines
-                    <span className="mt-1 block font-sans text-xs normal-case tracking-normal text-graphite/80">When enabled, your public profile may appear in Google and other search results.</span>
-                </label>
-            </div>
-            <div className="flex items-center justify-between gap-4 border-t border-line pt-4">
+        <form className="space-y-5" onSubmit={submit}>
+            <section className="surface p-5 sm:p-7" aria-labelledby="notifications-heading">
+                <p className="eyebrow font-mono text-redline">Notifications</p>
+                <h2 id="notifications-heading" className="mt-2 font-display text-2xl font-semibold tracking-tight">Stay in the loop</h2>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-graphite">Choose whether you want to receive relevant job-alert emails.</p>
+                <div className="mt-6 flex items-center justify-between gap-5 border-y border-line py-4">
+                    <div><p className="text-sm font-medium text-ink">Allow job-alert emails</p><p className="mt-1 text-xs leading-relaxed text-graphite">Receive emails about relevant architecture opportunities.</p></div>
+                    <button type="button" role="switch" aria-label="Allow job-alert emails" aria-checked={marketingEmails} data-on={marketingEmails} className={`t-toggle interactive relative h-7 w-12 shrink-0 rounded-full bg-line p-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D70E8] data-[on=true]:bg-[#1D70E8] ${toggleInitialized ? "is-init" : ""}`} onClick={() => { setToggleInitialized(true); setMarketingEmails((current) => !current); }}><span className="t-toggle-thumb block h-5 w-5 rounded-full bg-warm-white shadow-sm" /></button>
+                </div>
+            </section>
+            <section className="surface p-5 sm:p-7" aria-labelledby="privacy-heading">
+                <p className="eyebrow font-mono text-redline">Privacy</p>
+                <h2 id="privacy-heading" className="mt-2 font-display text-2xl font-semibold tracking-tight">Control your visibility</h2>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-graphite">Decide whether your public profile can appear in search engines such as Google.</p>
+                <div className="mt-6 flex items-center justify-between gap-5 border-y border-line py-4">
+                    <div><p className="text-sm font-medium text-ink">Show my profile in search engines</p><p className="mt-1 max-w-xl text-xs leading-relaxed text-graphite">When enabled, your public profile may appear in Google and other search results.</p></div>
+                    <button type="button" role="switch" aria-label="Show my profile in search engines" aria-checked={searchIndexable} data-on={searchIndexable} className={`t-toggle interactive relative h-7 w-12 shrink-0 rounded-full bg-line p-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D70E8] data-[on=true]:bg-[#1D70E8] ${toggleInitialized ? "is-init" : ""}`} onClick={() => { setToggleInitialized(true); setSearchIndexable((current) => !current); }}><span className="t-toggle-thumb block h-5 w-5 rounded-full bg-warm-white shadow-sm" /></button>
+                </div>
+                <p className="mt-4 text-sm text-graphite">Your profile remains available on ArchiCareer when this setting is turned off.</p>
+            </section>
+            <div className="flex flex-col items-start justify-between gap-4 border-t border-line pt-5 sm:flex-row sm:items-center">
                 <p aria-live="polite" className={`font-mono text-[10px] uppercase tracking-widest ${error ? "text-redline" : "text-graphite"}`}>{message}</p>
-                <button type="submit" disabled={saving} className="bg-redline text-paper px-6 py-2.5 rounded-[2px] font-mono text-xs uppercase tracking-widest hover:bg-opacity-90 border border-redline cursor-pointer transition-colors disabled:cursor-not-allowed disabled:opacity-60">
+                <button type="submit" disabled={saving} className="interactive rounded-full border border-[#1D70E8] bg-[#1D70E8] px-6 py-3 font-mono text-[10px] uppercase tracking-widest text-paper hover:bg-[#1558B0] disabled:cursor-not-allowed disabled:opacity-60">
                     {saving ? "Saving..." : "Save Settings"}
                 </button>
             </div>
