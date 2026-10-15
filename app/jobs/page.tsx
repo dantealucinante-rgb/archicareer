@@ -1,10 +1,13 @@
 import { getJobListings } from "@/lib/queries/jobs";
 import { JobListing } from "@/types";
 import JobPostForm from "@/app/components/JobPostForm";
+import ApplyButton from "@/app/components/ApplyButton";
 import { getCurrentProfile } from "@/lib/queries/profiles";
 import type { Metadata } from "next";
 import { safeJsonLd } from "@/lib/seo";
 import Link from "next/link";
+import Image from "next/image";
+import { createPublicClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -14,8 +17,21 @@ export const metadata: Metadata = {
     alternates: { canonical: "/jobs" },
 };
 
+function firmInitials(name: string) {
+    return name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase() || "AC";
+}
+
+function postedDate(value: string) {
+    return new Intl.DateTimeFormat("en-NG", { month: "short", day: "numeric", year: "numeric" }).format(new Date(value));
+}
+
 export default async function JobsPage() {
     const [{ data: jobs, error: jobsError }, { data: profile }] = await Promise.all([getJobListings(), getCurrentProfile()]);
+    const firmUserIds = [...new Set((jobs ?? []).map((job) => job.user_id).filter((userId): userId is string => Boolean(userId)))];
+    const { data: firmProfiles } = firmUserIds.length > 0
+        ? await createPublicClient().from("profiles").select("user_id, avatar_url").in("user_id", firmUserIds)
+        : { data: [] as { user_id: string; avatar_url: string | null }[] };
+    const firmAvatars = new Map((firmProfiles ?? []).map((firmProfile) => [firmProfile.user_id, firmProfile.avatar_url]));
     const canPost = profile?.role === "firm";
     const jobsSchema = {
         "@context": "https://schema.org",
@@ -39,29 +55,31 @@ export default async function JobsPage() {
                         <h2 className="font-display text-2xl font-semibold tracking-tight">Share an opportunity</h2>
                         {canPost ? <><p className="mt-2 text-sm leading-relaxed text-paper/70">Put the right opportunity in front of people who care about the work.</p><JobPostForm /></> : <p className="mt-3 text-sm leading-relaxed text-paper/70">Sign in with a studio or company profile to post an opportunity.</p>}
                     </aside>
-                    <section className="space-y-4 lg:order-1">
+                    <section className="lg:order-1">
                         {jobsError ? (
                             <div className="rounded-2xl border border-redline/30 bg-redline/5 p-8 text-center"><p className="font-display text-xl text-ink">Opportunities are taking a moment to load.</p><Link href="/jobs" className="mt-4 inline-block font-mono text-[10px] uppercase tracking-widest text-redline underline underline-offset-4">Try again</Link></div>
                         ) : jobs && jobs.length > 0 ? (
-                            jobs.map((job: JobListing) => (
-                                <Link key={job.id} href={`/jobs/${job.id}`} className="surface card-lift block p-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redline">
-                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                        <div className="min-w-0">
-                                            <div className="mb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-redline">
-                                                {job.type} {"//"} {job.status}
+                            <div className="border-y border-line bg-warm-white">
+                                {jobs.map((job: JobListing) => (
+                                    <article key={job.id} className="relative flex min-h-[104px] items-center gap-3 border-b border-line px-3 py-4 last:border-b-0 sm:gap-4 sm:px-4">
+                                        <Link href={`/jobs/${job.id}`} aria-label={`View ${job.title} at ${job.firm_name}`} className="absolute inset-0 z-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redline" />
+                                        <div className="pointer-events-none relative z-10 flex min-w-0 flex-1 items-start gap-3 pr-1 sm:gap-4">
+                                            <div aria-hidden="true" className="relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-lg border border-line bg-paper font-display text-sm font-semibold text-redline sm:h-14 sm:w-14">{firmAvatars.get(job.user_id ?? "") ? <Image src={firmAvatars.get(job.user_id ?? "") as string} alt="" fill sizes="56px" className="object-cover" /> : firmInitials(job.firm_name)}</div>
+                                            <div className="min-w-0 pt-0.5">
+                                                <h2 className="break-words text-base font-semibold leading-tight text-ink sm:text-lg">{job.title}</h2>
+                                                <p className="mt-1 break-words text-sm font-medium leading-tight text-graphite">{job.firm_name}</p>
+                                                <p className="mt-1.5 text-xs leading-tight text-graphite/80">Nigeria <span aria-hidden="true">·</span> {job.type}</p>
+                                                <p className="mt-1 font-mono text-[9px] uppercase tracking-wider text-graphite/70">Posted {postedDate(job.created_at)}</p>
                                             </div>
-                                            <h2 className="line-clamp-2 font-display text-2xl font-semibold tracking-tight text-ink">{job.title}</h2>
-                                            <p className="mt-2 font-mono text-[10px] uppercase tracking-wider text-graphite">
-                                                {job.firm_name}
-                                            </p>
                                         </div>
-                                <span className="inline-flex w-fit items-center justify-center rounded-full border border-line px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-ink">View opportunity ↗</span>
-                                    </div>
-                                    <p className="mt-6 max-w-2xl line-clamp-3 text-sm leading-relaxed text-graphite">{job.description}</p>
-                                </Link>
-                            ))
+                                        <div className="relative z-20 shrink-0">
+                                            <ApplyButton jobListingId={job.id} authenticated={Boolean(profile)} compact />
+                                        </div>
+                                    </article>
+                                ))}
+                            </div>
                         ) : (
-                            <div className="rounded-2xl border border-line bg-warm-white p-10 text-center">
+                            <div className="border-y border-line bg-warm-white p-10 text-center">
                                 <p className="font-display text-2xl text-ink">The opportunity board is quiet.</p><p className="mt-3 text-sm text-graphite">Check back soon, or share the first opening from your firm profile.</p>
                             </div>
                         )}
