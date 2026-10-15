@@ -61,6 +61,8 @@ export const jobListingCreateSchema = z.object({
     title: z.string().min(2, "Title must be at least 2 characters"),
     type: z.enum(["internship", "job", "competition"]),
     description: z.string().min(10, "Description must be at least 10 characters"),
+    location: z.string().min(2, "Location must be at least 2 characters").max(120).default("Nigeria"),
+    pay_type: z.enum(["paid", "unpaid", "not_disclosed"]).default("not_disclosed"),
     apply_link_or_email: z.string().nullable().optional().refine((val) => {
         if (!val) return true;
         // Check if it is a valid email or valid URL

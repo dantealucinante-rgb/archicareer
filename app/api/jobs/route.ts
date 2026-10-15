@@ -30,6 +30,8 @@ export async function POST(request: Request) {
             title: body.title,
             type: body.type,
             description: body.description,
+            location: typeof body.location === "string" && body.location.trim() ? body.location.trim() : "Nigeria",
+            pay_type: body.pay_type,
             apply_link_or_email: typeof body.apply_link_or_email === "string" && body.apply_link_or_email.trim()
                 ? body.apply_link_or_email.trim()
                 : null,

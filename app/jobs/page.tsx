@@ -1,6 +1,5 @@
 import { getJobListings } from "@/lib/queries/jobs";
-import { JobListing } from "@/types";
-import JobPostForm from "@/app/components/JobPostForm";
+import { JobListing, JobPayType, JobType } from "@/types";
 import ApplyButton from "@/app/components/ApplyButton";
 import { getCurrentProfile } from "@/lib/queries/profiles";
 import type { Metadata } from "next";
@@ -25,14 +24,25 @@ function postedDate(value: string) {
     return new Intl.DateTimeFormat("en-NG", { month: "short", day: "numeric", year: "numeric" }).format(new Date(value));
 }
 
-export default async function JobsPage() {
-    const [{ data: jobs, error: jobsError }, { data: profile }] = await Promise.all([getJobListings(), getCurrentProfile()]);
+function payLabel(value: JobPayType) {
+    return value === "paid" ? "Paid" : value === "unpaid" ? "Unpaid" : "Pay not disclosed";
+}
+
+interface JobsPageProps {
+    searchParams: Promise<{ location?: string; pay?: string; type?: string }>;
+}
+
+export default async function JobsPage({ searchParams }: JobsPageProps) {
+    const params = await searchParams;
+    const type = ["internship", "job", "competition"].includes(params.type ?? "") ? params.type as JobType : undefined;
+    const payType = ["paid", "unpaid", "not_disclosed"].includes(params.pay ?? "") ? params.pay as JobPayType : undefined;
+    const location = params.location?.trim() || undefined;
+    const [{ data: jobs, error: jobsError }, { data: profile }] = await Promise.all([getJobListings({ type, location, pay_type: payType }), getCurrentProfile()]);
     const firmUserIds = [...new Set((jobs ?? []).map((job) => job.user_id).filter((userId): userId is string => Boolean(userId)))];
     const { data: firmProfiles } = firmUserIds.length > 0
         ? await createPublicClient().from("profiles").select("user_id, avatar_url").in("user_id", firmUserIds)
         : { data: [] as { user_id: string; avatar_url: string | null }[] };
     const firmAvatars = new Map((firmProfiles ?? []).map((firmProfile) => [firmProfile.user_id, firmProfile.avatar_url]));
-    const canPost = profile?.role === "firm";
     const jobsSchema = {
         "@context": "https://schema.org",
         "@type": "CollectionPage",
@@ -50,10 +60,16 @@ export default async function JobsPage() {
                 </div>
 
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.4fr_0.8fr]">
-                    <aside id="post-job" className="surface-dark order-first h-fit p-6 text-paper lg:order-2 lg:sticky lg:top-28">
-                        <div className="eyebrow mb-3 font-mono text-sand">A-03.1 / FOR STUDIOS & COMPANIES</div>
-                        <h2 className="font-display text-2xl font-semibold tracking-tight">Share an opportunity</h2>
-                        {canPost ? <><p className="mt-2 text-sm leading-relaxed text-paper/70">Put the right opportunity in front of people who care about the work.</p><JobPostForm /></> : <p className="mt-3 text-sm leading-relaxed text-paper/70">Sign in with a studio or company profile to post an opportunity.</p>}
+                    <aside className="surface order-first h-fit p-5 lg:order-2 lg:sticky lg:top-28">
+                        <div className="eyebrow mb-3 font-mono text-redline">A-03.1 / FILTER OPPORTUNITIES</div>
+                        <h2 className="font-display text-2xl font-semibold tracking-tight">Find the right opening.</h2>
+                        <form method="get" className="mt-5 space-y-4">
+                            <div><label htmlFor="job-location" className="mb-1.5 block font-mono text-[10px] uppercase tracking-widest text-graphite">Location</label><input id="job-location" name="location" defaultValue={location ?? ""} placeholder="Lagos, Nigeria or Remote" className="field-input text-sm" /></div>
+                            <div><label htmlFor="job-pay" className="mb-1.5 block font-mono text-[10px] uppercase tracking-widest text-graphite">Pay</label><select id="job-pay" name="pay" defaultValue={payType ?? ""} className="field-input text-sm"><option value="">Any pay status</option><option value="paid">Paid</option><option value="unpaid">Unpaid</option><option value="not_disclosed">Pay not disclosed</option></select></div>
+                            <div><label htmlFor="job-type" className="mb-1.5 block font-mono text-[10px] uppercase tracking-widest text-graphite">Opportunity type</label><select id="job-type" name="type" defaultValue={type ?? ""} className="field-input text-sm"><option value="">All opportunities</option><option value="internship">Internships</option><option value="job">Jobs</option><option value="competition">Competitions</option></select></div>
+                            <button type="submit" className="inline-flex min-h-10 w-full items-center justify-center rounded-full border border-ink bg-ink px-4 font-mono text-[10px] uppercase tracking-widest text-paper transition-colors hover:border-redline hover:bg-redline">Apply filters</button>
+                            {(location || payType || type) && <Link href="/jobs" className="block text-center font-mono text-[10px] uppercase tracking-widest text-graphite underline underline-offset-4 hover:text-ink">Clear filters</Link>}
+                        </form>
                     </aside>
                     <section className="lg:order-1">
                         {jobsError ? (
@@ -68,7 +84,8 @@ export default async function JobsPage() {
                                             <div className="min-w-0 pt-0.5">
                                                 <h2 className="break-words text-base font-semibold leading-tight text-ink sm:text-lg">{job.title}</h2>
                                                 <p className="mt-1 break-words text-sm font-medium leading-tight text-graphite">{job.firm_name}</p>
-                                                <p className="mt-1.5 text-xs leading-tight text-graphite/80">Nigeria <span aria-hidden="true">·</span> {job.type}</p>
+                                                <p className="mt-1.5 text-xs leading-tight text-graphite/80">{job.location} <span aria-hidden="true">·</span> {job.type}</p>
+                                                <p className="mt-1 text-xs leading-tight text-graphite/80">{payLabel(job.pay_type)}</p>
                                                 <p className="mt-1 font-mono text-[9px] uppercase tracking-wider text-graphite/70">Posted {postedDate(job.created_at)}</p>
                                             </div>
                                         </div>

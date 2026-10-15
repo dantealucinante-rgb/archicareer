@@ -1,13 +1,13 @@
 import { createClient, createPublicClient } from "@/lib/supabase/server";
-import { JobListing, JobType, JobStatus } from "@/types";
+import { JobListing, JobType, JobStatus, JobPayType } from "@/types";
 import { jobListingCreateSchema } from "@/lib/validations";
 import { QueryResult, PaginationOptions, SortingOptions, normalizePagination } from "@/lib/queries/profiles";
 
-const JOB_LIST_COLS = "id, user_id, firm_name, title, type, description, status, created_at, updated_at";
-const JOB_DETAIL_COLS = "id, firm_name, title, type, description, apply_link_or_email, status, created_at, updated_at";
+const JOB_LIST_COLS = "id, user_id, firm_name, title, type, description, location, pay_type, status, created_at, updated_at";
+const JOB_DETAIL_COLS = "id, user_id, firm_name, title, type, description, location, pay_type, apply_link_or_email, status, created_at, updated_at";
 
 export async function getJobListings(
-    filters?: { type?: JobType; status?: JobStatus },
+    filters?: { type?: JobType; status?: JobStatus; location?: string; pay_type?: JobPayType },
     pagination: PaginationOptions = { limit: 20, offset: 0 },
     sorting: SortingOptions = { sortBy: "created_at", ascending: false }
 ): Promise<QueryResult<JobListing[]>> {
@@ -17,6 +17,12 @@ export async function getJobListings(
 
         if (filters?.type) {
             query = query.eq("type", filters.type);
+        }
+        if (filters?.location) {
+            query = query.ilike("location", `%${filters.location}%`);
+        }
+        if (filters?.pay_type) {
+            query = query.eq("pay_type", filters.pay_type);
         }
         // Default to open listings unless caller explicitly passes a status
         query = query.eq("status", filters?.status ?? "open");

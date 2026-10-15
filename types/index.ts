@@ -31,6 +31,7 @@ export type PortfolioItemRole = "individual" | "team";
 export type PortfolioItemStatus = "academic" | "professional";
 
 export type JobType = "internship" | "job" | "competition";
+export type JobPayType = "paid" | "unpaid" | "not_disclosed";
 
 export type JobStatus = "open" | "closed";
 export type ApplicationStatus = "new" | "reviewing" | "shortlisted" | "interview" | "declined" | "hired";
@@ -98,6 +99,8 @@ export interface JobListing {
     title: string;
     type: JobType;
     description: string;
+    location: string;
+    pay_type: JobPayType;
     apply_link_or_email: string | null;
     status: JobStatus;
     created_at: string;
