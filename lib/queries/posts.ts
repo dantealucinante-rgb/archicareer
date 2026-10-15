@@ -54,6 +54,20 @@ export async function getFeed(limit = 10, offset = 0): Promise<QueryResult<FeedP
     }
 }
 
+export async function getPostsForProfile(profileId: string, limit = 12): Promise<QueryResult<FeedPost[]>> {
+    try {
+        const admin = createAdminClient();
+        const { data: profile, error: profileError } = await admin.from("profiles").select("user_id").eq("id", profileId).maybeSingle();
+        if (profileError) return { data: null, error: new Error(profileError.message) };
+        if (!profile?.user_id) return { data: [], error: null };
+        const { data, error } = await createPublicClient().from("posts").select("id, user_id, content, image_url, created_at, updated_at").eq("user_id", profile.user_id).order("created_at", { ascending: false }).limit(Math.min(Math.max(limit, 1), 30));
+        if (error) return { data: null, error: new Error(error.message) };
+        return { data: await addPostDetails((data ?? []) as FeedPost[], null), error: null };
+    } catch (error) {
+        return { data: null, error: error instanceof Error ? error : new Error(String(error)) };
+    }
+}
+
 export async function createPost(raw: unknown): Promise<QueryResult<FeedPost>> {
     const parsed = postCreateSchema.safeParse(raw);
     if (!parsed.success) return { data: null, error: new Error(parsed.error.issues.map((issue) => issue.message).join(", ")) };

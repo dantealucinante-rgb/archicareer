@@ -1,10 +1,11 @@
 import type { Profile } from "@/types";
 import ProfileAvatar from "./ProfileAvatar";
 import FollowButton from "./FollowButton";
+import Link from "next/link";
+import { Settings } from "./UiIcon";
 
 type PublicProfileHeaderProps = {
     profile: Profile;
-    eyebrow: string;
     roleLabel: string;
     fallbackBio: string;
     isOwner: boolean;
@@ -13,11 +14,11 @@ type PublicProfileHeaderProps = {
     followingCount: number;
     isFollowing: boolean;
     isMutual: boolean;
+    projectCount: number;
 };
 
 export default function PublicProfileHeader({
     profile,
-    eyebrow,
     roleLabel,
     fallbackBio,
     isOwner,
@@ -26,51 +27,10 @@ export default function PublicProfileHeader({
     followingCount,
     isFollowing,
     isMutual,
+    projectCount,
 }: PublicProfileHeaderProps) {
-    return (
-        <section className="surface relative overflow-hidden p-6 sm:p-10 lg:p-12">
-            <div className="absolute -right-20 -top-28 h-80 w-80 rounded-full border border-redline/30" />
-            <div className="absolute right-28 top-20 h-28 w-28 rotate-45 border border-ink/15" />
-            <div className="relative grid gap-10 lg:grid-cols-[1.25fr_0.75fr] lg:items-end">
-                <div>
-                    <p className="eyebrow font-mono text-redline">{eyebrow}</p>
-                    <h1 className="display-balance mt-5 max-w-4xl break-words font-display text-4xl font-semibold leading-[0.9] tracking-[-0.065em] sm:text-6xl">
-                        {profile.name}
-                    </h1>
-                    <p className="mt-6 max-w-2xl text-base leading-relaxed text-graphite">
-                        {profile.bio ?? fallbackBio}
-                    </p>
-                </div>
-
-                <div className="flex flex-col items-start gap-4 lg:items-end">
-                    <ProfileAvatar
-                        profile={profile}
-                        size={112}
-                        className="h-24 w-24 rounded-2xl border border-line object-cover sm:h-28 sm:w-28"
-                        fallbackClassName="bg-paper"
-                        priority
-                    />
-                    <div className="flex flex-wrap items-center gap-3 lg:justify-end">
-                        <span className="rounded-full border border-line bg-paper px-3 py-1.5 font-mono text-[9px] uppercase tracking-widest text-graphite">
-                            {roleLabel}
-                        </span>
-                        {profile.location && <span className="font-mono text-[10px] uppercase tracking-widest text-graphite">{profile.location}</span>}
-                    </div>
-                    <div className="flex flex-wrap items-center gap-3 lg:justify-end">
-                        <span className="font-mono text-[10px] uppercase tracking-widest text-graphite">
-                            {followingCount} Following · {followerCount} Followers
-                        </span>
-                        {!isOwner && profileOwnerId && (
-                            <FollowButton
-                                followingId={profileOwnerId}
-                                initialFollowing={isFollowing}
-                                initialMutual={isMutual}
-                                initialFollowerCount={followerCount}
-                            />
-                        )}
-                    </div>
-                </div>
-            </div>
-        </section>
-    );
+    return <section className="border-b border-line pb-5">
+        <div className="mb-5 flex items-center justify-between border-b border-line pb-3"><Link href="/" className="font-display text-xl font-bold tracking-[-0.055em] text-ink hover:text-redline">ArchiCareer<span className="text-redline">.</span></Link>{isOwner && <Link href="/settings" aria-label="Settings" title="Settings" className="interactive grid h-11 w-11 place-items-center rounded-full text-graphite hover:bg-sand hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-redline"><Settings /></Link>}</div>
+        <div className="flex items-start gap-4 sm:gap-6"><ProfileAvatar profile={profile} size={96} className="h-20 w-20 shrink-0 rounded-full border border-line object-cover sm:h-24 sm:w-24" fallbackClassName="bg-paper" priority /><div className="min-w-0 flex-1"><div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0"><h1 className="break-words text-2xl font-semibold leading-tight tracking-[-0.03em] sm:text-3xl">{profile.name}</h1><p className="mt-1 text-sm text-graphite">{roleLabel}{profile.location ? ` · ${profile.location}` : ""}</p></div>{isOwner ? <Link href="/profile/edit" className="interactive inline-flex min-h-10 items-center rounded-lg border border-line px-3 text-xs font-medium text-ink hover:border-ink hover:bg-warm-white">Edit profile</Link> : profileOwnerId ? <FollowButton followingId={profileOwnerId} initialFollowing={isFollowing} initialMutual={isMutual} initialFollowerCount={followerCount} compact /> : null}</div><div className="mt-3 flex gap-5 text-sm"><a href="#projects" className="hover:text-redline"><strong className="font-semibold">{projectCount}</strong> <span className="text-graphite">projects</span></a><span><strong className="font-semibold">{followerCount}</strong> <span className="text-graphite">followers</span></span><span><strong className="font-semibold">{followingCount}</strong> <span className="text-graphite">following</span></span></div></div></div><p className="mt-4 max-w-2xl whitespace-pre-line text-sm leading-relaxed text-graphite">{profile.bio ?? fallbackBio}</p>
+    </section>;
 }

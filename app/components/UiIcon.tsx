@@ -1,5 +1,9 @@
 type IconProps = { className?: string };
 
+export function Settings({ className = "h-5 w-5" }: IconProps) {
+    return <svg aria-hidden="true" viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M12 8.25a3.75 3.75 0 1 0 0 7.5 3.75 3.75 0 0 0 0-7.5Z" /><path d="m19.4 15 .1.08a1.8 1.8 0 0 1-2.55 2.55l-.08-.1a1.8 1.8 0 0 0-3.07 1.27V19a1.8 1.8 0 0 1-3.6 0v-.2a1.8 1.8 0 0 0-3.07-1.27l-.08.1a1.8 1.8 0 1 1-2.55-2.55l.1-.08A1.8 1.8 0 0 0 3.33 12H3a1.8 1.8 0 0 1 0-3.6h.2a1.8 1.8 0 0 0 1.27-3.07l-.1-.08a1.8 1.8 0 1 1 2.55-2.55l.08.1A1.8 1.8 0 0 0 10.07 4.07V4a1.8 1.8 0 0 1 3.6 0v.2a1.8 1.8 0 0 0 3.07 1.27l.08-.1a1.8 1.8 0 1 1 2.55 2.55l-.1.08A1.8 1.8 0 0 0 20.67 11H21a1.8 1.8 0 0 1 0 3.6h-.2A1.8 1.8 0 0 0 19.4 15Z" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+}
+
 export function ArrowUpRight({ className = "h-3.5 w-3.5" }: IconProps) {
     return <svg aria-hidden="true" viewBox="0 0 16 16" className={className} fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 13 13 3M5 3h8v8" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
