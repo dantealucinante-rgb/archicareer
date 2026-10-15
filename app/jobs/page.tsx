@@ -59,19 +59,21 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                     <div className="rounded-full border border-line px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-graphite">{jobs?.length ?? 0} listings shown</div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.4fr_0.8fr]">
-                    <aside className="surface order-first h-fit p-5 lg:order-2 lg:sticky lg:top-28">
-                        <div className="eyebrow mb-3 font-mono text-redline">A-03.1 / FILTER OPPORTUNITIES</div>
-                        <h2 className="font-display text-2xl font-semibold tracking-tight">Find the right opening.</h2>
-                        <form method="get" className="mt-5 space-y-4">
+                <div className="mb-8 border-y border-line">
+                    <details className="group">
+                        <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 py-3 font-mono text-[10px] uppercase tracking-widest text-graphite [&::-webkit-details-marker]:hidden">
+                            <span className="text-ink">Filter opportunities</span>
+                            <span className="flex items-center gap-3"><span>{[location, payType, type].filter(Boolean).length || "All"} active</span><span aria-hidden="true" className="text-base leading-none transition-transform group-open:rotate-45">+</span></span>
+                        </summary>
+                        <form method="get" className="grid gap-3 border-t border-line py-4 sm:grid-cols-[1.2fr_1fr_1fr_auto] sm:items-end">
                             <div><label htmlFor="job-location" className="mb-1.5 block font-mono text-[10px] uppercase tracking-widest text-graphite">Location</label><input id="job-location" name="location" defaultValue={location ?? ""} placeholder="Lagos, Nigeria or Remote" className="field-input text-sm" /></div>
                             <div><label htmlFor="job-pay" className="mb-1.5 block font-mono text-[10px] uppercase tracking-widest text-graphite">Pay</label><select id="job-pay" name="pay" defaultValue={payType ?? ""} className="field-input text-sm"><option value="">Any pay status</option><option value="paid">Paid</option><option value="unpaid">Unpaid</option><option value="not_disclosed">Pay not disclosed</option></select></div>
                             <div><label htmlFor="job-type" className="mb-1.5 block font-mono text-[10px] uppercase tracking-widest text-graphite">Opportunity type</label><select id="job-type" name="type" defaultValue={type ?? ""} className="field-input text-sm"><option value="">All opportunities</option><option value="internship">Internships</option><option value="job">Jobs</option><option value="competition">Competitions</option></select></div>
-                            <button type="submit" className="inline-flex min-h-10 w-full items-center justify-center rounded-full border border-ink bg-ink px-4 font-mono text-[10px] uppercase tracking-widest text-paper transition-colors hover:border-redline hover:bg-redline">Apply filters</button>
-                            {(location || payType || type) && <Link href="/jobs" className="block text-center font-mono text-[10px] uppercase tracking-widest text-graphite underline underline-offset-4 hover:text-ink">Clear filters</Link>}
+                            <div className="flex gap-2"><button type="submit" className="inline-flex min-h-10 flex-1 items-center justify-center rounded-full border border-ink bg-ink px-4 font-mono text-[10px] uppercase tracking-widest text-paper transition-colors hover:border-redline hover:bg-redline sm:flex-none">Apply</button>{(location || payType || type) && <Link href="/jobs" className="inline-flex min-h-10 items-center justify-center px-2 font-mono text-[10px] uppercase tracking-widest text-graphite underline underline-offset-4 hover:text-ink">Clear</Link>}</div>
                         </form>
-                    </aside>
-                    <section className="lg:order-1">
+                    </details>
+                </div>
+                <section>
                         {jobsError ? (
                             <div className="rounded-2xl border border-redline/30 bg-redline/5 p-8 text-center"><p className="font-display text-xl text-ink">Opportunities are taking a moment to load.</p><Link href="/jobs" className="mt-4 inline-block font-mono text-[10px] uppercase tracking-widest text-redline underline underline-offset-4">Try again</Link></div>
                         ) : jobs && jobs.length > 0 ? (
@@ -101,7 +103,6 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                             </div>
                         )}
                     </section>
-                </div>
             </main>
         </div></>
     );
