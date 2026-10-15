@@ -118,16 +118,16 @@ export default function SignupPage() {
                                     <label className="font-mono text-[10px] uppercase tracking-widest text-graphite">I am joining as</label>
                                     <span className="font-mono text-[10px] uppercase tracking-widest text-redline">Required</span>
                                 </div>
-                                <div className="grid gap-2 sm:grid-cols-3">
+                                <div role="group" aria-label="Choose your role" className="grid grid-cols-3 gap-1 rounded-2xl border border-line bg-paper p-1 sm:gap-2">
                                     {roleOptions.map((option) => (
-                                        <button key={option.value} type="button" aria-pressed={role === option.value} onClick={() => setRole(option.value)} className={`interactive rounded-2xl border p-4 text-left ${role === option.value ? "border-ink bg-ink text-paper shadow-lg" : "border-line bg-warm-white text-ink hover:-translate-y-0.5 hover:border-redline"}`}>
-                                            <span className={`font-mono text-[10px] uppercase tracking-widest ${role === option.value ? "text-sand" : "text-redline"}`}>{option.number}</span>
-                                            <span className="mt-6 block font-display text-base font-semibold leading-tight">{option.label}</span>
-                                            <span className={`mt-3 block text-xs leading-relaxed ${role === option.value ? "text-paper/70" : "text-graphite"}`}>{option.copy}</span>
+                                        <button key={option.value} type="button" aria-pressed={role === option.value} onClick={() => setRole(option.value)} className={`interactive min-w-0 rounded-xl border px-2 py-2.5 text-center sm:px-3 ${role === option.value ? "border-ink bg-ink text-paper shadow-md" : "border-transparent bg-warm-white text-ink hover:border-redline"}`}>
+                                            <span className={`block font-mono text-[9px] uppercase tracking-widest ${role === option.value ? "text-sand" : "text-redline"}`}>{option.number}</span>
+                                            <span className="mt-1 block break-words font-display text-xs font-semibold leading-tight sm:text-sm">{option.label}</span>
                                         </button>
                                     ))}
-                                    <Link href="/firms/signup" className="interactive rounded-2xl border border-line bg-warm-white p-4 text-left text-ink hover:-translate-y-0.5 hover:border-redline"><span className="font-mono text-[10px] uppercase tracking-widest text-redline">03</span><span className="mt-6 block font-display text-base font-semibold leading-tight">Studio / company</span><span className="mt-3 block text-xs leading-relaxed text-graphite">Create a practice profile and share opportunities.</span></Link>
+                                    <Link href="/firms/signup" className="interactive min-w-0 rounded-xl border border-transparent bg-warm-white px-2 py-2.5 text-center text-ink hover:border-redline sm:px-3"><span className="block font-mono text-[9px] uppercase tracking-widest text-redline">03</span><span className="mt-1 block break-words font-display text-xs font-semibold leading-tight sm:text-sm">Studio / company</span></Link>
                                 </div>
+                                <p className="mt-2 text-xs leading-relaxed text-graphite">{roleOptions.find((option) => option.value === role)?.copy}</p>
                             </div>
 
                             <div className="grid gap-5 sm:grid-cols-2">
