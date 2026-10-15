@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import AuthBrand from "@/app/components/AuthBrand";
+import GoogleAuthButton from "@/app/components/GoogleAuthButton";
 
 export default function FirmLoginPage() {
     const [email, setEmail] = useState("");
@@ -34,7 +35,7 @@ export default function FirmLoginPage() {
                 <h1 className="display-balance mt-4 font-display text-4xl font-semibold leading-[0.95] tracking-[-0.05em] sm:text-5xl">Welcome back to your practice.</h1>
                 <p className="mt-4 text-sm leading-relaxed text-graphite">Use your work email to receive a secure sign-in link.</p>
                 <form className="mt-8 space-y-5" onSubmit={submit}>
-                    <button type="button" onClick={continueWithGoogle} disabled={status === "sending"} className="interactive w-full rounded-full border border-line bg-warm-white px-4 py-3.5 font-mono text-[11px] uppercase tracking-widest text-ink hover:border-ink hover:bg-ink hover:text-paper disabled:opacity-60">{status === "sending" ? "Connecting..." : "Continue with Google"}</button>
+                    <GoogleAuthButton action="signIn" onClick={continueWithGoogle} disabled={status === "sending"} loading={status === "sending"} />
                     <p className="text-center text-xs text-graphite">Google sign-in continues with your firm profile and firm onboarding.</p>
                     <div className="flex items-center gap-3"><span className="h-px flex-1 bg-line" /><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-graphite">OR</span><span className="h-px flex-1 bg-line" /></div>
                     <div><label htmlFor="firm-email" className="block font-mono text-[10px] uppercase tracking-widest text-graphite">Work email</label><input id="firm-email" required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="field-input mt-2 text-sm" placeholder="hello@yourpractice.com" /></div>

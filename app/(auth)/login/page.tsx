@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import AuthBrand from "@/app/components/AuthBrand";
+import GoogleAuthButton from "@/app/components/GoogleAuthButton";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -86,14 +87,7 @@ export default function LoginPage() {
 
                 <form className="space-y-6" onSubmit={handleSubmit}>
                     {callbackMessage && <p role="alert" className="rounded-lg border border-redline/30 bg-redline/10 px-3 py-2 text-sm text-redline">{callbackMessage}</p>}
-                    <button
-                        type="button"
-                        onClick={handleGoogleSignIn}
-                        disabled={status === "sending"}
-                        className="interactive w-full flex justify-center rounded-full border border-line bg-warm-white px-4 py-3 font-mono text-xs uppercase tracking-widest text-ink hover:border-ink hover:bg-ink hover:text-paper cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
-                    >
-                        {status === "sending" ? "Connecting..." : "Continue with Google"}
-                    </button>
+                    <GoogleAuthButton action="signIn" onClick={handleGoogleSignIn} disabled={status === "sending"} loading={status === "sending"} />
                     <p className="text-center text-xs text-graphite">Google sign-in is for student or architect profiles. Firms should use <Link href="/firms/login" className="text-ink underline underline-offset-2 hover:text-redline">firm sign-in</Link>.</p>
 
                     <div className="flex items-center gap-3">

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { NIGERIAN_STATES } from "@/lib/profile-options";
 import AuthBrand from "@/app/components/AuthBrand";
+import GoogleAuthButton from "@/app/components/GoogleAuthButton";
 
 export default function FirmSignupPage() {
     const [company, setCompany] = useState("");
@@ -47,7 +48,7 @@ export default function FirmSignupPage() {
                 <section className="surface p-6 sm:p-10">
                     <div className="mb-8 border-b border-line pb-6"><div className="flex items-start justify-between gap-4"><AuthBrand /><Link href="/firms/login" className="font-mono text-[10px] uppercase tracking-widest text-graphite hover:text-redline">Sign in ↗</Link></div><p className="mt-6 font-mono text-[10px] uppercase tracking-widest text-redline">Step 1 of 2 / Create a firm profile</p><h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">Tell us about the practice.</h2></div>
                     <form className="space-y-5" onSubmit={submit}>
-                        <button type="button" onClick={continueWithGoogle} disabled={status === "sending"} className="interactive w-full rounded-full border border-line bg-warm-white px-4 py-3.5 font-mono text-[11px] uppercase tracking-widest text-ink hover:border-ink hover:bg-ink hover:text-paper disabled:opacity-60">{status === "sending" ? "Connecting..." : "Continue with Google"}</button>
+                        <GoogleAuthButton action="signUp" onClick={continueWithGoogle} disabled={status === "sending"} loading={status === "sending"} />
                         <p className="text-center text-xs text-graphite">Google sign-in creates a firm profile and continues to firm onboarding.</p>
                         <div className="flex items-center gap-3"><span className="h-px flex-1 bg-line" /><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-graphite">OR</span><span className="h-px flex-1 bg-line" /></div>
                         <div><label htmlFor="firm-name" className={label}>Organisation name</label><input id="firm-name" required value={company} onChange={(event) => setCompany(event.target.value)} className={input} placeholder="Studio or company name" /></div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useLayoutEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import AuthBrand from "@/app/components/AuthBrand";
+import GoogleAuthButton from "@/app/components/GoogleAuthButton";
 
 const roleOptions = [
     { value: "student" as const, number: "01", label: "Student", copy: "Show your work and start building your network." },
@@ -145,9 +146,7 @@ export default function SignupPage() {
                                     {status === "sending" ? "Creating your profile..." : "Create my profile ↗"}
                                 </button>
                                 <p className="text-center text-xs leading-relaxed text-graphite">No password to remember. We’ll send a secure verification link.</p>
-                                <button type="button" onClick={handleGoogleSignIn} disabled={status === "sending"} className="interactive w-full rounded-full border border-line bg-warm-white px-4 py-3.5 font-mono text-[11px] uppercase tracking-widest text-ink hover:border-ink hover:bg-ink hover:text-paper disabled:cursor-not-allowed disabled:opacity-70">
-                                    {status === "sending" ? "Connecting..." : "Continue with Google"}
-                                </button>
+                                <GoogleAuthButton action="signUp" onClick={handleGoogleSignIn} disabled={status === "sending"} loading={status === "sending"} />
                                 <p className="text-center text-xs text-graphite">Google sign-in creates an {role === "student" ? "architecture student" : "architect"} profile.</p>
                             </div>
 
