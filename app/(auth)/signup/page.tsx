@@ -101,7 +101,6 @@ export default function SignupPage() {
             <div className="relative mx-auto w-full max-w-6xl">
                 <div className="mb-8 flex items-center justify-between sm:mb-12">
                     <AuthBrand />
-                    <Link href="/login" className="font-mono text-[10px] uppercase tracking-widest text-graphite transition-colors hover:text-ink">Already a member? Sign in ↗</Link>
                 </div>
 
                 <div className="mx-auto max-w-3xl">
@@ -110,6 +109,7 @@ export default function SignupPage() {
                             <p className="font-mono text-[10px] uppercase tracking-widest text-redline">Step 1 of 3</p>
                             <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">Start your profile</h2>
                             <p className="mt-2 text-sm leading-relaxed text-graphite">Choose your path, then tell us where to reach you.</p>
+                            <Link href="/login" className="mt-4 inline-flex max-w-full break-words font-mono text-[10px] uppercase tracking-widest text-graphite transition-colors hover:text-ink">Already a member? Sign in ↗</Link>
                         </div>
 
                         <form className="space-y-6" onSubmit={handleSubmit}>
