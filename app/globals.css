@@ -17,6 +17,10 @@
 }
 
 :root {
+  --page-max: 76rem;
+  --content-max: 44rem;
+  --radius-control: .625rem;
+  --radius-surface: .875rem;
   --heading-1-size: clamp(2rem, 5vw + 1rem, 4rem);
   --heading-2-size: clamp(1.625rem, 3.5vw + 0.75rem, 2.75rem);
   --heading-3-size: clamp(1.25rem, 2vw + 0.75rem, 1.75rem);
@@ -165,6 +169,48 @@ samp {
   box-shadow: 0 14px 34px rgba(23, 33, 38, 0.045);
 }
 
+/* Shared product surfaces. These keep the new, quieter component language
+   consistent across the feed, profiles, authentication and opportunities. */
+.ui-panel {
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-surface);
+  background: var(--color-warm-white);
+  box-shadow: 0 8px 24px rgba(23, 33, 38, .035);
+}
+
+.ui-kicker {
+  font-size: .625rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--color-redline);
+}
+
+.ui-meta {
+  font-size: .6875rem;
+  letter-spacing: .04em;
+  color: var(--color-graphite);
+}
+
+.ui-button-primary,
+.ui-button-secondary {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-control);
+  padding: .625rem 1rem;
+  font-size: .6875rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.ui-button-primary { border: 1px solid var(--color-ink); background: var(--color-ink); color: var(--color-paper); }
+.ui-button-primary:hover { border-color: var(--color-redline); background: var(--color-redline); }
+.ui-button-secondary { border: 1px solid var(--color-line); background: var(--color-warm-white); color: var(--color-ink); }
+.ui-button-secondary:hover { border-color: var(--color-redline); color: var(--color-redline); }
+
 .surface-dark {
   background: var(--color-night);
   border: 1px solid color-mix(in srgb, var(--color-paper) 20%, transparent);
@@ -240,7 +286,7 @@ samp {
 .field-input {
   width: 100%;
   border: 1px solid var(--color-line);
-  border-radius: 14px;
+  border-radius: var(--radius-control);
   background: var(--color-warm-white);
   padding: .8rem .9rem;
   color: var(--color-ink);
@@ -249,7 +295,7 @@ samp {
 
 .field-input:focus {
   border-color: var(--color-redline);
-  box-shadow: 0 0 0 4px rgba(201, 85, 53, .12);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-redline) 14%, transparent);
   outline: none;
 }
 
@@ -377,8 +423,8 @@ button {
 @media (min-width: 640px) {
   .feed-post {
     border: 1px solid var(--color-line);
-    border-radius: 14px;
-    box-shadow: 0 14px 34px rgba(23, 33, 38, 0.045);
+    border-radius: var(--radius-surface);
+    box-shadow: 0 8px 24px rgba(23, 33, 38, 0.035);
   }
 }
 

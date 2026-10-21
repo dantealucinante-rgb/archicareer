@@ -103,11 +103,11 @@ export default function SignupPage() {
                     <AuthBrand />
                 </div>
 
-                <div className="mx-auto max-w-3xl">
-                    <section className="rounded-2xl border border-line bg-warm-white p-6 sm:p-8">
+                <div className="mx-auto max-w-2xl">
+                    <section className="ui-panel p-6 sm:p-8">
                         <div className="mb-7 border-b border-line pb-5">
-                            <p className="font-mono text-[10px] uppercase tracking-widest text-redline">Step 1 of 3</p>
-                            <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">Start your profile</h2>
+                            <p className="ui-kicker">Step 1 of 3 · your account</p>
+                            <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">Start your profile</h1>
                             <p className="mt-2 text-sm leading-relaxed text-graphite">Choose your path, then tell us where to reach you.</p>
                             <Link href="/login" className="mt-4 inline-flex max-w-full break-words font-mono text-[10px] uppercase tracking-widest text-graphite transition-colors hover:text-ink">Already a member? Sign in ↗</Link>
                         </div>
@@ -118,14 +118,14 @@ export default function SignupPage() {
                                     <label className="font-mono text-[10px] uppercase tracking-widest text-graphite">I am joining as</label>
                                     <span className="font-mono text-[10px] uppercase tracking-widest text-redline">Required</span>
                                 </div>
-                                <div role="group" aria-label="Choose your role" className="grid grid-cols-3 gap-1 rounded-2xl border border-line bg-paper p-1 sm:gap-2">
+                                <div role="group" aria-label="Choose your role" className="grid grid-cols-3 gap-1 rounded-xl border border-line bg-paper p-1 sm:gap-2">
                                     {roleOptions.map((option) => (
                                         <button key={option.value} type="button" aria-pressed={role === option.value} onClick={() => setRole(option.value)} className={`interactive min-w-0 rounded-xl border px-2 py-2.5 text-center sm:px-3 ${role === option.value ? "border-ink bg-ink text-paper shadow-md" : "border-transparent bg-warm-white text-ink hover:border-redline"}`}>
                                             <span className={`block font-mono text-[9px] uppercase tracking-widest ${role === option.value ? "text-sand" : "text-redline"}`}>{option.number}</span>
                                             <span className="mt-1 block break-words font-display text-xs font-semibold leading-tight sm:text-sm">{option.label}</span>
                                         </button>
                                     ))}
-                                    <Link href="/firms/signup" className="interactive min-w-0 rounded-xl border border-transparent bg-warm-white px-2 py-2.5 text-center text-ink hover:border-redline sm:px-3"><span className="block font-mono text-[9px] uppercase tracking-widest text-redline">03</span><span className="mt-1 block break-words font-display text-xs font-semibold leading-tight sm:text-sm">Studio / company</span></Link>
+                                    <Link href="/firms/signup" className="interactive min-w-0 rounded-lg border border-transparent bg-warm-white px-2 py-2.5 text-center text-ink hover:border-redline sm:px-3"><span className="block font-mono text-[9px] uppercase tracking-widest text-redline">03</span><span className="mt-1 block break-words font-display text-xs font-semibold leading-tight sm:text-sm">Studio / company</span></Link>
                                 </div>
                                 <p className="mt-2 text-xs leading-relaxed text-graphite">{roleOptions.find((option) => option.value === role)?.copy}</p>
                             </div>
@@ -142,7 +142,7 @@ export default function SignupPage() {
                             </div>
 
                             <div className="space-y-3 border-t border-line pt-6">
-                                <button type="submit" disabled={status === "sending"} className="interactive w-full rounded-full border border-ink bg-ink px-4 py-3.5 font-mono text-[11px] uppercase tracking-widest text-paper hover:border-redline hover:bg-redline disabled:cursor-not-allowed disabled:opacity-70">
+                                <button type="submit" disabled={status === "sending"} className="ui-button-primary interactive w-full disabled:cursor-not-allowed disabled:opacity-70">
                                     {status === "sending" ? "Creating your profile..." : "Create my profile ↗"}
                                 </button>
                                 <p className="text-center text-xs leading-relaxed text-graphite">No password to remember. We’ll send a secure verification link.</p>
