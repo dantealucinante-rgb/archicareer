@@ -88,10 +88,10 @@ export default function FeedList({ initialPosts, currentUserId }: { initialPosts
     }
 
     return <>
-        <div className="mx-auto w-full max-w-[var(--content-max)] sm:space-y-4">
-            {!currentUserId && <div className="ui-panel mx-5 border-dashed p-5 text-center text-sm text-graphite sm:mx-0"><Link href="/login" className="text-redline underline underline-offset-4 hover:text-ink">Sign in</Link> to share your own work and join the conversation.</div>}
+        <div className="mx-auto w-full max-w-[var(--content-max)]">
+            {!currentUserId && <div className="mx-5 border-y border-dashed border-line py-4 text-center text-sm text-graphite sm:mx-0"><Link href="/login" className="text-redline underline underline-offset-4 hover:text-ink">Sign in</Link> to share your own work and join the conversation.</div>}
             {feedMessage && <p aria-live="polite" className={`mx-5 py-3 font-mono text-[10px] uppercase tracking-widest sm:mx-0 ${feedHasError ? "text-redline" : "text-graphite"}`}>{feedMessage}</p>}
-            {posts.length === 0 ? <div className="ui-panel mx-5 border-dashed p-10 text-center sm:mx-0"><p className="ui-kicker">The field is quiet</p><p className="mt-3 text-sm text-graphite">Be the first to share a thought, question, or piece of work.</p>{currentUserId && <button type="button" onClick={openComposer} className="ui-button-primary interactive mt-4">Start a post</button>}</div> : posts.map((post) => <article id={`post-${post.id}`} key={post.id} className="feed-post overflow-hidden border-b border-line bg-warm-white py-5 sm:p-6">
+            {posts.length === 0 ? <div className="mx-5 border-y border-dashed border-line py-10 text-center sm:mx-0"><p className="ui-kicker">The field is quiet</p><p className="mt-3 text-sm text-graphite">Be the first to share a thought, question, or piece of work.</p>{currentUserId && <button type="button" onClick={openComposer} className="ui-button-primary interactive mt-4">Start a post</button>}</div> : posts.map((post) => <article id={`post-${post.id}`} key={post.id} className="feed-post overflow-hidden py-6 sm:py-7">
                 <div className="px-5 sm:px-0">
                     <div className="flex items-start justify-between gap-3">
                         <Link href={post.author.slug ? `/p/${post.author.slug}` : "/discover"} className="group flex min-w-0 items-center gap-3">
@@ -102,7 +102,7 @@ export default function FeedList({ initialPosts, currentUserId }: { initialPosts
                     </div>
                     {post.content && <p className={`mt-5 whitespace-pre-wrap leading-relaxed text-ink ${post.image_url ? "text-sm" : "border-l-2 border-redline pl-4 text-sm sm:border-l-0 sm:pl-0"}`}>{post.content}</p>}
                 </div>
-                {post.image_url && <><p className="mx-5 mt-5 font-mono text-[9px] uppercase tracking-widest text-redline sm:mx-0">Visual field note <span aria-hidden="true">/</span> {new Date(post.created_at).getFullYear()}</p><div className="relative mt-2 aspect-[4/3] overflow-hidden sm:mt-5 sm:rounded-2xl sm:border sm:border-line"><Image src={post.image_url} alt="Post image" fill sizes="(max-width: 672px) 100vw, 672px" className="object-cover" /></div></>}
+                {post.image_url && <><p className="mx-5 mt-5 font-mono text-[9px] uppercase tracking-widest text-redline sm:mx-0">Visual field note <span aria-hidden="true">/</span> {new Date(post.created_at).getFullYear()}</p><div className="relative mt-2 aspect-[4/3] overflow-hidden border-y border-line sm:mt-5 sm:border"><Image src={post.image_url} alt="Post image" fill sizes="(max-width: 672px) 100vw, 672px" className="object-cover" /></div></>}
                 <div className="px-5 sm:px-0"><ContentEngagement target={{ post_id: post.id }} initial={{ reactionCount: post.reaction_count, commentCount: post.comment_count, userReacted: post.user_reacted }} currentUserId={currentUserId} /></div>
             </article>)}
             {hasMore && <div ref={loadMoreSentinelRef} className="mx-5 my-6 min-h-10 text-center sm:mx-0" aria-live="polite">{loading && <span className="font-mono text-[10px] uppercase tracking-widest text-graphite">Loading more posts…</span>}{feedHasError && <button type="button" onClick={() => void loadMore()} className="feedback-control rounded-full border border-ink px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-ink hover:bg-ink hover:text-paper">Retry loading posts</button>}</div>}

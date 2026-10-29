@@ -42,25 +42,25 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
     return (
         <div className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
             <main className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 sm:py-16">
-                <div className="mb-10 grid gap-6 border-b border-line pb-10 lg:grid-cols-[1fr_auto] lg:items-end">
-                    <div className="min-w-0"><div className="eyebrow mb-4 font-mono text-redline">A-04 / DISCOVER</div><h1 className="display-balance max-w-2xl break-words font-display text-4xl font-semibold leading-[0.92] tracking-[-0.06em] sm:text-7xl">Meet the people behind the work.</h1><p className="mt-5 max-w-xl break-words text-base leading-relaxed text-graphite">Explore profiles from emerging talent, experienced professionals, studios, and companies.</p></div>
+                <div className="mb-10 grid gap-6 border-b border-line pb-8 lg:grid-cols-[1fr_auto] lg:items-end">
+                    <div className="min-w-0"><div className="ui-kicker mb-3">Discover</div><h1 className="display-balance max-w-2xl break-words font-display text-4xl font-semibold leading-[.98] tracking-[-.045em] sm:text-6xl">Meet the people behind the work.</h1><p className="mt-4 max-w-xl break-words text-base leading-relaxed text-graphite">Explore profiles from emerging talent, experienced professionals, studios, and companies.</p></div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-[240px_1fr]">
                     {/* Filters column */}
-                    <details className="surface h-fit p-5 lg:sticky lg:top-28" open={false}>
+                    <details className="h-fit border-y border-line py-4 lg:sticky lg:top-28" open={false}>
                         <summary className="cursor-pointer list-none font-display text-lg font-semibold tracking-tight text-ink lg:pointer-events-none">Tune the field <span className="float-right font-mono text-[10px] font-normal uppercase tracking-widest text-graphite lg:hidden">Filter +</span></summary>
                         <p className="mt-2 text-xs leading-relaxed text-graphite">Start with the kind of practice you want to meet.</p>
                         <form method="get" className="mt-4 space-y-4">
                             <div>
                                 <label htmlFor="discover-role" className="block font-mono text-xs uppercase tracking-wider text-graphite mb-1.5">Role</label>
-                                <select id="discover-role" name="role" defaultValue={role ?? ""} className="w-full rounded-xl border border-line bg-paper p-3 text-sm font-mono text-ink focus:outline-none focus:border-ink cursor-pointer">
+                                <select id="discover-role" name="role" defaultValue={role ?? ""} className="w-full rounded border border-line bg-warm-white p-3 text-sm text-ink focus:outline-none focus:border-ink cursor-pointer">
                                     <option value="">All Roles</option>
                                     <option value="student">Student</option>
                                     <option value="architect">Architect</option>
                                     <option value="firm">Architecture Firm</option>
                                 </select>
-                                <button type="submit" className="mt-3 w-full rounded-full border border-ink bg-ink px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-paper transition-all duration-300 hover:-translate-y-0.5 hover:bg-redline">
+                                <button type="submit" className="ui-button-primary interactive mt-3 w-full">
                                     Filter profiles ↗
                                 </button>
                                 {role && <Link href="/discover" className="mt-3 block text-center font-mono text-[10px] uppercase tracking-widest text-graphite underline underline-offset-4 hover:text-ink">Clear filter</Link>}
@@ -74,13 +74,13 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                             <div className="rounded-2xl border border-redline/30 bg-redline/5 p-10 text-center"><p className="font-display text-xl text-ink">We could not load the field.</p><p className="mt-2 text-sm text-graphite">Please try again.</p><Link href={`/discover?${new URLSearchParams({ ...(role ? { role } : {}), page: String(page) })}`} className="mt-4 inline-block font-mono text-[10px] uppercase tracking-widest text-redline underline underline-offset-4">Retry</Link></div>
                         ) : profiles && profiles.length > 0 ? (
                             <>
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                            <div className="grid grid-cols-1 divide-y divide-line border-y border-line sm:grid-cols-2 sm:divide-x xl:grid-cols-3">
                                     {profiles.map((profile: Profile) => (
                                         <div
                                             key={profile.id}
-                                            className="surface card-lift relative flex min-h-[220px] flex-col justify-between p-4 sm:min-h-[240px] sm:p-5"
+                                            className="card-lift relative flex min-h-[220px] flex-col justify-between p-5 sm:min-h-[240px]"
                                         >
-                                        <Link href={`/p/${profile.slug}`} aria-label={`View ${profile.name}'s profile`} className="absolute inset-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redline" />
+                                        <Link href={`/p/${profile.slug}`} aria-label={`View ${profile.name}'s profile`} className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redline" />
                                         <div className="relative z-10 mb-3 flex flex-wrap items-start justify-between gap-2 pointer-events-none">
                                                 <ProfileAvatar profile={profile} size={40} className="h-10 w-10 rounded-full border border-line object-cover" />
                                                 <div className="flex flex-wrap items-center justify-end gap-1.5">
@@ -93,7 +93,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                                                             compact
                                                         />
                                                     </span>)}
-                                                    <span className="shrink-0 rounded-full border border-line bg-paper px-2 py-1 font-mono text-[8px] uppercase tracking-widest text-graphite">{profile.role}</span>
+                                                    <span className="shrink-0 border border-line bg-paper px-2 py-1 font-mono text-[8px] uppercase tracking-widest text-graphite">{profile.role}</span>
                                                 </div>
                                             </div>
                                             <div className="group relative z-10 flex flex-1 flex-col justify-between pointer-events-none">
