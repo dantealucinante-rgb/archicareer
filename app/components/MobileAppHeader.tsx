@@ -17,6 +17,12 @@ type MobileAppHeaderProps = {
     profile: Profile | null;
 };
 
+const appRoutes = ["/feed", "/discover", "/jobs", "/applications", "/profile", "/settings"];
+
+function isAppRoute(pathname: string) {
+    return appRoutes.some((route) => pathname === route || pathname.startsWith(`${route}/`));
+}
+
 function HomeIcon() {
     return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-5 w-5"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V10Z" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
@@ -25,8 +31,8 @@ function NetworkIcon() {
     return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-5 w-5"><circle cx="9" cy="8" r="3" /><circle cx="17.5" cy="10" r="2.25" /><path d="M3.5 20a5.5 5.5 0 0 1 11 0M15 20a3.5 3.5 0 0 1 5.5-2.9" strokeLinecap="round" /></svg>;
 }
 
-function ApplicationsIcon() {
-    return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-5 w-5"><path d="M7 3.5h7l3 3V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z" strokeLinecap="round" strokeLinejoin="round" /><path d="M14 3.5v4h4M9.5 12h5M9.5 16h5" strokeLinecap="round" /></svg>;
+function BellIcon() {
+    return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-5 w-5"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
 
 function BriefcaseIcon() {
@@ -50,7 +56,7 @@ function MobileBottomNav({ pathname, onOpenComposer }: { pathname: string; onOpe
                     <span className="grid h-12 w-12 place-items-center rounded-full border-4 border-paper bg-ink text-paper shadow-lg transition-colors group-hover:bg-redline"><Plus className="h-5 w-5" /></span>
                     <span>Create</span>
                 </button>
-                <Link href="/applications" aria-current={isActive("/applications") ? "page" : undefined} className={itemClass(isActive("/applications"))}><ApplicationsIcon /><span>Applied</span></Link>
+                <span aria-disabled="true" title="Notifications are not available yet" className="flex min-w-0 flex-col items-center gap-1 px-1 py-2 font-mono text-[9px] uppercase tracking-[0.12em] text-graphite/45"><BellIcon /><span>Alerts</span></span>
                 <Link href="/jobs" aria-current={isActive("/jobs") ? "page" : undefined} className={itemClass(isActive("/jobs"))}><BriefcaseIcon /><span>Jobs</span></Link>
             </div>
         </nav>
@@ -59,7 +65,7 @@ function MobileBottomNav({ pathname, onOpenComposer }: { pathname: string; onOpe
 
 export default function MobileAppHeader({ authenticated, profile }: MobileAppHeaderProps) {
     const pathname = usePathname();
-    const showAppChrome = authenticated;
+    const showAppChrome = authenticated && isAppRoute(pathname);
     const [composerOpen, setComposerOpen] = useState(false);
 
     const openComposer = useCallback(() => setComposerOpen(true), []);

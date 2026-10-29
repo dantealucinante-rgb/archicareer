@@ -80,14 +80,6 @@ a,button,input,select,textarea { -webkit-tap-highlight-color: transparent; }
 .mobile-nav-panel { position:fixed; inset:0 0 0 auto; z-index:9999; display:flex; width:min(88vw,25rem); flex-direction:column; overflow-y:auto; border-left:1px solid var(--color-line); background:var(--color-warm-white); box-shadow:-12px 0 30px rgba(18,29,38,.12); opacity:0; pointer-events:none; transform:translateX(100%); transition:opacity 160ms ease,transform 180ms var(--ease-smooth-out); }
 .mobile-nav-panel.is-open { opacity:1; pointer-events:auto; transform:translateX(0); }
 
-/* Root-mounted navigation is fixed so it never creates a scrolling gap. The
-   signed-in state only translates the visual chrome, keeping its layout and
-   route persistence stable while scrolling. */
-.site-header { transform:translateY(0); transition:transform 180ms var(--ease-smooth-out); }
-.site-header--hidden { transform:translateY(-100%); }
-body:has(.site-header) #main-content { padding-top:4.5rem; }
-@media (min-width:640px) { body:has(.site-header) #main-content { padding-top:5rem; } }
-
 /* Retained hooks for existing dialogs and toggles; motion stays restrained. */
 .t-modal { opacity:0; pointer-events:none; transform:translateY(4px); transition:opacity 140ms ease,transform 140ms ease; }
 .t-modal.is-open { opacity:1; pointer-events:auto; transform:translateY(0); }

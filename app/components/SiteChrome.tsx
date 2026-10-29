@@ -6,8 +6,10 @@ import type { ReactNode } from "react";
 const focusedRoutes = [
     "/login",
     "/signup",
+    "/onboarding",
     "/firms/login",
     "/firms/signup",
+    "/firms/onboarding",
 ];
 
 export default function SiteChrome({ children }: { children: ReactNode }) {
