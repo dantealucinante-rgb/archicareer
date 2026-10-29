@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ArrowDown, ArrowUpRight } from "@/app/components/UiIcon";
-import { ArchitectureOrbitBand } from "@/app/components/ArchitectureOrbitBand";
 
 const principles = [
     { number: "01", title: "Show the work", copy: "Build a living portfolio that feels like you—not another blank upload form." },
@@ -19,8 +18,8 @@ export default function HomePage() {
                         <div className="t-stagger is-shown min-w-0 max-w-4xl">
                             <p className="t-stagger-line t-stagger-line--1 eyebrow mb-7 font-mono text-redline">A-01 / PEOPLE, PRACTICE, OPPORTUNITY</p>
                             <h1 className="t-stagger-line t-stagger-line--2 display-balance break-words font-display text-[clamp(3rem,15vw,5.5rem)] font-semibold leading-[0.87] tracking-[-0.075em] text-ink sm:text-[clamp(3.6rem,10vw,8.8rem)]">
-                                Bring your next <br className="hidden sm:block" />
-                                <span className="text-redline">idea to life.</span>
+                                For architects, <br className="hidden sm:block" />
+                                <span className="text-redline">by architects.</span>
                             </h1>
                             <p className="t-stagger-line t-stagger-line--3 mt-8 max-w-xl text-lg leading-relaxed text-graphite sm:text-xl">
                                 ArchiCareer connects emerging talent, experienced professionals, studios, and companies through meaningful work and opportunities.
@@ -35,46 +34,41 @@ export default function HomePage() {
                             </div>
                         </div>
 
-                        <ArchitectureOrbitBand>
-                            <div className="surface-dark ink-grid relative min-h-[300px] overflow-hidden p-5 text-paper sm:min-h-[430px] sm:p-8">
-                                <div className="flex items-start justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-paper/60"><span>Field notes / 2026</span><span>09°N 8°E</span></div>
-                                <div className="absolute inset-x-8 top-1/2 h-px bg-paper/20" />
-                                <div className="absolute left-1/2 top-1/2 h-[78%] w-px -translate-x-1/2 -translate-y-1/2 bg-paper/20" />
-                                <div className="absolute left-[18%] top-[25%] h-28 w-28 rounded-full border border-paper/30" />
-                                <div className="absolute right-[16%] top-[34%] h-36 w-36 rotate-45 border border-redline/80" />
-                                <div className="absolute bottom-10 left-8 right-8 flex items-end justify-between">
-                                    <div><p className="font-display text-5xl leading-none text-sand sm:text-6xl">Connect</p><p className="mt-2 font-mono text-[10px] uppercase tracking-widest text-paper/60">around meaningful work</p></div>
-                                    <span className="grid h-14 w-14 place-items-center rounded-full border border-paper/30 text-paper/70"><ArrowDown /></span>
-                                </div>
+                        <div className="surface-dark ink-grid relative min-h-[300px] overflow-hidden p-5 text-paper sm:min-h-[430px] sm:p-8">
+                            <div className="flex items-start justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-paper/60"><span>Field notes / 2026</span><span>09°N 8°E</span></div>
+                            <div className="absolute inset-x-8 top-1/2 h-px bg-paper/20" />
+                            <div className="absolute left-1/2 top-1/2 h-[78%] w-px -translate-x-1/2 -translate-y-1/2 bg-paper/20" />
+                            <div className="absolute left-[18%] top-[25%] h-28 w-28 rounded-full border border-paper/30" />
+                            <div className="absolute right-[16%] top-[34%] h-36 w-36 rotate-45 border border-redline/80" />
+                            <div className="absolute bottom-10 left-8 right-8 flex items-end justify-between">
+                                <div><p className="font-display text-5xl leading-none text-sand sm:text-6xl">Connect</p><p className="mt-2 font-mono text-[10px] uppercase tracking-widest text-paper/60">around meaningful work</p></div>
+                                <span className="grid h-14 w-14 place-items-center rounded-full border border-paper/30 text-paper/70"><ArrowDown /></span>
                             </div>
-                        </ArchitectureOrbitBand>
+                        </div>
                     </div>
                 </section>
 
-                <section className="border-y border-line py-10 sm:py-14">
-                    <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+                <section className="border-y border-line py-8 sm:py-10">
+                    <div className="grid gap-5 lg:grid-cols-[15rem_1fr] lg:items-center lg:gap-10">
                         <div>
                             <p className="eyebrow font-mono text-redline">START HERE</p>
-                            <h2 className="display-balance mt-4 max-w-sm font-display text-3xl font-semibold leading-[0.95] tracking-[-0.05em] sm:text-5xl">Choose your way in.</h2>
-                            <p className="mt-4 max-w-sm text-sm leading-relaxed text-graphite">Whether you are building your practice or building a team, start with the path that fits you.</p>
+                            <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight sm:text-3xl">Choose your path.</h2>
+                            <p className="mt-2 text-sm leading-relaxed text-graphite">Join as an individual or organisation.</p>
                         </div>
-                        <div className="grid gap-3 sm:grid-cols-3">
-                            <Link href="/signup?role=student" className="interactive group rounded-2xl border border-line bg-warm-white p-5 hover:-translate-y-1 hover:border-redline hover:shadow-lg">
-                                <span className="font-mono text-[10px] uppercase tracking-widest text-redline">01 / Talent</span>
-                                <h3 className="mt-10 font-display text-xl font-semibold tracking-tight">I’m a student</h3>
-                                <span className="mt-4 block font-mono text-[10px] uppercase tracking-widest text-graphite transition-colors group-hover:text-ink">Create a profile ↗</span>
+                        <nav aria-label="Choose your ArchiCareer path" className="grid gap-1 rounded-xl border border-line bg-paper p-1 sm:grid-cols-3">
+                            <Link href="/signup?role=student" className="interactive group flex min-h-14 items-center justify-between gap-3 rounded-lg bg-warm-white px-4 py-3 hover:bg-sand">
+                                <span><span className="block font-mono text-[9px] uppercase tracking-widest text-redline">01 / Talent</span><span className="mt-1 block font-display text-sm font-semibold text-ink">I’m a student</span></span>
+                                <span aria-hidden="true" className="text-graphite transition-transform duration-300 group-hover:translate-x-1 group-hover:text-ink">↗</span>
                             </Link>
-                            <Link href="/signup?role=architect" className="interactive group rounded-2xl border border-line bg-warm-white p-5 hover:-translate-y-1 hover:border-redline hover:shadow-lg">
-                                <span className="font-mono text-[10px] uppercase tracking-widest text-redline">02 / Practice</span>
-                                <h3 className="mt-10 font-display text-xl font-semibold tracking-tight">I’m an architect</h3>
-                                <span className="mt-4 block font-mono text-[10px] uppercase tracking-widest text-graphite transition-colors group-hover:text-ink">Create a profile ↗</span>
+                            <Link href="/signup?role=architect" className="interactive group flex min-h-14 items-center justify-between gap-3 rounded-lg bg-warm-white px-4 py-3 hover:bg-sand">
+                                <span><span className="block font-mono text-[9px] uppercase tracking-widest text-redline">02 / Practice</span><span className="mt-1 block font-display text-sm font-semibold text-ink">I’m an architect</span></span>
+                                <span aria-hidden="true" className="text-graphite transition-transform duration-300 group-hover:translate-x-1 group-hover:text-ink">↗</span>
                             </Link>
-                            <Link href="/firms/signup" className="interactive group rounded-2xl border border-ink bg-ink p-5 text-paper hover:-translate-y-1 hover:border-redline hover:bg-redline hover:shadow-lg">
-                                <span className="font-mono text-[10px] uppercase tracking-widest text-sand">03 / Organisation</span>
-                                <h3 className="mt-10 font-display text-xl font-semibold tracking-tight">I’m a firm or company</h3>
-                                <span className="mt-4 block font-mono text-[10px] uppercase tracking-widest text-paper/60 transition-colors group-hover:text-paper">Find your people ↗</span>
+                            <Link href="/firms/signup" className="interactive group flex min-h-14 items-center justify-between gap-3 rounded-lg bg-ink px-4 py-3 text-paper hover:bg-redline">
+                                <span><span className="block font-mono text-[9px] uppercase tracking-widest text-sand">03 / Organisation</span><span className="mt-1 block font-display text-sm font-semibold">I’m a firm</span></span>
+                                <span aria-hidden="true" className="text-paper/60 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-paper">↗</span>
                             </Link>
-                        </div>
+                        </nav>
                     </div>
                 </section>
 
