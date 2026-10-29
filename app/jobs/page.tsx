@@ -54,12 +54,12 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
     return (
         <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jobsSchema) }} /><div className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
             <main className="mx-auto w-full max-w-[var(--page-max)] px-5 py-8 sm:px-8 sm:py-10">
-                <div className="mb-6 grid gap-6 border-b border-line pb-8 lg:grid-cols-[1fr_auto] lg:items-end">
+                <div className="ui-panel mb-6 grid gap-6 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-end">
                     <div className="min-w-0"><div className="ui-kicker mb-3">Opportunities / Nigeria</div><h1 className="display-balance max-w-2xl break-words font-display text-4xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-6xl">Find the work worth moving toward.</h1><p className="mt-4 max-w-xl break-words text-sm leading-relaxed text-graphite sm:text-base">Explore roles, collaborations, and opportunities shared by studios and companies.</p></div>
-                    <div className="ui-meta font-mono uppercase tracking-widest">{jobs?.length ?? 0} listings shown</div>
+                    <div className="ui-meta rounded-lg border border-line bg-paper px-4 py-2.5 font-mono uppercase tracking-widest">{jobs?.length ?? 0} listings shown</div>
                 </div>
 
-                <div className="mb-6 border-y border-line px-4 sm:px-0">
+                <div className="ui-panel mb-6 px-4 sm:px-6">
                     <details className="group">
                         <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 py-3 font-mono text-[10px] uppercase tracking-widest text-graphite [&::-webkit-details-marker]:hidden">
                             <span className="text-ink">Filter opportunities</span>
@@ -77,10 +77,10 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                         {jobsError ? (
                             <div className="rounded-2xl border border-redline/30 bg-redline/5 p-8 text-center"><p className="font-display text-xl text-ink">Opportunities are taking a moment to load.</p><Link href="/jobs" className="mt-4 inline-block font-mono text-[10px] uppercase tracking-widest text-redline underline underline-offset-4">Try again</Link></div>
                         ) : jobs && jobs.length > 0 ? (
-                            <div className="border-y border-line">
+                            <div className="ui-panel overflow-hidden">
                                 {jobs.map((job: JobListing) => (
                                     <article key={job.id} className="relative flex min-h-[112px] items-center gap-3 border-b border-line px-4 py-4 last:border-b-0 sm:gap-5 sm:px-6">
-                                        <Link href={`/jobs/${job.id}`} aria-label={`View ${job.title} at ${job.firm_name}`} className="absolute inset-0 z-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redline" />
+                                        <Link href={`/jobs/${job.id}`} aria-label={`View ${job.title} at ${job.firm_name}`} className="absolute inset-0 z-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redline" />
                                         <div className="pointer-events-none relative z-10 flex min-w-0 flex-1 items-start gap-3 pr-1 sm:gap-4">
                                             <div aria-hidden="true" className="relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full border border-line bg-sand font-display text-sm font-semibold text-redline sm:h-14 sm:w-14">{firmAvatars.get(job.user_id ?? "") ? <Image src={firmAvatars.get(job.user_id ?? "") as string} alt="" fill sizes="56px" className="object-cover" /> : firmInitials(job.firm_name)}</div>
                                             <div className="min-w-0 pt-0.5">
