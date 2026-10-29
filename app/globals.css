@@ -17,6 +17,7 @@
 }
 
 :root {
+  --site-header-height: 4.5rem;
   --page-max: 76rem;
   --content-max: 44rem;
   --radius-control: .625rem;
@@ -59,6 +60,10 @@
   --toggle-track: 0ms;
   --toggle-ease: cubic-bezier(0.34, 1.35, 0.64, 1);
 }
+
+.site-header { transform: translateY(0); transition: transform 180ms var(--ease-smooth-out); }
+.site-header--hidden { transform: translateY(-100%); }
+body:has(.site-header) #main-content { padding-top: var(--site-header-height); }
 
 html,
 body {
@@ -133,6 +138,8 @@ h6.font-display {
 }
 
 @media (max-width: 639px) {
+  :root { --site-header-height: 3.75rem; }
+  body:has(.site-header) #main-content { padding-top: var(--site-header-height); }
   :where(h1, h2, h3, h4, h5, h6, .font-display) {
     letter-spacing: -0.015em;
     text-wrap: pretty;

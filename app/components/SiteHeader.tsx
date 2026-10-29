@@ -10,6 +10,7 @@ import type { Profile } from "@/types";
 
 export default function SiteHeader() {
     const [account, setAccount] = useState<{ authenticated: boolean; profile: Profile | null }>({ authenticated: false, profile: null });
+    const [hidden, setHidden] = useState(false);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -24,8 +25,42 @@ export default function SiteHeader() {
 
     const { authenticated, profile } = account;
 
+    useEffect(() => {
+        let lastScrollY = window.scrollY;
+        let frame: number | null = null;
+        const threshold = 12;
+        const resetFrame = window.requestAnimationFrame(() => setHidden(false));
+
+        const updateVisibility = () => {
+            frame = null;
+            const currentScrollY = window.scrollY;
+            const delta = currentScrollY - lastScrollY;
+
+            if (currentScrollY <= 8) {
+                lastScrollY = 0;
+                setHidden(false);
+                return;
+            }
+
+            if (Math.abs(delta) < threshold) return;
+            lastScrollY = currentScrollY;
+            setHidden(delta > 0);
+        };
+
+        const onScroll = () => {
+            if (frame === null) frame = window.requestAnimationFrame(updateVisibility);
+        };
+
+        window.addEventListener("scroll", onScroll, { passive: true });
+        return () => {
+            window.cancelAnimationFrame(resetFrame);
+            window.removeEventListener("scroll", onScroll);
+            if (frame !== null) window.cancelAnimationFrame(frame);
+        };
+    }, []);
+
     return (
-        <header className="sticky top-0 z-40 border-b border-line/80 bg-paper/88 backdrop-blur-xl">
+        <header className={`site-header fixed inset-x-0 top-0 z-40 border-b border-line/80 bg-paper/95 backdrop-blur-xl ${hidden ? "site-header--hidden" : ""}`}>
             <div className="mx-auto hidden w-full max-w-7xl items-center gap-4 px-5 py-3.5 sm:flex sm:gap-8 sm:px-8 sm:py-4">
                 <div className="flex items-center gap-5 shrink-0">
                     <span className="hidden font-mono text-[10px] uppercase tracking-[0.28em] text-graphite sm:inline">

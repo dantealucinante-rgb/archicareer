@@ -23,6 +23,10 @@ function isAppRoute(pathname: string) {
     return appRoutes.some((route) => pathname === route || pathname.startsWith(`${route}/`));
 }
 
+function isProfileRoute(pathname: string) {
+    return pathname === "/profile" || pathname.startsWith("/profile/") || pathname.startsWith("/p/");
+}
+
 function HomeIcon() {
     return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-5 w-5"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V10Z" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
@@ -65,7 +69,8 @@ function MobileBottomNav({ pathname, onOpenComposer }: { pathname: string; onOpe
 
 export default function MobileAppHeader({ authenticated, profile }: MobileAppHeaderProps) {
     const pathname = usePathname();
-    const showAppChrome = authenticated && isAppRoute(pathname);
+    const showProfileMenu = isProfileRoute(pathname);
+    const showAppChrome = authenticated && (isAppRoute(pathname) || showProfileMenu);
     const [composerOpen, setComposerOpen] = useState(false);
 
     const openComposer = useCallback(() => setComposerOpen(true), []);
@@ -88,19 +93,19 @@ export default function MobileAppHeader({ authenticated, profile }: MobileAppHea
         return (
             <div className="flex w-full items-center justify-between px-5 py-3.5 sm:hidden">
                 <Link href="/" aria-label="ArchiCareer home" className="group flex items-center font-display text-[1.3rem] font-bold tracking-[-0.055em] text-ink transition-colors hover:text-redline"><BrandLogo /></Link>
-                <MobileNav authenticated={authenticated} profile={profile} />
+                {showProfileMenu && <MobileNav authenticated={authenticated} profile={profile} />}
             </div>
         );
     }
 
     return (
         <>
-            <div className="grid w-full grid-cols-[2.5rem_1fr_2.5rem] items-center px-5 py-2.5 sm:hidden">
-                <Link href={profile ? `/p/${profile.slug}` : "/login"} aria-label="Your profile" className="interactive grid h-10 w-10 place-items-center rounded-full">
+            <div className={`${showProfileMenu ? "grid grid-cols-[2.5rem_1fr_2.5rem]" : "flex justify-center"} w-full items-center px-5 py-2.5 sm:hidden`}>
+                {showProfileMenu && <Link href={profile ? `/p/${profile.slug}` : "/login"} aria-label="Your profile" className="interactive grid h-10 w-10 place-items-center rounded-full">
                     {profile ? <ProfileAvatar profile={profile} size={40} className="h-10 w-10 rounded-full border border-line object-cover" /> : <span className="h-9 w-9 rounded-full border border-line bg-sand" />}
-                </Link>
+                </Link>}
                 <Link href="/feed" aria-label="ArchiCareer feed" className="group justify-self-center font-display text-[1.3rem] font-bold tracking-[-0.055em] text-ink transition-colors hover:text-redline"><BrandLogo /></Link>
-                <MobileNav authenticated={authenticated} profile={profile} />
+                {showProfileMenu && <MobileNav authenticated={authenticated} profile={profile} />}
             </div>
             {profile && <PostComposer open={composerOpen} onClose={closeComposer} onCreated={addPostToFeed} author={{ name: profile.name, avatar_url: profile.avatar_url }} />}
             {typeof document !== "undefined" && createPortal(<MobileBottomNav pathname={pathname} onOpenComposer={openComposer} />, document.body)}
