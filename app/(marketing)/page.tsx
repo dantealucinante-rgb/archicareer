@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowDown, ArrowUpRight } from "@/app/components/UiIcon";
+import { ArrowUpRight } from "@/app/components/UiIcon";
+import HeroRing from "@/app/components/HeroRing";
 
 const principles = [
     { number: "01", title: "Show the work", copy: "Build a living portfolio that feels like you—not another blank upload form." },
@@ -34,17 +35,7 @@ export default function HomePage() {
                             </div>
                         </div>
 
-                        <div className="surface-dark ink-grid relative min-h-[300px] overflow-hidden p-5 text-paper sm:min-h-[430px] sm:p-8">
-                            <div className="flex items-start justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-paper/60"><span>Field notes / 2026</span><span>09°N 8°E</span></div>
-                            <div className="absolute inset-x-8 top-1/2 h-px bg-paper/20" />
-                            <div className="absolute left-1/2 top-1/2 h-[78%] w-px -translate-x-1/2 -translate-y-1/2 bg-paper/20" />
-                            <div className="absolute left-[18%] top-[25%] h-28 w-28 rounded-full border border-paper/30" />
-                            <div className="absolute right-[16%] top-[34%] h-36 w-36 rotate-45 border border-redline/80" />
-                            <div className="absolute bottom-10 left-8 right-8 flex items-end justify-between">
-                                <div><p className="font-display text-5xl leading-none text-sand sm:text-6xl">Connect</p><p className="mt-2 font-mono text-[10px] uppercase tracking-widest text-paper/60">around meaningful work</p></div>
-                                <span className="grid h-14 w-14 place-items-center rounded-full border border-paper/30 text-paper/70"><ArrowDown /></span>
-                            </div>
-                        </div>
+                        <HeroRing />
                     </div>
                 </section>
 
