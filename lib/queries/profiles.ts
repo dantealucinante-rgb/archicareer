@@ -1,4 +1,5 @@
 import { createAdminClient, createClient, createPublicClient } from "@/lib/supabase/server";
+import { isAccountActive } from "@/lib/admin";
 import type { User } from "@supabase/supabase-js";
 import { cache } from "react";
 import { Profile, UserRole } from "@/types";
@@ -171,6 +172,9 @@ export async function updateProfile(
         const { data: { user }, error: authError } = await supabase.auth.getUser();
         if (authError || !user) {
             return { data: null, error: new Error("Unauthenticated") };
+        }
+        if (!(await isAccountActive(user.id))) {
+            return { data: null, error: new Error("Account access is restricted") };
         }
 
         const currentProfile = await createAdminClient()

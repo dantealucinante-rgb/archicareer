@@ -1,5 +1,6 @@
 import Link from "next/link";
 import HeroRing from "@/app/components/HeroRing";
+import ScrollReveal from "@/app/components/ScrollReveal";
 
 const principles = [
     { number: "01", title: "Show the work", copy: "Build a living portfolio that feels like you—not another blank upload form." },
@@ -26,7 +27,7 @@ export default function HomePage() {
                                 ArchiCareer connects emerging talent, experienced professionals, studios, and companies through meaningful work and opportunities.
                             </p>
                             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-                                <Link href="/signup" className="inline-flex items-center justify-center rounded-full bg-ink px-6 py-3.5 font-mono text-[11px] uppercase tracking-widest text-paper transition-all duration-300 hover:-translate-y-1 hover:bg-redline">
+                                <Link href="/signup" className="inline-flex items-center justify-center rounded-full bg-ink px-6 py-3.5 font-mono text-[11px] uppercase tracking-widest text-paper transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:bg-redline">
                                     Create your profile
                                 </Link>
                                 <Link href="/discover" className="inline-flex items-center justify-center rounded-full px-4 py-3.5 font-mono text-[11px] uppercase tracking-widest text-graphite transition-colors hover:text-ink">
@@ -62,7 +63,15 @@ export default function HomePage() {
                 </section>
 
                 <section className="border-y border-line py-4 sm:py-6">
-                    {principles.map((item, index) => <div key={item.number} className={`grid gap-4 py-6 sm:grid-cols-[5rem_1fr_1.4fr] sm:items-baseline ${index ? "border-t border-line" : ""}`}><span className="font-mono text-xs text-redline">{item.number}</span><h2 className="font-display text-2xl font-semibold tracking-tight">{item.title}</h2><p className="max-w-md text-sm leading-relaxed text-graphite">{item.copy}</p></div>)}
+                    {principles.map((item, index) => (
+                        <ScrollReveal key={item.number}>
+                            <div className={`t-stagger-line grid gap-4 py-6 sm:grid-cols-[5rem_1fr_1.4fr] sm:items-baseline ${index ? "border-t border-line" : ""}`} style={{ transitionDelay: `${index * 80}ms` }}>
+                                <span className="font-mono text-xs text-redline">{item.number}</span>
+                                <h2 className="font-display text-2xl font-semibold tracking-tight">{item.title}</h2>
+                                <p className="max-w-md text-sm leading-relaxed text-graphite">{item.copy}</p>
+                            </div>
+                        </ScrollReveal>
+                    ))}
                 </section>
 
                 <section className="grid gap-8 py-20 lg:grid-cols-[0.8fr_1.2fr] lg:py-28">

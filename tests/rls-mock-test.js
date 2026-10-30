@@ -81,6 +81,13 @@ function simulateApplicationQuery(action, session, application, jobListing, mess
     return { success: false, error: "Unknown application query" };
 }
 
+function simulateAdminOperation(session, target, action) {
+    if (!session?.userId || !["admin", "superadmin"].includes(session.adminRole)) return { success: false, status: session?.userId ? 403 : 401 };
+    if (target === "user" && action === "suspend") return { success: session.userId !== session.targetUserId, status: session.userId === session.targetUserId ? 400 : 200 };
+    if (target === "role") return { success: session.adminRole === "superadmin", status: session.adminRole === "superadmin" ? 200 : 403 };
+    return { success: true, status: 200 };
+}
+
 // Data fixtures
 const profileB = {
     id: "profile-uuid-1234",
@@ -165,7 +172,19 @@ try {
     assert.strictEqual(simulateApplicationQuery("UPDATE_APPLICATION", sessionStudent, application, jobListing).success, false);
     console.log("-> Result: SUCCESS (Applicant status update rejected)");
 
-    console.log("\nALL 10 SECURITY POLICIES ASSERTED CORRECTLY!");
+    console.log("\n[Test 11] Ordinary users cannot call an admin operation");
+    assert.strictEqual(simulateAdminOperation({ userId: "member" }, "user", "suspend").status, 403);
+    assert.strictEqual(simulateAdminOperation(null, "user", "suspend").status, 401);
+    console.log("-> Result: SUCCESS (Server-side admin role required)");
+
+    console.log("\n[Test 12] Admin roles and self-protection are enforced");
+    assert.strictEqual(simulateAdminOperation({ userId: "admin", adminRole: "admin", targetUserId: "member" }, "user", "suspend").success, true);
+    assert.strictEqual(simulateAdminOperation({ userId: "admin", adminRole: "admin", targetUserId: "admin" }, "user", "suspend").success, false);
+    assert.strictEqual(simulateAdminOperation({ userId: "admin", adminRole: "admin" }, "role", "grant").status, 403);
+    assert.strictEqual(simulateAdminOperation({ userId: "owner", adminRole: "superadmin" }, "role", "grant").success, true);
+    console.log("-> Result: SUCCESS (Only superadmins can manage roles; admins cannot suspend themselves)");
+
+    console.log("\nALL 12 SECURITY POLICIES ASSERTED CORRECTLY!");
 
 } catch (err) {
     console.error("\nTEST ASSERTER FAILURE:", err.message);

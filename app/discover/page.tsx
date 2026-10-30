@@ -78,12 +78,15 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                                     {profiles.map((profile: Profile) => (
                                         <div
                                             key={profile.id}
-                                            className="surface card-lift relative flex min-h-[220px] flex-col justify-between p-4 sm:min-h-[240px] sm:p-5"
+                                            className="surface card-lift relative flex min-h-[260px] flex-col justify-between overflow-hidden p-0 sm:min-h-[280px]"
                                         >
                                             <Link href={`/p/${profile.slug}`} aria-label={`View ${profile.name}'s profile`} className="absolute inset-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redline" />
-                                            <div className="relative z-10 mb-3 flex flex-wrap items-start justify-between gap-2 pointer-events-none">
-                                                <ProfileAvatar profile={profile} size={40} className="h-10 w-10 rounded-full border border-line object-cover" />
-                                                <div className="flex flex-wrap items-center justify-end gap-1.5">
+                                            {/* Gradient banner */}
+                                            <div className="relative h-16 w-full bg-gradient-to-br from-sand via-paper to-line/40">
+                                                <div className="absolute -bottom-7 left-4 z-10">
+                                                    <ProfileAvatar profile={profile} size={56} className="h-14 w-14 rounded-full border-2 border-paper object-cover shadow-md" />
+                                                </div>
+                                                <div className="absolute right-3 top-3 z-10 flex flex-wrap items-center gap-1.5 pointer-events-none">
                                                     {currentProfile?.id !== profile.id && ownerIds[profile.id] && (<span className="pointer-events-auto">
                                                         <FollowButton
                                                             followingId={ownerIds[profile.id]}
@@ -93,26 +96,32 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                                                             compact
                                                         />
                                                     </span>)}
-                                                    <span className="shrink-0 rounded-full border border-line bg-paper px-2 py-1 font-mono text-[8px] uppercase tracking-widest text-graphite">{profile.role}</span>
                                                 </div>
                                             </div>
-                                            <div className="group relative z-10 flex flex-1 flex-col justify-between pointer-events-none">
+                                            <div className="group relative z-10 flex flex-1 flex-col justify-between px-4 pb-4 pt-10 pointer-events-none">
                                                 <div>
-                                                    <h3 className="mt-5 line-clamp-2 font-display text-xl font-semibold tracking-tight text-ink transition-colors group-hover:text-redline">{profile.name}</h3>
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <h3 className="line-clamp-2 font-display text-xl font-semibold tracking-tight text-ink transition-colors group-hover:text-redline">{profile.name}</h3>
+                                                        <span className="mt-0.5 shrink-0 rounded-full bg-terracotta/10 px-2.5 py-1 font-mono text-[8px] uppercase tracking-widest text-terracotta">{profile.role}</span>
+                                                    </div>
                                                     {profile.school_or_firm && (
-                                                        <p className="mb-2 font-mono text-[10px] uppercase tracking-wider text-graphite">{profile.school_or_firm}</p>
+                                                        <p className="mt-1 font-mono text-[10px] uppercase tracking-wider text-graphite">{profile.school_or_firm}</p>
                                                     )}
                                                     {profile.bio && (
-                                                        <p className="line-clamp-2 text-xs leading-relaxed text-graphite">{profile.bio}</p>
+                                                        <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-graphite">{profile.bio}</p>
+                                                    )}
+                                                    {profile.software_proficiency && profile.software_proficiency.length > 0 && (
+                                                        <div className="mt-3 flex flex-wrap gap-1.5">
+                                                            {profile.software_proficiency.slice(0, 3).map((skill) => (
+                                                                <span key={skill} className="inline-flex items-center gap-1 rounded-md border border-line/70 bg-paper px-2 py-0.5 text-[10px] text-graphite">
+                                                                    <span className="h-1.5 w-1.5 rounded-full bg-redline/60" aria-hidden="true" />{skill}
+                                                                </span>
+                                                            ))}
+                                                        </div>
                                                     )}
                                                 </div>
-                                                <div className="mt-6 flex items-center justify-between border-t border-line/70 pt-3">
+                                                <div className="mt-5 flex items-center justify-between border-t border-line/70 pt-3">
                                                     <span className="font-mono text-[9px] uppercase tracking-wider text-graphite">View profile</span>
-                                                    <span aria-hidden="true" className="text-redline transition-transform duration-300 group-hover:translate-x-1">
-                                                        <svg viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                                            <path d="M3 13 13 3M5 3h8v8" strokeLinecap="round" strokeLinejoin="round" />
-                                                        </svg>
-                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
