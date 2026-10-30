@@ -694,16 +694,19 @@ button {
 
 /* ── Hero 3D Ring Carousel ─────────────────────────── */
 .hero-ring-viewport {
-  --ring-radius: clamp(180px, 22vw, 320px);
-  --card-w: clamp(140px, 18vw, 220px);
-  position: relative;
+  --ring-radius: clamp(420px, 52vw, 780px);
+  --card-w: clamp(160px, 20vw, 260px);
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 340px;
-  perspective: 1200px;
-  perspective-origin: 50% 50%;
-  overflow: visible;
+  perspective: 1400px;
+  perspective-origin: 50% 48%;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.28;
+  z-index: 0;
 }
 
 .hero-ring {
@@ -717,11 +720,11 @@ button {
 .hero-ring-card {
   position: absolute;
   inset: 0;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
   backface-visibility: hidden;
   will-change: filter, opacity;
-  box-shadow: 0 8px 30px rgba(23, 33, 38, 0.12);
+  box-shadow: 0 12px 40px rgba(23, 33, 38, 0.18);
 }
 
 .hero-ring-img {
@@ -729,11 +732,28 @@ button {
   pointer-events: none;
 }
 
+/* ── Mobile: bigger radius pushes cards further off edges ── */
 @media (max-width: 639px) {
   .hero-ring-viewport {
-    --ring-radius: clamp(120px, 34vw, 180px);
-    --card-w: clamp(120px, 42vw, 180px);
-    min-height: 260px;
+    --ring-radius: clamp(260px, 70vw, 400px);
+    --card-w: clamp(130px, 36vw, 180px);
+    opacity: 0.22;
+  }
+}
+
+/* ── Tablets ── */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .hero-ring-viewport {
+    --ring-radius: clamp(360px, 50vw, 560px);
+    --card-w: clamp(150px, 18vw, 220px);
+  }
+}
+
+/* ── Large screens ── */
+@media (min-width: 1400px) {
+  .hero-ring-viewport {
+    --ring-radius: 880px;
+    --card-w: 280px;
   }
 }
 

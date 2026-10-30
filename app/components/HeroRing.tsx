@@ -17,8 +17,12 @@ const CARD_COUNT = IMAGES.length;
 const SLICE_DEG = 360 / CARD_COUNT;
 const ROTATION_DURATION_MS = 40_000;
 const DEG_PER_MS = 360 / ROTATION_DURATION_MS;
-const MAX_BLUR = 3;
-const MIN_OPACITY = 0.5;
+
+/* Blur range: front card gets a soft 1px base blur (masks low-res),
+   back cards ramp up to 5px. Opacity: front 1 → back 0.4. */
+const BASE_BLUR = 1;
+const MAX_BLUR = 5;
+const MIN_OPACITY = 0.4;
 
 export default function HeroRing() {
     const ringRef = useRef<HTMLDivElement>(null);
@@ -45,7 +49,6 @@ export default function HeroRing() {
         const applyMotionPref = () => {
             reducedMotionRef.current = mq.matches;
             if (mq.matches) {
-                /* freeze at current angle, clear per-card blur */
                 ring.style.transform = `rotateY(${angleRef.current}deg)`;
                 cardRefs.current.forEach((card) => {
                     if (!card) return;
@@ -71,11 +74,9 @@ export default function HeroRing() {
                 cardRefs.current.forEach((card, i) => {
                     if (!card) return;
                     const cardAngle = (SLICE_DEG * i + angleRef.current) % 360;
-                    /* normalise to -180…180 so 0 = facing viewer */
-                    const norm =
-                        cardAngle > 180 ? cardAngle - 360 : cardAngle;
+                    const norm = cardAngle > 180 ? cardAngle - 360 : cardAngle;
                     const t = Math.abs(norm) / 180; /* 0 at front, 1 at back */
-                    const blur = t * MAX_BLUR;
+                    const blur = BASE_BLUR + t * (MAX_BLUR - BASE_BLUR);
                     const opacity = 1 - t * (1 - MIN_OPACITY);
                     card.style.filter = `blur(${blur.toFixed(2)}px)`;
                     card.style.opacity = opacity.toFixed(3);
@@ -93,18 +94,19 @@ export default function HeroRing() {
         };
     }, []);
 
-    /* ── pause handlers ───────────────────────────────── */
+    /* ── pause handlers (pointer-events re-enabled on the viewport via prop) */
     const pause = useCallback(() => {
         pausedRef.current = true;
     }, []);
     const resume = useCallback(() => {
         pausedRef.current = false;
-        lastTimeRef.current = 0; /* avoid dt spike */
+        lastTimeRef.current = 0;
     }, []);
 
     return (
         <div
             className="hero-ring-viewport"
+            style={{ pointerEvents: "auto" }}
             onMouseEnter={pause}
             onMouseLeave={resume}
             onTouchStart={pause}
@@ -124,7 +126,7 @@ export default function HeroRing() {
                             src={src}
                             alt=""
                             fill
-                            sizes="(max-width: 640px) 60vw, 220px"
+                            sizes="(max-width: 640px) 36vw, (max-width: 1024px) 18vw, 280px"
                             className="hero-ring-img"
                             priority={i < 2}
                         />

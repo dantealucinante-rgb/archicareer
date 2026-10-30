@@ -13,10 +13,11 @@ export default function HomePage() {
         <div className="flex flex-col bg-paper text-ink">
             <main className="mx-auto w-full max-w-7xl px-5 sm:px-8">
                 <section className="relative overflow-hidden py-16 sm:py-24 lg:py-32">
+                    <HeroRing />
                     <div className="absolute -right-24 top-10 h-72 w-72 rounded-full bg-sand/60 blur-3xl" />
                     <div className="absolute -left-28 bottom-4 h-64 w-64 rounded-full bg-redline/10 blur-3xl" />
-                    <div className="relative grid items-end gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20">
-                        <div className="t-stagger is-shown min-w-0 max-w-4xl">
+                    <div className="relative z-10">
+                        <div className="t-stagger is-shown min-w-0 max-w-3xl">
                             <p className="t-stagger-line t-stagger-line--1 eyebrow mb-7 font-mono text-redline">A-01 / PEOPLE, PRACTICE, OPPORTUNITY</p>
                             <h1 className="t-stagger-line t-stagger-line--2 display-balance break-words font-display text-[clamp(3.5rem,17vw,6.5rem)] font-semibold leading-[0.87] tracking-[-0.075em] text-ink sm:text-[clamp(4.5rem,11vw,10rem)]">
                                 For architects, <br className="hidden sm:block" />
@@ -34,8 +35,6 @@ export default function HomePage() {
                                 </Link>
                             </div>
                         </div>
-
-                        <HeroRing />
                     </div>
                 </section>
 
