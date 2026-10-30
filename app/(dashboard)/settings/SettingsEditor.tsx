@@ -37,9 +37,9 @@ export default function SettingsEditor({ initialMarketingEmails, initialSearchIn
             <section className="surface p-5 sm:p-7" aria-labelledby="notifications-heading">
                 <p className="eyebrow font-mono text-redline">Notifications</p>
                 <h2 id="notifications-heading" className="mt-2 font-display text-2xl font-semibold tracking-tight">Stay in the loop</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-graphite">Choose whether you want to receive relevant job-alert emails.</p>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-graphite">Save your preference for future job-alert emails. We do not send alerts yet.</p>
                 <div className="mt-6 flex items-center justify-between gap-5 border-y border-line py-4">
-                    <div><p className="text-sm font-medium text-ink">Allow job-alert emails</p><p className="mt-1 text-xs leading-relaxed text-graphite">Receive emails about relevant architecture opportunities.</p></div>
+                    <div><p className="text-sm font-medium text-ink">Save my job-alert preference</p><p className="mt-1 text-xs leading-relaxed text-graphite">We’ll use this when job alerts become available.</p></div>
                     <button type="button" role="switch" aria-label="Allow job-alert emails" aria-checked={marketingEmails} data-on={marketingEmails} className={`t-toggle interactive relative h-7 w-12 shrink-0 rounded-full bg-line p-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1D70E8] data-[on=true]:bg-[#1D70E8] ${toggleInitialized ? "is-init" : ""}`} onClick={() => { setToggleInitialized(true); setMarketingEmails((current) => !current); }}><span className="t-toggle-thumb block h-5 w-5 rounded-full bg-warm-white shadow-sm" /></button>
                 </div>
             </section>
@@ -54,8 +54,8 @@ export default function SettingsEditor({ initialMarketingEmails, initialSearchIn
                 <p className="mt-4 text-sm text-graphite">Your profile remains available on ArchiCareer when this setting is turned off.</p>
             </section>
             <div className="flex flex-col items-start justify-between gap-4 border-t border-line pt-5 sm:flex-row sm:items-center">
-                <p aria-live="polite" className={`font-mono text-[10px] uppercase tracking-widest ${error ? "text-redline" : "text-graphite"}`}>{message}</p>
-                <button type="submit" disabled={saving} className="interactive rounded-full border border-[#1D70E8] bg-[#1D70E8] px-6 py-3 font-mono text-[10px] uppercase tracking-widest text-paper hover:bg-[#1558B0] disabled:cursor-not-allowed disabled:opacity-60">
+                <p aria-live="polite" className={`text-sm ${error ? "text-redline" : "text-graphite"}`}>{message}</p>
+                <button type="submit" disabled={saving} className="interactive rounded-full border border-[#1D70E8] bg-[#1D70E8] px-6 py-3 text-sm font-semibold text-paper hover:bg-[#1558B0] disabled:cursor-not-allowed disabled:opacity-60">
                     {saving ? "Saving..." : "Save Settings"}
                 </button>
             </div>

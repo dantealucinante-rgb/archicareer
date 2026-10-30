@@ -109,7 +109,7 @@ export default function SignupPage() {
                             <p className="ui-kicker">Step 1 of 3 · your account</p>
                             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight">Start your profile</h1>
                             <p className="mt-2 text-sm leading-relaxed text-graphite">Choose your path, then tell us where to reach you.</p>
-                            <Link href="/login" className="mt-4 inline-flex max-w-full break-words font-mono text-[10px] uppercase tracking-widest text-graphite transition-colors hover:text-ink">Already a member? Sign in ↗</Link>
+                            <Link href="/login" className="mt-4 inline-flex max-w-full break-words font-mono text-[10px] uppercase tracking-widest text-graphite transition-colors hover:text-ink">Already a member? Sign in</Link>
                         </div>
 
                         <form className="space-y-6" onSubmit={handleSubmit}>
@@ -143,7 +143,7 @@ export default function SignupPage() {
 
                             <div className="space-y-3 border-t border-line pt-6">
                                 <button type="submit" disabled={status === "sending"} className="ui-button-primary interactive w-full disabled:cursor-not-allowed disabled:opacity-70">
-                                    {status === "sending" ? "Creating your profile..." : "Create my profile ↗"}
+                                    {status === "sending" ? "Creating your profile..." : "Create my profile"}
                                 </button>
                                 <p className="text-center text-xs leading-relaxed text-graphite">No password to remember. We’ll send a secure verification link.</p>
                                 <GoogleAuthButton action="signUp" onClick={handleGoogleSignIn} disabled={status === "sending"} loading={status === "sending"} />

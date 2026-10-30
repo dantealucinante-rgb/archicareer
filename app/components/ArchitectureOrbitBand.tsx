@@ -261,9 +261,8 @@ export function ArchitectureOrbitBand({
 
             {/* Orbiting Image Tiles Track */}
             <div
-                className={`orbit-track pointer-events-none absolute inset-0 flex items-center justify-center ${
-                    isPaused ? "orbit-track--paused" : ""
-                }`}
+                className={`orbit-track pointer-events-none absolute inset-0 flex items-center justify-center ${isPaused ? "orbit-track--paused" : ""
+                    }`}
             >
                 {/* Scaled Responsive Wrapper to keep the orbital path within bounds on mobile & desktop */}
                 <div className="relative h-0 w-0 scale-[0.62] xs:scale-[0.72] sm:scale-[0.84] md:scale-95 lg:scale-100 transition-transform">
@@ -289,7 +288,7 @@ export function ArchitectureOrbitBand({
                                         {tile.code}
                                     </span>
                                     <span className="text-[9px] text-graphite/60 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-ink">
-                                        ↗
+                                        Explore
                                     </span>
                                 </div>
 
@@ -334,9 +333,8 @@ export function ArchitectureOrbitBand({
                     aria-label={isPaused ? "Resume orbit animation" : "Pause orbit animation"}
                 >
                     <span
-                        className={`h-1.5 w-1.5 rounded-full ${
-                            isPaused ? "bg-graphite" : "bg-redline animate-pulse"
-                        }`}
+                        className={`h-1.5 w-1.5 rounded-full ${isPaused ? "bg-graphite" : "bg-redline animate-pulse"
+                            }`}
                         aria-hidden="true"
                     />
                     <span>{isPaused ? "Orbit Paused" : "Live Orbit"}</span>

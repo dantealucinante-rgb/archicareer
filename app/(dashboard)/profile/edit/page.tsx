@@ -17,7 +17,7 @@ export default async function ProfileEditPage() {
                         <h1 className="display-balance mt-3 max-w-xl font-display text-4xl font-semibold leading-[0.92] tracking-[-0.06em] sm:text-7xl">{profile?.role === "firm" ? "Make your practice easier to find." : "Shape how people meet your work."}</h1>
                         <p className="mt-5 max-w-xl text-sm leading-relaxed text-graphite">{profile?.role === "firm" ? "Keep your organisation, capabilities, and selected work clear for the people you want to reach." : "Keep your public profile clear, current, and easy to understand. Changes are saved to the profile people see."}</p>
                     </div>
-                    {profile?.slug && <a href={`/p/${profile.slug}`} className="interactive inline-flex w-fit items-center justify-center rounded-full border border-ink px-5 py-3 font-mono text-[10px] uppercase tracking-widest text-ink hover:bg-ink hover:text-paper">View public profile ↗</a>}
+                    {profile?.slug && <a href={`/p/${profile.slug}`} className="interactive inline-flex w-fit items-center justify-center rounded-full border border-ink px-5 py-3 font-mono text-[10px] uppercase tracking-widest text-ink hover:bg-ink hover:text-paper">View public profile</a>}
                 </div>
 
                 <div className="grid gap-8 lg:grid-cols-[220px_1fr] lg:items-start">

@@ -61,7 +61,7 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                                     <option value="firm">Architecture Firm</option>
                                 </select>
                                 <button type="submit" className="mt-3 w-full rounded-full border border-ink bg-ink px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-paper transition-all duration-300 hover:-translate-y-0.5 hover:bg-redline">
-                                    Filter profiles ↗
+                                    Filter profiles
                                 </button>
                                 {role && <Link href="/discover" className="mt-3 block text-center font-mono text-[10px] uppercase tracking-widest text-graphite underline underline-offset-4 hover:text-ink">Clear filter</Link>}
                             </div>
@@ -80,8 +80,8 @@ export default async function DiscoverPage({ searchParams }: DiscoverPageProps) 
                                             key={profile.id}
                                             className="surface card-lift relative flex min-h-[220px] flex-col justify-between p-4 sm:min-h-[240px] sm:p-5"
                                         >
-                                        <Link href={`/p/${profile.slug}`} aria-label={`View ${profile.name}'s profile`} className="absolute inset-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redline" />
-                                        <div className="relative z-10 mb-3 flex flex-wrap items-start justify-between gap-2 pointer-events-none">
+                                            <Link href={`/p/${profile.slug}`} aria-label={`View ${profile.name}'s profile`} className="absolute inset-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-redline" />
+                                            <div className="relative z-10 mb-3 flex flex-wrap items-start justify-between gap-2 pointer-events-none">
                                                 <ProfileAvatar profile={profile} size={40} className="h-10 w-10 rounded-full border border-line object-cover" />
                                                 <div className="flex flex-wrap items-center justify-end gap-1.5">
                                                     {currentProfile?.id !== profile.id && ownerIds[profile.id] && (<span className="pointer-events-auto">

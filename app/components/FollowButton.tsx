@@ -62,7 +62,7 @@ export default function FollowButton({ followingId, initialFollowing, initialMut
 
     const label = mutual ? "Friends" : following ? "Following" : "Follow";
     return <div className="flex flex-col items-end gap-1">
-        <button type="button" disabled={pending} onClick={toggleFollow} aria-busy={pending} aria-pressed={following} className={`feedback-control follow-control inline-flex min-h-10 items-center rounded-full border ${compact ? "px-3" : "px-4"} py-2 font-mono text-[10px] uppercase tracking-widest disabled:cursor-wait disabled:opacity-60 ${mutual ? "border-redline bg-paper text-redline hover:bg-redline hover:text-paper" : following ? "border-line bg-warm-white text-ink hover:border-ink" : "border-ink bg-paper text-ink hover:bg-ink hover:text-paper"}`}>
+        <button type="button" disabled={pending} onClick={toggleFollow} aria-busy={pending} aria-pressed={following} className={`feedback-control follow-control inline-flex min-h-10 items-center rounded-full border ${compact ? "px-3" : "px-4"} py-2 text-sm font-medium disabled:cursor-wait disabled:opacity-60 ${mutual ? "border-redline bg-paper text-redline hover:bg-redline hover:text-paper" : following ? "border-line bg-warm-white text-ink hover:border-ink" : "border-ink bg-paper text-ink hover:bg-ink hover:text-paper"}`}>
             {following && !mutual && <Check className="mr-1.5 h-3 w-3" />}
             {label}
             <span className="sr-only">. {followerCount} followers</span>

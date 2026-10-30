@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getCurrentProfile } from "@/lib/queries/profiles";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { validateAssetBytes } from "@/lib/storage-validation";
+import { isAccountActive } from "@/lib/admin";
 
 const config = {
     "portfolio-images": { kind: "image" as const, maxBytes: 3 * 1024 * 1024, types: new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]) },
@@ -14,6 +15,7 @@ export async function POST(request: Request) {
     try {
         const { data: profile } = await getCurrentProfile();
         if (!profile) return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
+        if (!(await isAccountActive(profile.user_id))) return NextResponse.json({ error: "Account access is restricted" }, { status: 403 });
 
         const formData = await request.formData();
         const bucketValue = formData.get("bucket");

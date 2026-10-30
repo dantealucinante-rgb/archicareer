@@ -44,13 +44,13 @@ export default function JobPostForm() {
 
     return (
         <form className="mt-6 space-y-4" onSubmit={submit}>
-            <p className="border border-dashed border-line p-3 font-mono text-[10px] uppercase tracking-widest text-graphite">Your firm profile name will be used on this listing.</p>
+            <p className="border border-dashed border-line p-3 text-sm text-graphite">Your firm profile name will be used on this listing.</p>
             <div><label htmlFor="job-title" className={label}>Role Title</label><input id="job-title" required value={title} onChange={(event) => setTitle(event.target.value)} className={input} /></div>
             <div><label htmlFor="job-type" className={label}>Type</label><select id="job-type" value={type} onChange={(event) => setType(event.target.value)} className={input}><option value="internship">Internship</option><option value="job">Job</option><option value="competition">Competition</option></select></div>
-            <p className="border border-dashed border-line p-3 font-mono text-[10px] uppercase tracking-widest text-graphite">Applicants can apply on ArchiCareer, or use the external contact you provide.</p>
+            <p className="border border-dashed border-line p-3 text-sm text-graphite">Applicants can apply on ArchiCareer, or use the external contact you provide.</p>
             <div><label htmlFor="job-description" className={label}>Description</label><textarea id="job-description" required minLength={10} rows={5} value={description} onChange={(event) => setDescription(event.target.value)} className={`${input} resize-y`} /></div>
             <div><label htmlFor="job-application-destination" className={label}>Application link or email <span className="normal-case tracking-normal">(optional)</span></label><input id="job-application-destination" type="text" value={applicationDestination} onChange={(event) => setApplicationDestination(event.target.value)} className={input} placeholder="https://... or hiring@studio.com" /></div>
-            <div className="flex items-center justify-between gap-3"><p aria-live="polite" className={`text-sm ${status === "error" ? "text-redline" : "text-graphite"}`}>{message}</p><button type="submit" disabled={status === "saving"} className="inline-flex items-center justify-center rounded-full border border-redline bg-redline px-4 py-2.5 font-mono text-[11px] uppercase tracking-widest text-paper transition-colors hover:bg-paper hover:text-redline disabled:opacity-60">{status === "saving" ? "Submitting..." : "Submit Posting"}</button></div>
+            <div className="flex items-center justify-between gap-3"><p aria-live="polite" className={`text-sm ${status === "error" ? "text-redline" : "text-graphite"}`}>{message}</p><button type="submit" disabled={status === "saving"} className="inline-flex items-center justify-center rounded-full border border-redline bg-redline px-4 py-2.5 text-sm font-semibold text-paper transition-colors hover:bg-paper hover:text-redline disabled:opacity-60">{status === "saving" ? "Submitting..." : "Post opportunity"}</button></div>
         </form>
     );
 }

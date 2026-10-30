@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ArrowUpRight } from "@/app/components/UiIcon";
 import HeroRing from "@/app/components/HeroRing";
 
 const principles = [
@@ -28,10 +27,10 @@ export default function HomePage() {
                             </p>
                             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                                 <Link href="/signup" className="inline-flex items-center justify-center rounded-full bg-ink px-6 py-3.5 font-mono text-[11px] uppercase tracking-widest text-paper transition-all duration-300 hover:-translate-y-1 hover:bg-redline">
-                                    Create your profile <ArrowUpRight className="h-4 w-4" />
+                                    Create your profile
                                 </Link>
-                                <Link href="/discover" className="group inline-flex items-center justify-center gap-3 rounded-full px-4 py-3.5 font-mono text-[11px] uppercase tracking-widest text-graphite transition-colors hover:text-ink">
-                                    Explore the network <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                                <Link href="/discover" className="inline-flex items-center justify-center rounded-full px-4 py-3.5 font-mono text-[11px] uppercase tracking-widest text-graphite transition-colors hover:text-ink">
+                                    Explore the network
                                 </Link>
                             </div>
                         </div>
@@ -48,15 +47,15 @@ export default function HomePage() {
                         <nav aria-label="Choose your ArchiCareer path" className="grid gap-1 rounded-xl border border-line bg-paper p-1 sm:grid-cols-3">
                             <Link href="/signup?role=student" className="interactive group flex min-h-14 items-center justify-between gap-3 rounded-lg bg-warm-white px-4 py-3 hover:bg-sand">
                                 <span><span className="block font-mono text-[9px] uppercase tracking-widest text-redline">01 / Talent</span><span className="mt-1 block font-display text-sm font-semibold text-ink">I’m a student</span></span>
-                                <span aria-hidden="true" className="text-graphite transition-transform duration-300 group-hover:translate-x-1 group-hover:text-ink">↗</span>
+
                             </Link>
                             <Link href="/signup?role=architect" className="interactive group flex min-h-14 items-center justify-between gap-3 rounded-lg bg-warm-white px-4 py-3 hover:bg-sand">
                                 <span><span className="block font-mono text-[9px] uppercase tracking-widest text-redline">02 / Practice</span><span className="mt-1 block font-display text-sm font-semibold text-ink">I’m an architect</span></span>
-                                <span aria-hidden="true" className="text-graphite transition-transform duration-300 group-hover:translate-x-1 group-hover:text-ink">↗</span>
+
                             </Link>
                             <Link href="/firms/signup" className="interactive group flex min-h-14 items-center justify-between gap-3 rounded-lg bg-ink px-4 py-3 text-paper hover:bg-redline">
                                 <span><span className="block font-mono text-[9px] uppercase tracking-widest text-sand">03 / Organisation</span><span className="mt-1 block font-display text-sm font-semibold">I’m a firm</span></span>
-                                <span aria-hidden="true" className="text-paper/60 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-paper">↗</span>
+
                             </Link>
                         </nav>
                     </div>
@@ -77,7 +76,7 @@ export default function HomePage() {
                 <section className="surface-dark ink-grid overflow-hidden p-7 text-paper sm:p-12 lg:p-16">
                     <div className="grid items-end gap-10 lg:grid-cols-[1fr_auto]">
                         <div><p className="eyebrow font-mono text-sand">A-03 / START HERE</p><h2 className="display-balance mt-5 max-w-3xl font-display text-4xl font-semibold leading-[0.95] tracking-[-0.05em] sm:text-6xl">Your next opportunity can start with the work you already have.</h2><p className="mt-6 max-w-xl text-base leading-relaxed text-paper/70">Give it a home that helps the right people find it.</p></div>
-                        <Link href="/signup" className="interactive inline-flex items-center justify-center rounded-full bg-paper px-6 py-3.5 font-mono text-[11px] uppercase tracking-widest text-ink hover:bg-sand">Create your profile ↗</Link>
+                        <Link href="/signup" className="interactive inline-flex items-center justify-center rounded-full bg-paper px-6 py-3.5 font-mono text-[11px] uppercase tracking-widest text-ink hover:bg-sand">Create your profile</Link>
                     </div>
                 </section>
 

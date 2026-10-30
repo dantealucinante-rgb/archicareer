@@ -110,7 +110,7 @@ export default function MobileNav({ authenticated, profile }: Props) {
             <button type="button" aria-label="Close navigation menu" onClick={closeNavigation} className={`mobile-nav-overlay ${open ? "is-open" : ""}`} />
             <aside ref={panelRef} id="mobile-navigation" aria-label="Primary navigation" aria-hidden={!open} className={`mobile-nav-panel ${open ? "is-open" : ""}`}>
                 <div className="flex items-center justify-between border-b border-line px-5 py-4">
-                    <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-graphite">Navigation</p>
+                    <p className="text-sm font-medium text-graphite">Navigation</p>
                     <button type="button" aria-label="Close navigation menu" onClick={closeNavigation} className="interactive grid h-10 w-10 place-items-center rounded-full text-ink hover:bg-sand/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-redline">
                         <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5"><path d="m6 6 12 12M18 6 6 18" strokeLinecap="round" /></svg>
                     </button>

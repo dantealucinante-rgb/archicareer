@@ -48,8 +48,8 @@ export default async function FeedPage() {
                     <p className="ui-kicker">Keep exploring</p>
                     <p className="mt-3 font-display text-xl font-semibold tracking-tight">Find people and opportunities through the work.</p>
                     <div className="mt-5 space-y-1 border-y border-line py-3 text-sm">
-                        <Link href="/discover" className="feed-aside-link">Discover professionals <span aria-hidden="true">↗</span></Link>
-                        <Link href="/jobs" className="feed-aside-link">Browse opportunities <span aria-hidden="true">↗</span></Link>
+                        <Link href="/discover" className="feed-aside-link">Discover professionals</Link>
+                        <Link href="/jobs" className="feed-aside-link">Browse opportunities</Link>
                     </div>
                     {!profile && <p className="mt-5 text-sm leading-relaxed text-graphite"><Link href="/signup" className="font-medium text-ink underline decoration-redline underline-offset-4 hover:text-redline">Create a profile</Link> to add your voice to the field.</p>}
                 </aside>
