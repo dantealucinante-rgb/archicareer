@@ -10,7 +10,7 @@ export default function AccountMenu({ profile }: { profile: Profile }) {
     const [open, setOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const triggerRef = useRef<HTMLButtonElement>(null);
-    const panelRef = useRef<HTMLElement>(null);
+    const panelRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (!open) return;
