@@ -1,7 +1,7 @@
 import { getJobListings } from "@/lib/queries/jobs";
 import { JobListing, JobPayType, JobType } from "@/types";
 import ApplyButton from "@/app/components/ApplyButton";
-import { getCurrentProfile } from "@/lib/queries/profiles";
+import { getCurrentUser } from "@/lib/auth";
 import type { Metadata } from "next";
 import { safeJsonLd } from "@/lib/seo";
 import Link from "next/link";
@@ -37,7 +37,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
     const type = ["internship", "job", "competition"].includes(params.type ?? "") ? params.type as JobType : undefined;
     const payType = ["paid", "unpaid", "not_disclosed"].includes(params.pay ?? "") ? params.pay as JobPayType : undefined;
     const location = params.location?.trim() || undefined;
-    const [{ data: jobs, error: jobsError }, { data: profile }] = await Promise.all([getJobListings({ type, location, pay_type: payType }), getCurrentProfile()]);
+    const [{ data: jobs, error: jobsError }, { user }] = await Promise.all([getJobListings({ type, location, pay_type: payType }), getCurrentUser()]);
     const firmUserIds = [...new Set((jobs ?? []).map((job) => job.user_id).filter((userId): userId is string => Boolean(userId)))];
     const { data: firmProfiles } = firmUserIds.length > 0
         ? await createPublicClient().from("profiles").select("user_id, avatar_url").in("user_id", firmUserIds)
@@ -91,7 +91,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
                                             </div>
                                         </div>
                                         <div className="relative z-20 shrink-0">
-                                            <ApplyButton jobListingId={job.id} authenticated={Boolean(profile)} compact />
+                                            <ApplyButton jobListingId={job.id} authenticated={Boolean(user)} compact />
                                         </div>
                                     </article>
                                 ))}

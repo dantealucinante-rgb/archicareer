@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/queries/profiles";
+import { getCurrentUser } from "@/lib/auth";
 
 const buckets = ["avatars", "cv-documents", "portfolio-images", "post-images"] as const;
 
 export async function GET() {
-    const { data: profile } = await getCurrentProfile();
-    return NextResponse.json({ authenticated: Boolean(profile), profile });
+    const [{ user, error }, { data: profile }] = await Promise.all([getCurrentUser(), getCurrentProfile()]);
+    return NextResponse.json({ authenticated: Boolean(user) && !error, profile });
 }
 
 async function removeUserFiles(userId: string) {
