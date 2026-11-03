@@ -76,7 +76,6 @@ export default function WaitlistForm({ idPrefix, submitLabel }: Props) {
                 </div>
                 <button className={styles.submitButton} type="submit" disabled={submitting || result === "success"}>
                     <span>{submitting ? "Adding you…" : submitLabel}</span>
-                    {!submitting && <span aria-hidden="true">↗</span>}
                 </button>
             </div>
 
