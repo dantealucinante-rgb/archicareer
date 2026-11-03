@@ -38,7 +38,7 @@ export default function TermsPage() {
             <h1 className="display-balance mt-5 max-w-3xl font-display text-5xl font-semibold leading-[0.92] tracking-[-0.06em] sm:text-7xl">Terms of Use</h1>
             <p className="mt-6 max-w-2xl text-sm leading-relaxed text-graphite">The rules for creating a professional presence, sharing work, and connecting through ArchiCareer.</p>
             <p className="mt-3 text-xs text-graphite">Last updated: 3 November 2026</p>
-            <article className="surface mt-10 space-y-8 p-6 text-sm leading-relaxed text-graphite sm:p-10">{sections.map(([title, body]) => <section key={title}><h2 className="font-display text-2xl font-semibold text-ink">{title}</h2><div className="mt-3">{body}</div></section>)}</article>
+            <article className="mt-10 space-y-8 text-sm leading-relaxed text-graphite">{sections.map(([title, body]) => <section key={title}><h2 className="font-display text-2xl font-semibold text-ink">{title}</h2><div className="mt-3">{body}</div></section>)}</article>
             <Link href="/" className="mt-8 inline-flex font-mono text-[11px] uppercase tracking-widest text-graphite hover:text-redline">← Back to ArchiCareer</Link>
         </main>
     );
