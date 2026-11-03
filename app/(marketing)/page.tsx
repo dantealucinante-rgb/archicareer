@@ -27,10 +27,10 @@ export default function HomePage() {
                                 ArchiCareer connects emerging talent, experienced professionals, studios, and companies through meaningful work and opportunities.
                             </p>
                             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-                                <Link href="/signup" className="inline-flex items-center justify-center rounded-full bg-ink px-6 py-3.5 font-mono text-[11px] uppercase tracking-widest text-paper transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:bg-redline">
+                                <Link href="/signup" className="inline-flex items-center justify-center rounded-full bg-ink px-6 py-3.5 text-sm font-semibold text-paper transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:bg-redline">
                                     Create your profile
                                 </Link>
-                                <Link href="/discover" className="inline-flex items-center justify-center rounded-full px-4 py-3.5 font-mono text-[11px] uppercase tracking-widest text-graphite transition-colors hover:text-ink">
+                                <Link href="/discover" className="inline-flex items-center justify-center rounded-full px-4 py-3.5 text-sm font-semibold text-graphite transition-colors hover:text-ink">
                                     Explore the network
                                 </Link>
                             </div>
@@ -47,15 +47,15 @@ export default function HomePage() {
                         </div>
                         <nav aria-label="Choose your ArchiCareer path" className="grid gap-1 rounded-xl border border-line bg-paper p-1 sm:grid-cols-3">
                             <Link href="/signup?role=student" className="interactive group flex min-h-14 items-center justify-between gap-3 rounded-lg bg-warm-white px-4 py-3 hover:bg-sand">
-                                <span><span className="block font-mono text-[9px] uppercase tracking-widest text-redline">01 / Talent</span><span className="mt-1 block font-display text-sm font-semibold text-ink">I’m a student</span></span>
+                                <span><span className="block text-xs font-medium text-redline">01 / Talent</span><span className="mt-1 block font-display text-sm font-semibold text-ink">I’m a student</span></span>
 
                             </Link>
                             <Link href="/signup?role=architect" className="interactive group flex min-h-14 items-center justify-between gap-3 rounded-lg bg-warm-white px-4 py-3 hover:bg-sand">
-                                <span><span className="block font-mono text-[9px] uppercase tracking-widest text-redline">02 / Practice</span><span className="mt-1 block font-display text-sm font-semibold text-ink">I’m an architect</span></span>
+                                <span><span className="block text-xs font-medium text-redline">02 / Practice</span><span className="mt-1 block font-display text-sm font-semibold text-ink">I’m an architect</span></span>
 
                             </Link>
                             <Link href="/firms/signup" className="interactive group flex min-h-14 items-center justify-between gap-3 rounded-lg bg-ink px-4 py-3 text-paper hover:bg-redline">
-                                <span><span className="block font-mono text-[9px] uppercase tracking-widest text-sand">03 / Organisation</span><span className="mt-1 block font-display text-sm font-semibold">I’m a firm</span></span>
+                                <span><span className="block text-xs font-medium text-sand">03 / Organisation</span><span className="mt-1 block font-display text-sm font-semibold">I’m a firm</span></span>
 
                             </Link>
                         </nav>
@@ -85,11 +85,11 @@ export default function HomePage() {
                 <section className="surface-dark ink-grid overflow-hidden p-7 text-paper sm:p-12 lg:p-16">
                     <div className="grid items-end gap-10 lg:grid-cols-[1fr_auto]">
                         <div><p className="eyebrow font-mono text-sand">A-03 / START HERE</p><h2 className="display-balance mt-5 max-w-3xl font-display text-4xl font-semibold leading-[0.95] tracking-[-0.05em] sm:text-6xl">Your next opportunity can start with the work you already have.</h2><p className="mt-6 max-w-xl text-base leading-relaxed text-paper/70">Give it a home that helps the right people find it.</p></div>
-                        <Link href="/signup" className="interactive inline-flex items-center justify-center rounded-full bg-paper px-6 py-3.5 font-mono text-[11px] uppercase tracking-widest text-ink hover:bg-sand">Create your profile</Link>
+                        <Link href="/signup" className="interactive inline-flex items-center justify-center rounded-full bg-paper px-6 py-3.5 text-sm font-semibold text-ink hover:bg-sand">Create your profile</Link>
                     </div>
                 </section>
 
-                <section className="flex flex-col gap-4 py-20 sm:flex-row sm:items-end sm:justify-between"><div><p className="eyebrow font-mono text-graphite">A-04 / KEEP EXPLORING</p><h2 className="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-5xl">Find the work. Find the people.</h2></div><div className="flex gap-3"><Link href="/discover" className="rounded-full border border-ink px-5 py-3 font-mono text-[11px] uppercase tracking-widest transition-colors hover:bg-ink hover:text-paper">Discover</Link><Link href="/jobs" className="rounded-full border border-line px-5 py-3 font-mono text-[11px] uppercase tracking-widest transition-colors hover:border-ink">Jobs</Link></div></section>
+                <section className="flex flex-col gap-4 py-20 sm:flex-row sm:items-end sm:justify-between"><div><p className="eyebrow font-mono text-graphite">A-04 / KEEP EXPLORING</p><h2 className="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-5xl">Find the work. Find the people.</h2></div><div className="flex gap-3"><Link href="/discover" className="rounded-full border border-ink px-5 py-3 text-sm font-semibold transition-colors hover:bg-ink hover:text-paper">Discover</Link><Link href="/jobs" className="rounded-full border border-line px-5 py-3 text-sm font-semibold transition-colors hover:border-ink">Jobs</Link></div></section>
             </main>
         </div>
     );

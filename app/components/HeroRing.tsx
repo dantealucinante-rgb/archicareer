@@ -4,13 +4,11 @@ import { useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 
 const IMAGES = [
-    "/hero/amir-hosseini-3cl6impBd_8-unsplash.jpg",
-    "/hero/dapo-abideen-mqzmjt_4T1w-unsplash.jpg",
     "/hero/jimmy-chang-ACt8ycSzpdE-unsplash.jpg",
-    "/hero/joel-filipe-RFDP7_80v5A-unsplash.jpg",
     "/hero/lance-anderson-QdAAasrZhdk-unsplash.jpg",
     "/hero/tobias-keller-2ecH5Lw3zSk-unsplash.jpg",
-    "/hero/tope-a-asokere-AftbId8-N_w-unsplash.jpg",
+    "/hero/amir-hosseini-3cl6impBd_8-unsplash.jpg",
+    "/hero/joel-filipe-RFDP7_80v5A-unsplash.jpg",
 ];
 
 const CARD_COUNT = IMAGES.length;
