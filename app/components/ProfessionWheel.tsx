@@ -114,8 +114,9 @@ export default function ProfessionWheel() {
                     {indexes.map((index, position) => <span key={`${index}-${position}`} className={`profession-option profession-option-${position}`}>{PROFESSIONS[index]}</span>)}
                 </span>
             </span>
+            <span className="profession-wheel-comma" aria-hidden="true">,</span>
             <span className="sr-only">{visibleText}</span>
         </span>
-        <span aria-hidden="true">,&nbsp;by architects.</span>
+        <span className="profession-byline" aria-hidden="true">&nbsp;by architects.</span>
     </span>;
 }
