@@ -1,6 +1,7 @@
 import Link from "next/link";
 import HeroRing from "@/app/components/HeroRing";
 import ScrollReveal from "@/app/components/ScrollReveal";
+import ProfessionWheel from "@/app/components/ProfessionWheel";
 
 const principles = [
     { number: "01", title: "Show the work", copy: "Build a living portfolio that feels like you—not another blank upload form." },
@@ -19,9 +20,8 @@ export default function HomePage() {
                     <div className="relative z-10">
                         <div className="t-stagger is-shown min-w-0 max-w-3xl">
                             <p className="t-stagger-line t-stagger-line--1 eyebrow mb-7 text-redline">A-01 / PEOPLE, PRACTICE, OPPORTUNITY</p>
-                            <h1 className="t-stagger-line t-stagger-line--2 display-balance break-words font-display text-[clamp(3.5rem,17vw,6.5rem)] font-semibold leading-[0.87] tracking-[-0.075em] text-ink sm:text-[clamp(4.5rem,11vw,10rem)]">
-                                For architects, <br className="hidden sm:block" />
-                                <span className="text-redline">by architects.</span>
+                            <h1 className="t-stagger-line t-stagger-line--2 display-balance break-words font-display text-[clamp(2.25rem,12vw,3.5rem)] font-semibold leading-[0.87] tracking-[-0.075em] text-ink sm:text-[clamp(4.5rem,11vw,10rem)]">
+                                <ProfessionWheel />
                             </h1>
                             <p className="t-stagger-line t-stagger-line--3 mt-8 max-w-xl text-lg leading-relaxed text-graphite sm:text-xl">
                                 ArchiCareer connects emerging talent, experienced professionals, studios, and companies through meaningful work and opportunities.
