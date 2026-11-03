@@ -10,6 +10,7 @@
 .portfolio-nav nav a, .portfolio-actions a, .portfolio-socials a { transition: color .2s ease; }
 .portfolio-nav nav a:hover, .portfolio-actions a:hover, .portfolio-socials a:hover { color: var(--portfolio-blue); }
 .portfolio-nav nav span { color: var(--portfolio-muted); font-size: 9px; }
+.portfolio-nav nav .portfolio-workspace-link { color: var(--portfolio-blue); font-weight: 600; }
 .portfolio-main { width: min(1440px, 100%); margin-inline: auto; padding-inline: clamp(20px, 6.5vw, 96px); }
 .portfolio-intro { display: grid; grid-template-columns: minmax(300px, .82fr) minmax(0, 1.18fr); gap: clamp(32px, 6vw, 88px); align-items: center; padding-block: clamp(56px, 8vw, 120px) clamp(64px, 9vw, 132px); }
 .portfolio-kicker, .portfolio-section-label { color: var(--portfolio-blue); font-size: 10px; font-weight: 600; letter-spacing: .13em; line-height: 1.5; }

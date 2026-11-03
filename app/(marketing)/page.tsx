@@ -30,8 +30,8 @@ export default function HomePage() {
                                 <Link href="/signup" className="inline-flex items-center justify-center rounded-full bg-ink px-6 py-3.5 text-sm font-semibold text-paper transition-all duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:bg-redline">
                                     Create your profile
                                 </Link>
-                                <Link href="/discover" className="inline-flex items-center justify-center rounded-full px-4 py-3.5 text-sm font-semibold text-graphite transition-colors hover:text-ink">
-                                    Explore the network
+                                <Link href="/login" className="inline-flex items-center justify-center rounded-full px-4 py-3.5 text-sm font-semibold text-graphite transition-colors hover:text-ink">
+                                    Sign in
                                 </Link>
                             </div>
                         </div>
