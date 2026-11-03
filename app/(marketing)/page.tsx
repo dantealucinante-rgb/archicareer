@@ -19,7 +19,6 @@ export default function HomePage() {
                     <div className="absolute -left-28 bottom-4 h-64 w-64 rounded-full bg-redline/10 blur-3xl" />
                     <div className="relative z-10">
                         <div className="t-stagger is-shown min-w-0 max-w-3xl">
-                            <p className="t-stagger-line t-stagger-line--1 eyebrow mb-7 text-redline">A-01 / PEOPLE, PRACTICE, OPPORTUNITY</p>
                             <h1 className="t-stagger-line t-stagger-line--2 display-balance break-words font-display text-[clamp(2.25rem,12vw,3.5rem)] font-semibold leading-[0.87] tracking-[-0.075em] text-ink sm:text-[clamp(4.5rem,11vw,10rem)]">
                                 <ProfessionWheel />
                             </h1>
@@ -41,21 +40,20 @@ export default function HomePage() {
                 <section className="border-y border-line py-8 sm:py-10">
                     <div className="grid gap-5 lg:grid-cols-[15rem_1fr] lg:items-center lg:gap-10">
                         <div>
-                            <p className="eyebrow text-redline">START HERE</p>
-                            <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight sm:text-3xl">Choose your path.</h2>
+                            <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">Choose your path.</h2>
                             <p className="mt-2 text-sm leading-relaxed text-graphite">Join as an individual or organisation.</p>
                         </div>
                         <nav aria-label="Choose your ArchiCareer path" className="grid gap-1 rounded-xl border border-line bg-paper p-1 sm:grid-cols-3">
                             <Link href="/signup?role=student" className="interactive group flex min-h-14 items-center justify-between gap-3 rounded-lg bg-warm-white px-4 py-3 hover:bg-sand">
-                                <span><span className="block text-xs font-medium text-redline">01 / Talent</span><span className="mt-1 block font-display text-sm font-semibold text-ink">I’m a student</span></span>
+                                <span className="font-display text-sm font-semibold text-ink">I’m a student</span>
 
                             </Link>
                             <Link href="/signup?role=architect" className="interactive group flex min-h-14 items-center justify-between gap-3 rounded-lg bg-warm-white px-4 py-3 hover:bg-sand">
-                                <span><span className="block text-xs font-medium text-redline">02 / Practice</span><span className="mt-1 block font-display text-sm font-semibold text-ink">I’m an architect</span></span>
+                                <span className="font-display text-sm font-semibold text-ink">I’m an architect</span>
 
                             </Link>
                             <Link href="/firms/signup" className="interactive group flex min-h-14 items-center justify-between gap-3 rounded-lg bg-ink px-4 py-3 text-paper hover:bg-redline">
-                                <span><span className="block text-xs font-medium text-sand">03 / Organisation</span><span className="mt-1 block font-display text-sm font-semibold">I’m a firm</span></span>
+                                <span className="font-display text-sm font-semibold">I’m a firm</span>
 
                             </Link>
                         </nav>
@@ -65,8 +63,7 @@ export default function HomePage() {
                 <section className="border-y border-line py-4 sm:py-6">
                     {principles.map((item, index) => (
                         <ScrollReveal key={item.number}>
-                            <div className={`t-stagger-line grid gap-4 py-6 sm:grid-cols-[5rem_1fr_1.4fr] sm:items-baseline ${index ? "border-t border-line" : ""}`} style={{ transitionDelay: `${index * 80}ms` }}>
-                                <span className="text-xs font-medium text-redline">{item.number}</span>
+                            <div className={`t-stagger-line grid gap-4 py-6 sm:grid-cols-[1fr_1.4fr] sm:items-baseline ${index ? "border-t border-line" : ""}`} style={{ transitionDelay: `${index * 80}ms` }}>
                                 <h2 className="font-display text-2xl font-semibold tracking-tight">{item.title}</h2>
                                 <p className="max-w-md text-sm leading-relaxed text-graphite">{item.copy}</p>
                             </div>
@@ -75,7 +72,7 @@ export default function HomePage() {
                 </section>
 
                 <section className="grid gap-8 py-20 lg:grid-cols-[0.8fr_1.2fr] lg:py-28">
-                    <div><p className="eyebrow text-redline">A-02 / WHY ARCHICAREER</p><h2 className="display-balance mt-5 max-w-md font-display text-4xl font-semibold leading-[0.95] tracking-[-0.05em] sm:text-6xl">Bring the right people into the room.</h2></div>
+                    <div><h2 className="display-balance max-w-md font-display text-4xl font-semibold leading-[0.95] tracking-[-0.05em] sm:text-6xl">Bring the right people into the room.</h2></div>
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="surface card-lift p-6 sm:translate-y-8"><span className="block h-7 w-7 rounded-full border-2 border-redline" aria-hidden="true" /><h3 className="mt-12 font-display text-2xl font-semibold">Work first</h3><p className="mt-3 text-sm leading-relaxed text-graphite">Build a profile that gives your projects, skills, and point of view the attention they deserve.</p></div>
                         <div className="surface-dark card-lift p-6 text-paper"><span className="block h-7 w-7 rounded-full border border-sand/70" aria-hidden="true" /><h3 className="mt-12 font-display text-2xl font-semibold">People at the centre</h3><p className="mt-3 text-sm leading-relaxed text-paper/70">A focused space for talent and organisations to find each other through the work.</p></div>
@@ -84,12 +81,12 @@ export default function HomePage() {
 
                 <section className="surface-dark ink-grid overflow-hidden p-7 text-paper sm:p-12 lg:p-16">
                     <div className="grid items-end gap-10 lg:grid-cols-[1fr_auto]">
-                        <div><p className="eyebrow text-sand">A-03 / START HERE</p><h2 className="display-balance mt-5 max-w-3xl font-display text-4xl font-semibold leading-[0.95] tracking-[-0.05em] sm:text-6xl">Your next opportunity can start with the work you already have.</h2><p className="mt-6 max-w-xl text-base leading-relaxed text-paper/70">Give it a home that helps the right people find it.</p></div>
+                        <div><h2 className="display-balance max-w-3xl font-display text-4xl font-semibold leading-[0.95] tracking-[-0.05em] sm:text-6xl">Your next opportunity can start with the work you already have.</h2><p className="mt-6 max-w-xl text-base leading-relaxed text-paper/70">Give it a home that helps the right people find it.</p></div>
                         <Link href="/signup" className="interactive inline-flex items-center justify-center rounded-full bg-paper px-6 py-3.5 text-sm font-semibold text-ink hover:bg-sand">Create your profile</Link>
                     </div>
                 </section>
 
-                <section className="flex flex-col gap-4 py-20 sm:flex-row sm:items-end sm:justify-between"><div><p className="eyebrow text-graphite">A-04 / KEEP EXPLORING</p><h2 className="mt-4 font-display text-3xl font-semibold tracking-tight sm:text-5xl">Find the work. Find the people.</h2></div><div className="flex gap-3"><Link href="/discover" className="rounded-full border border-ink px-5 py-3 text-sm font-semibold transition-colors hover:bg-ink hover:text-paper">Discover</Link><Link href="/jobs" className="rounded-full border border-line px-5 py-3 text-sm font-semibold transition-colors hover:border-ink">Jobs</Link></div></section>
+                <section className="flex flex-col gap-4 py-20 sm:flex-row sm:items-end sm:justify-between"><div><h2 className="font-display text-3xl font-semibold tracking-tight sm:text-5xl">Find the work. Find the people.</h2></div><div className="flex gap-3"><Link href="/discover" className="rounded-full border border-ink px-5 py-3 text-sm font-semibold transition-colors hover:bg-ink hover:text-paper">Discover</Link><Link href="/jobs" className="rounded-full border border-line px-5 py-3 text-sm font-semibold transition-colors hover:border-ink">Jobs</Link></div></section>
             </main>
         </div>
     );

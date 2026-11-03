@@ -3,7 +3,7 @@ import Link from "next/link";
 const socialLinks = [
     { label: "Email", href: "mailto:hello@archicareer.ng" },
     { label: "Instagram", href: "https://www.instagram.com" },
-    { label: "LinkedIn", href: "https://www.linkedin.com" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/company/archicareer/" },
 ];
 
 export default function SiteFooter() {
