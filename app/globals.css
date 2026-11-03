@@ -4,11 +4,12 @@
 .profession-wheel { position: relative; display: inline-block; width: calc(13ch + .28em); height: 1.2em; margin-inline: .015em; overflow: visible; vertical-align: -.12em; cursor: ns-resize; touch-action: pan-x; user-select: none; }
 .profession-wheel-window { position: absolute; inset: 0 .28em 0 0; overflow: hidden; }
 .profession-wheel-track { position: absolute; top: 0; left: 0; display: flex; flex-direction: column; width: 100%; transform: translateY(-1em); transition: transform 520ms cubic-bezier(.22,1,.36,1); will-change: transform; }
-.profession-option { display: block; height: 1em; flex: 0 0 1em; overflow: visible; white-space: nowrap; font-size: 1em; line-height: 1em; text-align: left; transition: opacity 520ms cubic-bezier(.22,1,.36,1); }
-.profession-wheel-comma { position: absolute; right: 0; bottom: 0; line-height: 1.2em; }
+.profession-option { display: block; height: 1em; flex: 0 0 1em; overflow: visible; white-space: nowrap; font-size: 1em; line-height: 1em; text-align: left; transition: opacity 520ms cubic-bezier(.22,1,.36,1), font-weight 520ms cubic-bezier(.22,1,.36,1); }
 .profession-byline { color: var(--color-redline); }
-.profession-option-0, .profession-option-2 { opacity: .3; }
+.profession-option-0, .profession-option-2 { opacity: .62; }
 .profession-option-1 { opacity: 1; font-weight: 650; }
+.profession-wheel-moving-up .profession-option-1, .profession-wheel-moving-down .profession-option-1 { opacity: .62; font-weight: 600; }
+.profession-wheel-moving-up .profession-option-2, .profession-wheel-moving-down .profession-option-0 { opacity: 1; font-weight: 650; }
 .profession-wheel-static .profession-option { display: none; }
 .profession-wheel-static .profession-option-1 { display: block; }
 @media (max-width: 639px) { .profession-wheel { width: calc(13ch + .28em); } }

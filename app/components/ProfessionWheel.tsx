@@ -4,12 +4,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const PROFESSIONS = ["Architects", "Engineers", "Designers", "Planners", "Creatives", "Professionals"] as const;
 const INTERVAL_MS = 3000;
-const TRANSITION_MS = 520;
+const TRANSITION_FALLBACK_MS = 650;
 const wrap = (index: number) => (index + PROFESSIONS.length) % PROFESSIONS.length;
 
 export default function ProfessionWheel() {
     const [active, setActive] = useState(0);
     const [moving, setMoving] = useState(false);
+    const [motionDirection, setMotionDirection] = useState<1 | -1 | null>(null);
     const [reducedMotion, setReducedMotion] = useState(false);
     const activeRef = useRef(0);
     const movingRef = useRef(false);
@@ -32,6 +33,25 @@ export default function ProfessionWheel() {
         autoTimer.current = setTimeout(() => moveRef.current(1, false), INTERVAL_MS);
     }, [reducedMotion]);
 
+    const finishMove = useCallback(() => {
+        if (!movingRef.current || queuedDirection.current === null) return;
+        clearTimer(resetTimer);
+        const direction = queuedDirection.current;
+        activeRef.current = wrap(activeRef.current + direction);
+        setActive(activeRef.current);
+        movingRef.current = false;
+        setMoving(false);
+        setMotionDirection(null);
+        queuedDirection.current = null;
+        if (trackRef.current) {
+            trackRef.current.style.transition = "none";
+            trackRef.current.style.transform = "translateY(-1em)";
+            void trackRef.current.offsetHeight;
+            trackRef.current.style.transition = "";
+        }
+        if (!resumeTimer.current) scheduleAuto();
+    }, [scheduleAuto]);
+
     const move = useCallback((direction: 1 | -1, manual = true) => {
         if (movingRef.current || reducedMotion) return;
         if (manual) {
@@ -44,25 +64,13 @@ export default function ProfessionWheel() {
         }
         movingRef.current = true;
         setMoving(true);
+        setMotionDirection(direction);
         queuedDirection.current = direction;
         requestAnimationFrame(() => {
             if (trackRef.current) trackRef.current.style.transform = `translateY(${direction > 0 ? "-2" : "0"}em)`;
         });
-        resetTimer.current = setTimeout(() => {
-            activeRef.current = wrap(activeRef.current + direction);
-            setActive(activeRef.current);
-            movingRef.current = false;
-            setMoving(false);
-            queuedDirection.current = null;
-            if (trackRef.current) {
-                trackRef.current.style.transition = "none";
-                trackRef.current.style.transform = "translateY(-1em)";
-                void trackRef.current.offsetHeight;
-                trackRef.current.style.transition = "";
-            }
-            if (!manual && !resumeTimer.current) scheduleAuto();
-        }, TRANSITION_MS);
-    }, [reducedMotion, scheduleAuto]);
+        resetTimer.current = setTimeout(finishMove, TRANSITION_FALLBACK_MS);
+    }, [reducedMotion, finishMove]);
     useEffect(() => {
         moveRef.current = move;
     }, [move]);
@@ -85,8 +93,9 @@ export default function ProfessionWheel() {
             clearTimer(autoTimer);
             clearTimer(resumeTimer);
         } else if (!movingRef.current) scheduleAuto();
+        if (reducedMotion && movingRef.current) finishMove();
         return () => clearTimer(autoTimer);
-    }, [reducedMotion, scheduleAuto]);
+    }, [reducedMotion, scheduleAuto, finishMove]);
 
     const onWheel = (event: React.WheelEvent<HTMLSpanElement>) => {
         if (Math.abs(event.deltaY) < 8) return;
@@ -104,19 +113,18 @@ export default function ProfessionWheel() {
     };
 
     const indexes = [wrap(active - 1), active, wrap(active + 1)];
-    const visibleText = `For ${PROFESSIONS[active]}, by architects.`;
+    const visibleText = `For ${PROFESSIONS[active]} by architects.`;
 
     return <span className="profession-sentence" aria-label={visibleText}>
         <span aria-hidden="true">For&nbsp;</span>
         <span className={`profession-wheel${reducedMotion ? " profession-wheel-static" : ""}`} onWheel={onWheel} onTouchStart={startTouch} onTouchEnd={endTouch}>
             <span className="profession-wheel-window">
-                <span ref={trackRef} className={`profession-wheel-track${moving ? " profession-wheel-moving" : ""}`}>
+                <span ref={trackRef} onTransitionEnd={(event) => { if (event.target === event.currentTarget && event.propertyName === "transform") finishMove(); }} className={`profession-wheel-track${moving ? ` profession-wheel-moving profession-wheel-moving-${motionDirection === 1 ? "up" : "down"}` : ""}`}>
                     {indexes.map((index, position) => <span key={`${index}-${position}`} className={`profession-option profession-option-${position}`}>{PROFESSIONS[index]}</span>)}
                 </span>
             </span>
-            <span className="profession-wheel-comma" aria-hidden="true">,</span>
             <span className="sr-only">{visibleText}</span>
         </span>
-        <span className="profession-byline" aria-hidden="true">&nbsp;by architects.</span>
+        <span className="profession-byline" aria-hidden="true"> by architects.</span>
     </span>;
 }
