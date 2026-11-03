@@ -70,6 +70,7 @@ function MobileBottomNav({ pathname, onOpenComposer }: { pathname: string; onOpe
 export default function MobileAppHeader({ authenticated, profile }: MobileAppHeaderProps) {
     const pathname = usePathname();
     const showProfileMenu = isProfileRoute(pathname);
+    const showMobileMenu = showProfileMenu || pathname === "/pricing";
     const showAppChrome = authenticated && (isAppRoute(pathname) || showProfileMenu);
     const [composerOpen, setComposerOpen] = useState(false);
 
@@ -93,7 +94,7 @@ export default function MobileAppHeader({ authenticated, profile }: MobileAppHea
         return (
             <div className="flex w-full items-center justify-between px-5 py-3.5 sm:hidden">
                 <Link href="/" aria-label="ArchiCareer home" className="group flex items-center font-display text-[1.3rem] font-bold tracking-[-0.055em] text-ink transition-colors hover:text-redline"><BrandLogo /></Link>
-                {showProfileMenu && <MobileNav authenticated={authenticated} profile={profile} />}
+                {showMobileMenu && <MobileNav authenticated={authenticated} profile={profile} />}
             </div>
         );
     }
@@ -105,7 +106,7 @@ export default function MobileAppHeader({ authenticated, profile }: MobileAppHea
                     {profile ? <ProfileAvatar profile={profile} size={40} className="h-10 w-10 rounded-full border border-line object-cover" /> : <span className="h-9 w-9 rounded-full border border-line bg-sand" />}
                 </Link>}
                 <Link href="/feed" aria-label="ArchiCareer feed" className="group justify-self-center font-display text-[1.3rem] font-bold tracking-[-0.055em] text-ink transition-colors hover:text-redline"><BrandLogo /></Link>
-                {showProfileMenu && <MobileNav authenticated={authenticated} profile={profile} />}
+                {showMobileMenu && <MobileNav authenticated={authenticated} profile={profile} />}
             </div>
             {profile && <PostComposer open={composerOpen} onClose={closeComposer} onCreated={addPostToFeed} author={{ name: profile.name, avatar_url: profile.avatar_url }} />}
             {typeof document !== "undefined" && createPortal(<MobileBottomNav pathname={pathname} onOpenComposer={openComposer} />, document.body)}

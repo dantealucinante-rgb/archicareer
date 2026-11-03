@@ -27,6 +27,9 @@ export async function POST(request: Request) {
         const { imageUrls = [], ...rawItem } = body;
         const result = await addPortfolioItem({ ...rawItem, profile_id: profile.id });
         if (result.error || !result.data) {
+            if (result.error?.message.includes("portfolio_limit_reached")) {
+                return NextResponse.json({ error: "You have reached your current portfolio space limit.", code: "PORTFOLIO_LIMIT_REACHED" }, { status: 409 });
+            }
             return NextResponse.json({ error: "Unable to create portfolio item" }, { status: 400 });
         }
 

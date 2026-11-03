@@ -13,6 +13,7 @@ const navigationLinks = [
     { href: "/discover", label: "Discover" },
     { href: "/jobs", label: "Jobs" },
     { href: "/feed", label: "Feed" },
+    { href: "/pricing", label: "Pricing" },
 ];
 
 const focusableSelector = [

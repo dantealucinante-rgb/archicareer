@@ -7,6 +7,7 @@ const links = [
     { href: "/discover", label: "Discover" },
     { href: "/jobs", label: "Jobs" },
     { href: "/feed", label: "Feed" },
+    { href: "/pricing", label: "Pricing" },
 ];
 
 export default function PrimaryNav() {

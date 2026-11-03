@@ -42,6 +42,7 @@ export default function SiteFooter() {
                             <h2 className="text-sm font-semibold text-sand">Navigation</h2>
                             <ul className="mt-4 space-y-3 font-sans text-sm">
                                 <li><Link href="/discover" className="text-paper/75 transition-colors hover:text-sand">Discover</Link></li>
+                                <li><Link href="/pricing" className="text-paper/75 transition-colors hover:text-sand">Membership</Link></li>
                                 <li><Link href="/jobs#post-job" className="text-paper/75 transition-colors hover:text-sand">Post an Opportunity</Link></li>
                                 <li><Link href="/login" className="text-paper/75 transition-colors hover:text-sand">Sign In</Link></li>
                                 <li><Link href="/signup" className="text-paper/75 transition-colors hover:text-sand">Create Profile</Link></li>
