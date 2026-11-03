@@ -11,6 +11,7 @@ const focusedRoutes = [
     "/firms/signup",
     "/firms/onboarding",
     "/admin",
+    "/waitlist",
 ];
 
 export default function SiteChrome({ children }: { children: ReactNode }) {
