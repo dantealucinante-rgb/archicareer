@@ -5,6 +5,11 @@ export async function GET(request: Request) {
     const requestUrl = new URL(request.url);
     const code = requestUrl.searchParams.get("code");
     const requestedNext = requestUrl.searchParams.get("next") || "/feed";
+    const signInType = requestUrl.searchParams.get("signin_type");
+    const validAccountTypes = ["student", "professional", "firm", "business"];
+    const signInPage = (type: string | null) => type === "firm" || type === "business"
+        ? `/firms/login?account_type=${type}`
+        : `/login?account_type=${type === "professional" ? "professional" : "student"}`;
     // Only allow relative in-app redirects after authentication.
     let next = "/feed";
     if (requestedNext.startsWith("/") && !requestedNext.startsWith("//") && !requestedNext.includes("\\")) {
@@ -17,14 +22,36 @@ export async function GET(request: Request) {
     }
 
     if (!code) {
-        return NextResponse.redirect(new URL("/login?error=missing_code", requestUrl.origin));
+        const target = signInPage(validAccountTypes.includes(signInType ?? "") ? signInType : null);
+        return NextResponse.redirect(new URL(`${target}&error=missing_code`, requestUrl.origin));
     }
 
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error) {
-        return NextResponse.redirect(new URL("/login?error=authentication_failed", requestUrl.origin));
+        const target = signInPage(validAccountTypes.includes(signInType ?? "") ? signInType : null);
+        return NextResponse.redirect(new URL(`${target}&error=authentication_failed`, requestUrl.origin));
+    }
+
+    // Sign-in callbacks must use the authenticated profile as the source of
+    // truth. The URL only describes which sign-in page initiated the flow.
+    if (validAccountTypes.includes(signInType ?? "")) {
+        const { data: { user } } = await supabase.auth.getUser();
+        const admin = createAdminClient();
+        const { data: profile } = user
+            ? await admin.from("profiles").select("account_type").eq("user_id", user.id).maybeSingle()
+            : { data: null };
+        const actualType = profile?.account_type;
+        if (actualType !== signInType) {
+            await supabase.auth.signOut({ scope: "local" });
+            const attempted = signInPage(signInType);
+            const target = validAccountTypes.includes(actualType ?? "") ? signInPage(actualType) : attempted;
+            const mismatch = new URL(target, requestUrl.origin);
+            mismatch.searchParams.set("error", actualType ? "account_type_mismatch" : "account_type_unavailable");
+            if (actualType) mismatch.searchParams.set("selected", actualType);
+            return NextResponse.redirect(mismatch);
+        }
     }
 
     const callbackUrl = new URL(next, requestUrl.origin);

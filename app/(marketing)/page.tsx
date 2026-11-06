@@ -35,20 +35,20 @@ const professions = [
 
 const projectImages = [
     {
-        src: "/hero/jimmy-chang-ACt8ycSzpdE-unsplash.jpg",
-        alt: "Curving contemporary architecture framed against a blue sky",
+        src: "/hero/archicareer-modern-facade.jpg",
+        alt: "A contemporary building with a textured facade beneath a blue sky",
         caption: "Form and space",
         className: "projectFeature",
     },
     {
-        src: "/hero/tobias-keller-2ecH5Lw3zSk-unsplash.jpg",
-        alt: "A close view of an angular silver building facade",
+        src: "/hero/archicareer-material-samples.jpg",
+        alt: "Stone, timber, brick and other building material samples",
         caption: "Materials and detail",
         className: "projectTop",
     },
     {
-        src: "/hero/tope-a-asokere-AftbId8-N_w-unsplash.jpg",
-        alt: "A traditional earthen building set among tropical trees",
+        src: "/hero/archicareer-cultural-pavilion.jpg",
+        alt: "A contemporary public pavilion with a broad timber roof",
         caption: "Building and place",
         className: "projectBottom",
     },
@@ -162,7 +162,7 @@ export default async function HomePage() {
                 <section className={styles.community} id="community" aria-labelledby="community-title">
                     <div className={styles.communityVisual}>
                         <figure className={styles.communityImage}>
-                            <Image src="/hero/dapo-abideen-mqzmjt_4T1w-unsplash.jpg" alt="A golden dome and minaret against the sky" fill sizes="(max-width: 820px) 100vw, 46vw" />
+                            <Image src="/hero/archicareer-public-plaza.jpg" alt="A landscaped public plaza with a circular reflecting pool and places to gather" fill sizes="(max-width: 820px) 100vw, 46vw" />
                         </figure>
                         <p className={styles.communityNote}>A wider built world, connected through the work.</p>
                     </div>

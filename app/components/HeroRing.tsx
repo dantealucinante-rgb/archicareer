@@ -4,6 +4,10 @@ import { useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 
 const IMAGES = [
+    "/hero/archicareer-modern-facade.jpg",
+    "/hero/archicareer-material-samples.jpg",
+    "/hero/archicareer-public-plaza.jpg",
+    "/hero/archicareer-cultural-pavilion.jpg",
     "/hero/jimmy-chang-ACt8ycSzpdE-unsplash.jpg",
     "/hero/lance-anderson-QdAAasrZhdk-unsplash.jpg",
     "/hero/tobias-keller-2ecH5Lw3zSk-unsplash.jpg",

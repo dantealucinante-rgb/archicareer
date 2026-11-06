@@ -71,7 +71,7 @@ export default function JoinExperience() {
     return <main className={styles.page}>
         <header className={styles.header}>
             <Link href="/" aria-label="ArchiCareer home"><BrandLogo className={styles.logo} /></Link>
-            <div className={styles.headerActions}><Link href={draft.accountType === "firm" ? "/firms/login" : "/login"}>Already a member? <strong>Sign in</strong></Link><span className={styles.brandLine}>CREATES. CONNECTS. BUILDS.</span></div>
+            <div className={styles.headerActions}><Link href={draft.accountType === "firm" || draft.accountType === "business" ? `/firms/login?account_type=${draft.accountType}` : `/login?account_type=${draft.accountType === "professional" ? "professional" : "student"}`}>Already a member? <strong>Sign in</strong></Link><span className={styles.brandLine}>CREATES. CONNECTS. BUILDS.</span></div>
         </header>
         <div className={styles.content}>
             <div className={styles.progress} role="progressbar" aria-label="Onboarding progress" aria-valuemin={1} aria-valuemax={2} aria-valuenow={step}><span className={step === 1 ? styles.progressActive : styles.progressDone} /><span className={step === 2 ? styles.progressActive : ""} /></div>

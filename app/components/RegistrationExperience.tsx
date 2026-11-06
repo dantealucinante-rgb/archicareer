@@ -157,7 +157,7 @@ export default function RegistrationExperience({ kind, onboarding = "" }: { kind
                     <p className={styles.formEyebrow}>{kind === "student" ? "STUDENT ACCOUNT" : kind === "professional" ? "INDIVIDUAL ACCOUNT" : kind === "firm" ? "FIRM ACCOUNT" : "BUSINESS ACCOUNT"}</p>
                     <h2 id="form-title">{isOrganization ? kind === "firm" ? "Tell us about your practice." : "Tell us about your business." : copy.title}</h2>
                     <p>{copy.intro}</p>
-                    <p className={styles.signIn}>Already have an account? <Link href={kind === "firm" || kind === "business" ? "/firms/login" : "/login"}>Sign in</Link></p>
+                    <p className={styles.signIn}>Already have an account? <Link href={kind === "firm" || kind === "business" ? `/firms/login?account_type=${kind}` : `/login?account_type=${kind}`}>Sign in</Link></p>
                 </div>
                 <form className={styles.form} onSubmit={submit}>
                     <div className={styles.googleBlock}><GoogleAuthButton action="signUp" onClick={continueWithGoogle} disabled={status === "sending"} loading={status === "sending"} /><p>Or continue with your email and password.</p></div>
