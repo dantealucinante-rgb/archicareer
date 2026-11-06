@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { WAITLIST_CATEGORIES, WAITLIST_CATEGORY_LABELS } from "@/lib/waitlist-categories";
+import { WAITLIST_ACCOUNT_TYPES, WAITLIST_ACCOUNT_TYPE_LABELS, WAITLIST_CATEGORIES, WAITLIST_CATEGORY_LABELS } from "@/lib/waitlist-categories";
 import styles from "./waitlist.module.css";
 
 type Props = {
@@ -32,21 +32,27 @@ export default function WaitlistForm({ idPrefix, submitLabel }: Props) {
                 body: JSON.stringify({
                     full_name: values.get("full_name"),
                     email: values.get("email"),
-                    profession_category: values.get("profession_category"),
+                    account_type: values.get("account_type"),
+                    profession_category: values.get("profession_category") || undefined,
                     consent: values.get("consent") === "on",
                     website: values.get("website"),
                 }),
             });
-            const body = await response.json() as { message?: string; error?: string };
+            const body = await response.json() as { message?: string; error?: string; code?: string };
 
             if (!response.ok) {
+                if (body.code === "WAITLIST_DUPLICATE") {
+                    setMessage("You’re on the list. You’re already registered and we’ll be in touch when early access becomes available.");
+                    setResult("success");
+                    return;
+                }
                 setMessage(body.error ?? "We couldn't save your signup just now. Please try again.");
                 setResult("error");
                 return;
             }
 
             form.reset();
-            setMessage(body.message ?? "You’re on the list. We’ll be in touch when ArchiCareer is ready.");
+            setMessage("You’re on the list. Thanks for joining ArchiCareer. We’ll be in touch when early access becomes available.");
             setResult("success");
         } catch {
             setMessage("We couldn't reach the waitlist just now. Check your connection and try again.");
@@ -60,19 +66,26 @@ export default function WaitlistForm({ idPrefix, submitLabel }: Props) {
         <form className={styles.form} onSubmit={submit}>
             <div className={styles.formFields}>
                 <div className={styles.field}>
-                    <label htmlFor={`${idPrefix}-name`}>Your name</label>
+                    <label htmlFor={`${idPrefix}-name`}>Full name</label>
                     <input id={`${idPrefix}-name`} name="full_name" type="text" autoComplete="name" maxLength={100} placeholder="Full name" required disabled={submitting || result === "success"} />
                 </div>
                 <div className={styles.field}>
-                    <label htmlFor={`${idPrefix}-category`}>Your profession</label>
-                    <select id={`${idPrefix}-category`} name="profession_category" defaultValue="" required disabled={submitting || result === "success"}>
-                        <option value="" disabled>Select a category</option>
-                        {WAITLIST_CATEGORIES.map((category) => <option key={category} value={category}>{WAITLIST_CATEGORY_LABELS[category]}</option>)}
+                    <label htmlFor={`${idPrefix}-account-type`}>Account type</label>
+                    <select id={`${idPrefix}-account-type`} name="account_type" defaultValue="" required disabled={submitting || result === "success"}>
+                        <option value="" disabled>Select an account type</option>
+                        {WAITLIST_ACCOUNT_TYPES.map((type) => <option key={type} value={type}>{WAITLIST_ACCOUNT_TYPE_LABELS[type]}</option>)}
                     </select>
                 </div>
                 <div className={`${styles.field} ${styles.emailField}`}>
                     <label htmlFor={`${idPrefix}-email`}>Email address</label>
                     <input id={`${idPrefix}-email`} name="email" type="email" autoComplete="email" inputMode="email" maxLength={254} placeholder="you@example.com" required disabled={submitting || result === "success"} />
+                </div>
+                <div className={styles.field}>
+                    <label htmlFor={`${idPrefix}-category`}>Area of work <span>(optional)</span></label>
+                    <select id={`${idPrefix}-category`} name="profession_category" defaultValue="" disabled={submitting || result === "success"}>
+                        <option value="">Choose an area</option>
+                        {WAITLIST_CATEGORIES.map((category) => <option key={category} value={category}>{WAITLIST_CATEGORY_LABELS[category]}</option>)}
+                    </select>
                 </div>
                 <button className={styles.submitButton} type="submit" disabled={submitting || result === "success"}>
                     <span>{submitting ? "Adding you…" : submitLabel}</span>
@@ -93,7 +106,7 @@ export default function WaitlistForm({ idPrefix, submitLabel }: Props) {
             </div>
 
             <p className={`${styles.formMessage} ${result === "success" ? styles.successMessage : ""} ${result === "error" ? styles.errorMessage : ""}`} role="status" aria-live="polite">
-                {message}
+                {result === "success" ? <><strong>You’re on the list.</strong> <span>{message.replace("You’re on the list. ", "")}</span></> : message}
             </p>
         </form>
     );

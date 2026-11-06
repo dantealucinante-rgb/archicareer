@@ -2,12 +2,13 @@ import { createHmac } from "node:crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/server";
-import { WAITLIST_CATEGORIES } from "@/lib/waitlist-categories";
+import { WAITLIST_ACCOUNT_TYPES, WAITLIST_CATEGORIES } from "@/lib/waitlist-categories";
 
 const signupSchema = z.object({
     full_name: z.string().trim().min(2).max(100),
     email: z.string().trim().email().max(254).transform((email) => email.toLowerCase()),
-    profession_category: z.enum(WAITLIST_CATEGORIES),
+    account_type: z.enum(WAITLIST_ACCOUNT_TYPES),
+    profession_category: z.enum(WAITLIST_CATEGORIES).default("other"),
     consent: z.literal(true),
     website: z.string().max(200).optional(),
 }).strict();
@@ -52,7 +53,7 @@ export async function POST(request: Request) {
 
     const parsed = signupSchema.safeParse(rawBody);
     if (!parsed.success) {
-        return NextResponse.json({ error: "Please enter your name, a valid email, your professional category, and agree to the launch update." }, { status: 400 });
+        return NextResponse.json({ error: "Please enter your name, a valid email, choose an account type, and agree to the launch update." }, { status: 400 });
     }
     if (parsed.data.website) {
         return NextResponse.json({ error: "This submission could not be verified." }, { status: 400 });
@@ -74,6 +75,7 @@ export async function POST(request: Request) {
             p_profession_category: parsed.data.profession_category,
             p_ip_hash: ipHash,
             p_consent: parsed.data.consent,
+            p_account_type: parsed.data.account_type,
         });
 
         if (error) {

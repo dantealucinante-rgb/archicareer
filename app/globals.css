@@ -871,6 +871,15 @@ button {
   height: calc(var(--card-w) * 4 / 3);
   transform-style: preserve-3d;
   will-change: transform;
+  animation: hero-ring-rotation 40s linear infinite;
+}
+
+.hero-ring--paused {
+  animation-play-state: paused;
+}
+
+@keyframes hero-ring-rotation {
+  to { transform: rotateY(360deg); }
 }
 
 .hero-ring-card {
@@ -879,7 +888,6 @@ button {
   border-radius: 16px;
   overflow: hidden;
   backface-visibility: hidden;
-  will-change: filter, opacity;
   box-shadow: 0 12px 40px rgba(23, 33, 38, 0.18);
 }
 

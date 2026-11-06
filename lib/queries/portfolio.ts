@@ -2,6 +2,7 @@ import { createAdminClient, createClient, createPublicClient } from "@/lib/supab
 import { PortfolioItem, PortfolioItemImage } from "@/types";
 import { portfolioItemCreateSchema, portfolioItemUpdateSchema } from "@/lib/validations";
 import { QueryResult } from "@/lib/queries/profiles";
+import { cache } from "react";
 
 const PORTFOLIO_COLS =
     "id, profile_id, title, description, category, project_type, role, team_contribution, software_used, year, status, location, process_note, display_order, created_at, updated_at";
@@ -100,6 +101,30 @@ export async function getPortfolioItemsForProfile(
         return { data: null, error: err instanceof Error ? err : new Error(String(err)) };
     }
 }
+
+export const getPortfolioItemForProfile = cache(async function getPortfolioItemForProfile(
+    profileId: string,
+    portfolioItemId: string
+): Promise<QueryResult<PortfolioItem>> {
+    try {
+        const supabase = createPublicClient();
+        const { data, error } = await supabase
+            .from("portfolio_items")
+            .select(PORTFOLIO_COLS)
+            .eq("profile_id", profileId)
+            .eq("id", portfolioItemId)
+            .maybeSingle();
+
+        if (error) return { data: null, error: new Error(error.message) };
+        if (!data) return { data: null, error: null };
+
+        const [item] = await attachImages(supabase, [data as Omit<PortfolioItem, "images">]);
+        return { data: item, error: null };
+    } catch (err) {
+        console.error("[portfolio] getPortfolioItemForProfile:", err);
+        return { data: null, error: err instanceof Error ? err : new Error(String(err)) };
+    }
+});
 
 export async function addPortfolioItem(
     rawItem: unknown

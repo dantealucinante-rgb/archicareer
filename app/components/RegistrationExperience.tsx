@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import AuthBrand from "@/app/components/AuthBrand";
@@ -11,6 +12,12 @@ export type RegistrationKind = "student" | "professional" | "firm" | "business";
 type InterestContext = { interests: string[]; interest_other: string };
 const professions = ["Architecture", "Interior Design", "Landscape Architecture", "Structural Engineering", "Civil Engineering", "Construction", "Building", "Contracting", "Urban Planning", "3D Visualisation", "3D Modelling", "Product Design", "Furniture Design", "Material Design", "Project Management", "Real Estate", "Building Materials", "Manufacturing", "Photography", "Graphic Design", "Other"];
 const businessProducts = ["Building Materials", "Furniture", "Lighting", "Finishes", "Construction Equipment", "Doors and Windows", "Roofing", "Flooring", "Sanitary Ware", "Manufacturing", "Distribution", "Consulting", "Other"];
+const storyImages: Record<RegistrationKind, string> = {
+    student: "/hero/archicareer-public-plaza.jpg",
+    professional: "/hero/archicareer-modern-facade.jpg",
+    firm: "/hero/archicareer-cultural-pavilion.jpg",
+    business: "/hero/archicareer-material-samples.jpg",
+};
 const headings: Record<RegistrationKind, { title: string; intro: string; side: string; benefits: string[] }> = {
     student: { title: "Start building your future.", intro: "Create your ArchiCareer account, showcase your work, connect with professionals and discover opportunities across your industry.", side: "Your next step starts with the work you make.", benefits: ["Build your professional identity", "Showcase academic projects", "Find internships and connect with professionals"] },
     professional: { title: "Your work. Your identity. Your next opportunity.", intro: "Create your professional presence on ArchiCareer. Showcase your work, connect with others and take your career further.", side: "Make your experience and work easier to find.", benefits: ["Share projects and expertise", "Connect across disciplines", "Find your next opportunity"] },
@@ -146,6 +153,7 @@ export default function RegistrationExperience({ kind, onboarding = "" }: { kind
         <header className={styles.topbar}><AuthBrand /><Link href="/join?step=interests" className={styles.back}>← <span>Back to account and interests</span></Link></header>
         <div className={styles.layout}>
             <aside className={`${styles.story} ${styles[`story_${kind}`]}`}>
+                <Image className={styles.storyImage} src={storyImages[kind]} alt="" fill sizes="(max-width: 700px) 100vw, 48vw" preload />
                 <p className={styles.statement}>CREATES. CONNECTS. BUILDS.</p>
                 <h1>{copy.title}</h1>
                 <p className={styles.storyCopy}>{copy.side}</p>

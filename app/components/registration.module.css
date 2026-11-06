@@ -4,9 +4,12 @@
 .back { display: inline-flex; align-items: center; gap: 9px; color: var(--color-ink); font-size: 14px; font-weight: 600; text-decoration: none; }
 .back:focus-visible, .form a:focus-visible, .form button:focus-visible, .form input:focus-visible, .form select:focus-visible, .form textarea:focus-visible { outline: 3px solid var(--color-redline); outline-offset: 3px; }
 .layout { display: grid; grid-template-columns: minmax(270px, .82fr) minmax(0, 1.18fr); gap: clamp(25px, 5vw, 72px); align-items: start; max-width: 1380px; margin: 0 auto; }
-.story { position: sticky; top: 25px; display: flex; min-height: 620px; flex-direction: column; padding: clamp(28px, 4vw, 56px); border: 2px solid var(--color-ink); border-radius: 18px; background: var(--color-ink); color: white; }
-.story_student { background: #D7E8FF; color: var(--color-ink); }.story_professional { background: #FFDCD3; color: var(--color-ink); }.story_firm { background: #CDEDE6; color: var(--color-ink); }.story_business { background: #FFE4B7; color: var(--color-ink); }
-.statement { width: fit-content; padding: 9px 13px; border: 2px solid currentColor; border-radius: 999px; font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: .08em; }
+.story { position: sticky; top: 25px; isolation: isolate; overflow: hidden; display: flex; min-height: 620px; flex-direction: column; padding: clamp(28px, 4vw, 56px); border: 2px solid var(--color-ink); border-radius: 18px; background: var(--color-ink); color: white; }
+.story::after { position: absolute; z-index: 1; inset: 0; content: ""; background: rgba(23, 25, 29, .38); }
+.storyImage { z-index: 0; object-fit: cover; object-position: center; }
+.story > :not(.storyImage) { position: relative; z-index: 2; }
+.story_student .statement { background: #D5ED62; color: var(--color-ink); }.story_professional .statement { background: #F5A07C; color: var(--color-ink); }.story_firm .statement { background: #B5D9FF; color: var(--color-ink); }.story_business .statement { background: #D2C7F2; color: var(--color-ink); }
+.statement { width: fit-content; padding: 9px 13px; border: 2px solid var(--color-ink); border-radius: 999px; font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: .08em; }
 .story h1 { max-width: 580px; margin-top: clamp(30px, 5vw, 70px); font-size: clamp(38px, 4.2vw, 64px); font-weight: 700; line-height: 1.02; letter-spacing: -.06em; text-wrap: balance; }
 .storyCopy { max-width: 370px; margin-top: 20px; font-size: 18px; line-height: 1.5; }
 .story ul { display: grid; gap: 14px; margin: 34px 0 0; padding: 0; list-style: none; }

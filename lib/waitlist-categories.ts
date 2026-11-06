@@ -1,3 +1,12 @@
+export const WAITLIST_ACCOUNT_TYPES = ["student", "professional", "firm", "business"] as const;
+
+export const WAITLIST_ACCOUNT_TYPE_LABELS: Record<(typeof WAITLIST_ACCOUNT_TYPES)[number], string> = {
+    student: "Student",
+    professional: "Individual Professional",
+    firm: "Firm",
+    business: "Business",
+};
+
 export const WAITLIST_CATEGORIES = [
     "architecture_student",
     "architect",
