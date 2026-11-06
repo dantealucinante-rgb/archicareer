@@ -8,6 +8,8 @@ import GoogleAuthButton from "@/app/components/GoogleAuthButton";
 
 export default function FirmLoginPage() {
     const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [passwordMode, setPasswordMode] = useState(false);
     const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
     const [message, setMessage] = useState("");
 
@@ -21,9 +23,23 @@ export default function FirmLoginPage() {
         event.preventDefault();
         if (!email.trim()) { setStatus("error"); setMessage("Enter your work email."); return; }
         setStatus("sending"); setMessage("");
+        if (passwordMode) {
+            const { error } = await createClient().auth.signInWithPassword({ email: email.trim(), password });
+            if (error) { setStatus("error"); setMessage("Email or password is incorrect. Check your details or request a sign-in link."); return; }
+            window.location.assign("/firms/onboarding");
+            return;
+        }
         const { error } = await createClient().auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=/firms/onboarding` } });
         if (error) { setStatus("error"); setMessage(error.message); return; }
         setStatus("sent"); setMessage("Magic link sent. Check your work email to continue.");
+    }
+
+    async function resetPassword() {
+        if (!email.trim()) { setStatus("error"); setMessage("Enter your work email first."); return; }
+        setStatus("sending"); setMessage("");
+        const { error } = await createClient().auth.resetPasswordForEmail(email.trim(), { redirectTo: `${window.location.origin}/auth/callback?next=/reset-password` });
+        if (error) { setStatus("error"); setMessage("We couldn’t send a reset link. Try again shortly."); return; }
+        setStatus("sent"); setMessage("If an account can receive a reset link, you’ll get an email shortly.");
     }
 
     return (
@@ -39,7 +55,9 @@ export default function FirmLoginPage() {
                     <p className="text-center text-xs text-graphite">Google sign-in continues with your firm profile and firm onboarding.</p>
                     <div className="flex items-center gap-3"><span className="h-px flex-1 bg-line" /><span className="font-mono text-[10px] uppercase tracking-[0.3em] text-graphite">OR</span><span className="h-px flex-1 bg-line" /></div>
                     <div><label htmlFor="firm-email" className="block font-mono text-[10px] uppercase tracking-widest text-graphite">Work email</label><input id="firm-email" required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className="field-input mt-2 text-sm" placeholder="hello@yourpractice.com" /></div>
-                    <button disabled={status === "sending"} className="interactive w-full rounded-full border border-ink bg-ink px-4 py-3.5 font-mono text-[11px] uppercase tracking-widest text-paper hover:border-redline hover:bg-redline disabled:opacity-60">{status === "sending" ? "Sending..." : "Send sign-in link"}</button>
+                    {passwordMode && <div><label htmlFor="firm-password" className="block font-mono text-[10px] uppercase tracking-widest text-graphite">Password</label><input id="firm-password" type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} className="field-input mt-2 text-sm" /></div>}
+                    <button disabled={status === "sending"} className="interactive w-full rounded-full border border-ink bg-ink px-4 py-3.5 font-mono text-[11px] uppercase tracking-widest text-paper hover:border-redline hover:bg-redline disabled:opacity-60">{status === "sending" ? "Please wait…" : passwordMode ? "Sign in" : "Send sign-in link"}</button>
+                    <p className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-center text-xs text-graphite"><button type="button" className="underline underline-offset-2" onClick={() => { setPasswordMode((value) => !value); setMessage(""); }}>{passwordMode ? "Use a sign-in link" : "Use your password"}</button>{passwordMode && <button type="button" className="underline underline-offset-2" onClick={resetPassword}>Forgot password?</button>}</p>
                     {message && <p aria-live="polite" className={`font-mono text-[10px] uppercase tracking-widest ${status === "error" ? "text-redline" : "text-graphite"}`}>{message}</p>}
                 </form>
                 <div className="mt-8 border-t border-line pt-5 text-center text-[11px] text-graphite"><Link href="/firms/signup" className="text-ink underline underline-offset-2 hover:text-redline">Create a firm profile</Link><span className="mx-2">·</span><Link href="/login" className="text-ink underline underline-offset-2 hover:text-redline">Individual sign in</Link></div>

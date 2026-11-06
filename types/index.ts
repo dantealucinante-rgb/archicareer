@@ -6,6 +6,7 @@
  */
 
 export type UserRole = "student" | "architect" | "firm";
+export type AccountType = "student" | "professional" | "firm" | "business";
 
 export type PortfolioCategory =
     | "residential"
@@ -42,6 +43,7 @@ export interface Profile {
     name: string;
     slug: string;
     role: UserRole;
+    account_type: AccountType;
     school_or_firm: string | null;
     bio: string | null;
     location: string | null;

@@ -8,6 +8,8 @@ import GoogleAuthButton from "@/app/components/GoogleAuthButton";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [passwordMode, setPasswordMode] = useState(false);
     const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
     const [message, setMessage] = useState("");
     const [callbackMessage, setCallbackMessage] = useState("");
@@ -34,6 +36,13 @@ export default function LoginPage() {
 
         const supabase = createClient();
         const redirectTo = `${window.location.origin}/auth/callback?next=/feed`;
+        if (passwordMode) {
+            const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+            if (error) { setStatus("error"); setMessage("Email or password is incorrect. Check your details or request a sign-in link."); return; }
+            window.location.assign("/feed");
+            return;
+        }
+
         const { error } = await supabase.auth.signInWithOtp({
             email: email.trim(),
             options: {
@@ -49,6 +58,14 @@ export default function LoginPage() {
 
         setStatus("sent");
         setMessage("Magic link sent. Check your email and follow the link to continue.");
+    }
+
+    async function handlePasswordReset() {
+        if (!email.trim()) { setStatus("error"); setMessage("Enter your email address first."); return; }
+        setStatus("sending"); setMessage("");
+        const { error } = await createClient().auth.resetPasswordForEmail(email.trim(), { redirectTo: `${window.location.origin}/auth/callback?next=/reset-password` });
+        if (error) { setStatus("error"); setMessage("We couldn’t send a reset link. Try again shortly."); return; }
+        setStatus("sent"); setMessage("If an account can receive a reset link, you’ll get an email shortly.");
     }
 
     async function handleGoogleSignIn() {
@@ -113,14 +130,16 @@ export default function LoginPage() {
                         />
                     </div>
 
+                    {passwordMode && <div><label htmlFor="password" className="block font-mono text-xs uppercase tracking-wider text-graphite">Password</label><input id="password" type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} className="field-input mt-1.5 text-sm" /></div>}
+
                     <button
                         type="submit"
                         disabled={status === "sending"}
                         className="interactive w-full flex justify-center rounded-full border border-ink bg-ink px-4 py-3 font-mono text-xs uppercase tracking-widest text-paper hover:border-redline hover:bg-redline cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
                     >
-                        {status === "sending" ? "Sending..." : "Send Magic Link"}
+                        {status === "sending" ? "Please wait…" : passwordMode ? "Sign in" : "Send Magic Link"}
                     </button>
-                    <p className="-mt-3 text-center text-xs leading-relaxed text-graphite">No password to remember. We’ll email you a secure sign-in link.</p>
+                    <p className="-mt-3 flex flex-wrap justify-center gap-x-4 gap-y-2 text-center text-xs leading-relaxed text-graphite"><button type="button" className="underline underline-offset-2" onClick={() => { setPasswordMode((value) => !value); setMessage(""); }}>{passwordMode ? "Use a sign-in link" : "Use your password"}</button>{passwordMode ? <button type="button" className="underline underline-offset-2" onClick={handlePasswordReset}>Forgot password?</button> : <span>No password? We’ll email a secure link.</span>}</p>
 
                     {message && (
                         <p role={status === "error" ? "alert" : undefined} className={`rounded-lg px-3 py-2 text-sm ${status === "error" ? "border border-redline/30 bg-redline/10 text-redline" : "text-graphite"}`}>{status === "error" && <span aria-hidden="true">⚠ </span>}{message}</p>

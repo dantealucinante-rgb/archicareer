@@ -6,9 +6,12 @@ import type { ReactNode } from "react";
 const focusedRoutes = [
     "/login",
     "/signup",
+    "/join",
+    "/reset-password",
     "/onboarding",
     "/firms/login",
     "/firms/signup",
+    "/business/signup",
     "/firms/onboarding",
     "/admin",
     "/waitlist",

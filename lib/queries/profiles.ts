@@ -2,7 +2,7 @@ import { createAdminClient, createClient, createPublicClient } from "@/lib/supab
 import { isAccountActive } from "@/lib/admin";
 import type { User } from "@supabase/supabase-js";
 import { cache } from "react";
-import { Profile, UserRole } from "@/types";
+import { AccountType, Profile, UserRole } from "@/types";
 import { profileUpdateSchema } from "@/lib/validations";
 
 export interface QueryResult<T> {
@@ -11,8 +11,8 @@ export interface QueryResult<T> {
     count?: number;
 }
 
-export const PROFILE_COLUMNS = "id, user_id, name, slug, role, school_or_firm, bio, location, social_links, software_proficiency, cv_url, instagram_url, personal_site_url, linkedin_url, avatar_url, marketing_emails, search_indexable, created_at, updated_at";
-export const PUBLIC_PROFILE_COLUMNS = "id, name, slug, role, school_or_firm, bio, location, social_links, software_proficiency, cv_url, instagram_url, personal_site_url, linkedin_url, avatar_url, created_at, updated_at";
+export const PROFILE_COLUMNS = "id, user_id, name, slug, role, account_type, school_or_firm, bio, location, social_links, software_proficiency, cv_url, instagram_url, personal_site_url, linkedin_url, avatar_url, marketing_emails, search_indexable, created_at, updated_at";
+export const PUBLIC_PROFILE_COLUMNS = "id, name, slug, role, account_type, school_or_firm, bio, location, social_links, software_proficiency, cv_url, instagram_url, personal_site_url, linkedin_url, avatar_url, created_at, updated_at";
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
 export async function removeCvFile(publicUrl: string): Promise<boolean> {
@@ -72,7 +72,7 @@ export function isOwnedAvatarUrl(publicUrl: string, userId: string): boolean {
     }
 }
 
-export async function getProfileBySlug(slug: string): Promise<QueryResult<Profile>> {
+export const getProfileBySlug = cache(async function getProfileBySlug(slug: string): Promise<QueryResult<Profile>> {
     try {
         const supabase = createPublicClient();
         const result = await supabase.rpc("get_public_profile_by_slug", { p_slug: slug }).maybeSingle();
@@ -85,7 +85,7 @@ export async function getProfileBySlug(slug: string): Promise<QueryResult<Profil
         console.error("Unhandled error in getProfileBySlug:", err);
         return { data: null, error: err instanceof Error ? err : new Error(String(err)) };
     }
-}
+});
 
 export const getCurrentProfile = cache(async function getCurrentProfile(): Promise<QueryResult<Profile>> {
     try {
@@ -132,6 +132,8 @@ async function createProfileForUser(
     const slug = `${baseSlug}-${user.id.slice(0, 8)}`;
     const roleValue = metadata.role;
     const role: UserRole = roleValue === "architect" || roleValue === "firm" ? roleValue : "student";
+    const accountTypeValue = metadata.account_type;
+    const account_type: AccountType = accountTypeValue === "professional" || accountTypeValue === "firm" || accountTypeValue === "business" ? accountTypeValue : role === "architect" ? "professional" : role;
 
     const { data, error } = await createAdminClient()
         .from("profiles")
@@ -140,6 +142,7 @@ async function createProfileForUser(
             name,
             slug,
             role,
+            account_type,
             school_or_firm: typeof metadata.school_or_firm === "string" ? metadata.school_or_firm : null,
             bio: typeof metadata.bio === "string" ? metadata.bio : null,
             location: typeof metadata.location === "string" ? metadata.location : null,
