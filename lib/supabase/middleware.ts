@@ -41,5 +41,32 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(url);
     }
 
+    const setupExemptRoutes = [
+        "/",
+        "/about",
+        "/login",
+        "/signup",
+        "/firms/login",
+        "/firms/signup",
+        "/business/signup",
+        "/join",
+        "/waitlist",
+        "/terms",
+        "/privacy",
+        "/cookies",
+        "/reset-password",
+        "/auth/callback",
+        "/onboarding",
+    ];
+    const isExempt = url.pathname.startsWith("/api/")
+        || setupExemptRoutes.some((path) => url.pathname === path || url.pathname.startsWith(`${path}/`));
+    if (user?.app_metadata?.onboarding_required === true && !isExempt) {
+        url.pathname = "/onboarding";
+        url.search = "";
+        const redirectResponse = NextResponse.redirect(url);
+        for (const cookie of supabaseResponse.cookies.getAll()) redirectResponse.cookies.set(cookie);
+        return redirectResponse;
+    }
+
     return supabaseResponse;
 }

@@ -85,5 +85,33 @@ export async function GET(request: Request) {
         }
     }
 
+    const { data: { user: callbackUser } } = await supabase.auth.getUser();
+    if (callbackUser) {
+        const admin = createAdminClient();
+        const [{ data: profile }, { data: onboarding, error: onboardingError }] = await Promise.all([
+            admin.from("profiles").select("id, created_at").eq("user_id", callbackUser.id).maybeSingle(),
+            admin.from("profile_onboarding").select("onboarding_completed").eq("user_id", callbackUser.id).maybeSingle(),
+        ]);
+        const createdAt = Date.parse(callbackUser.created_at);
+        const newlyCreated = Number.isFinite(createdAt) && Date.now() - createdAt >= 0 && Date.now() - createdAt < 30 * 60 * 1000;
+        let onboardingRequired = onboarding ? !onboarding.onboarding_completed : newlyCreated;
+
+        // The migration trigger creates this row. Recover safely if a newly
+        // registered profile was created during a brief database interruption.
+        if (!onboarding && !onboardingError && newlyCreated && profile) {
+            const { error: insertError } = await admin.from("profile_onboarding").insert({ user_id: callbackUser.id, profile_id: profile.id });
+            if (!insertError) onboardingRequired = true;
+        }
+        if (onboardingError && newlyCreated) onboardingRequired = true;
+
+        if (onboardingRequired || callbackUser.app_metadata.onboarding_required === true) {
+            const { error: metadataError } = await admin.auth.admin.updateUserById(callbackUser.id, {
+                app_metadata: { ...callbackUser.app_metadata, onboarding_required: onboardingRequired },
+            });
+            if (metadataError) console.error("[auth/callback] Could not refresh onboarding route guard:", metadataError.message);
+        }
+        if (onboardingRequired) next = "/onboarding";
+    }
+
     return NextResponse.redirect(new URL(next, requestUrl.origin));
 }

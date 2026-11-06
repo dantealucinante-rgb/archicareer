@@ -1,12 +1,18 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/queries/profiles";
+import { getAccountHome, getProfileOnboardingState, isAccountType } from "@/lib/onboarding";
 
 export const dynamic = "force-dynamic";
 
 export default async function FirmOnboardingPage() {
     const { data: profile } = await getCurrentProfile();
     if (!profile) redirect("/firms/login");
+    if (!isAccountType(profile.account_type)) redirect("/login");
+    const onboarding = await getProfileOnboardingState(profile.user_id);
+    if (onboarding.error || !onboarding.data) redirect("/onboarding");
+    if (!onboarding.data.onboarding_completed) redirect("/onboarding");
+    if (profile.account_type !== "firm" && profile.account_type !== "business") redirect(getAccountHome(profile.account_type));
     const isBusiness = profile.account_type === "business";
     return (
         <main className="relative flex min-h-[calc(100vh-5rem)] items-center justify-center overflow-hidden bg-paper px-5 py-12 text-ink sm:px-8 sm:py-20">

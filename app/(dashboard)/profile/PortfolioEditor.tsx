@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import NextImage from "next/image";
 import type { PortfolioItem } from "@/types";
 import { compressImageForUpload } from "@/lib/image-compression";
 
-type Props = { initialItems: PortfolioItem[]; variant?: "individual" | "firm"; startCollapsed?: boolean };
+type Props = { initialItems: PortfolioItem[]; variant?: "individual" | "firm"; startCollapsed?: boolean; onItemsChange?: (items: PortfolioItem[]) => void };
 const projectTypes = ["residential", "commercial", "institutional", "urban_design", "interior", "landscape", "competition", "academic_studio"] as const;
 const categories = ["residential", "commercial", "institutional", "landscape", "interior", "urban", "academic", "other"] as const;
 
@@ -20,7 +20,7 @@ function TagInput({ values, onChange, placeholder }: { values: string[]; onChang
     return <div className="rounded-2xl border border-line bg-warm-white p-3"><div className="mb-2 flex flex-wrap gap-2">{values.map((value) => <button key={value} type="button" onClick={() => onChange(values.filter((item) => item !== value))} className="rounded-full border border-line bg-paper px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider text-ink transition-colors hover:border-redline hover:text-redline">{value} ×</button>)}</div><input value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addTag(); } }} className="w-full bg-transparent px-1 py-1 font-sans text-sm text-ink outline-none" placeholder={placeholder} /></div>;
 }
 
-export default function PortfolioEditor({ initialItems, variant = "individual", startCollapsed = false }: Props) {
+export default function PortfolioEditor({ initialItems, variant = "individual", startCollapsed = false, onItemsChange }: Props) {
     const [items, setItems] = useState(initialItems);
     const [composerOpen, setComposerOpen] = useState(!startCollapsed || initialItems.length === 0);
     const [detailsOpen, setDetailsOpen] = useState(false);
@@ -39,6 +39,9 @@ export default function PortfolioEditor({ initialItems, variant = "individual", 
     const [files, setFiles] = useState<File[]>([]);
     const [message, setMessage] = useState("");
     const [saving, setSaving] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number; label: string } | null>(null);
+
+    useEffect(() => { onItemsChange?.(items); }, [items, onItemsChange]);
 
     async function uploadImages() {
         const maxFiles = 12;
@@ -47,14 +50,16 @@ export default function PortfolioEditor({ initialItems, variant = "individual", 
         if (files.reduce((total, file) => total + file.size, 0) > maxTotalBytes) throw new Error("Portfolio images must total 36 MB or less");
         const compressedFiles: File[] = [];
         for (const [index, file] of files.entries()) {
-            setMessage(`Compressing image ${index + 1} of ${files.length}...`);
+            setUploadProgress({ done: index, total: files.length, label: `Preparing image ${index + 1} of ${files.length}` });
+            setMessage(`Preparing image ${index + 1} of ${files.length}…`);
             compressedFiles.push(await compressImageForUpload(file, "portfolio"));
         }
         const urls: string[] = [];
         const paths: string[] = [];
         try {
-            setMessage("Uploading images...");
-            for (const file of compressedFiles) {
+            setMessage("Uploading images…");
+            for (const [index, file] of compressedFiles.entries()) {
+                setUploadProgress({ done: index, total: compressedFiles.length, label: `Uploading image ${index + 1} of ${compressedFiles.length}` });
                 if (!file.type.startsWith("image/")) throw new Error("Portfolio files must be images");
                 if (file.size > 3 * 1024 * 1024) throw new Error("Image is too large, please try a smaller file");
                 const formData = new FormData();
@@ -65,6 +70,7 @@ export default function PortfolioEditor({ initialItems, variant = "individual", 
                 if (!response.ok) throw new Error(result.error ?? "Unable to upload image");
                 paths.push(result.path);
                 urls.push(result.url);
+                setUploadProgress({ done: index + 1, total: compressedFiles.length, label: `Uploaded image ${index + 1} of ${compressedFiles.length}` });
             }
         } catch (error) {
             if (paths.length > 0) await createClient().storage.from("portfolio-images").remove(paths);
@@ -101,7 +107,7 @@ export default function PortfolioEditor({ initialItems, variant = "individual", 
             resetForm(); setMessage(wasEditing ? "Portfolio item updated." : "Portfolio item added.");
         } catch (error) {
             setMessage(error instanceof Error ? error.message : "Unable to save portfolio item");
-        } finally { setSaving(false); }
+        } finally { setSaving(false); setUploadProgress(null); }
     }
 
     function resetForm() {
@@ -160,11 +166,12 @@ export default function PortfolioEditor({ initialItems, variant = "individual", 
     return <section id="portfolio" className="scroll-mt-28">
         <div className="mb-6 flex items-end justify-between gap-4"><div><p className="eyebrow font-mono text-redline">{variant === "firm" ? "SELECTED WORK" : "PORTFOLIO"}</p><h2 className="mt-2 font-display text-2xl font-semibold tracking-tight text-ink">{variant === "firm" ? "Company projects" : "Your project work"}</h2><p className="mt-2 max-w-md text-sm leading-relaxed text-graphite">{variant === "firm" ? "Add the work that shows what the practice can do." : "Add projects as you finish them. This is the work people come to your profile to see."}</p></div><div className="flex items-center gap-4"><span className="font-mono text-[10px] text-graphite">{String(items.length).padStart(2, "0")} ITEMS</span><button type="button" aria-label={composerOpen ? "Close add project menu" : "Add a new project"} aria-expanded={composerOpen} title={composerOpen ? "Close add project menu" : "Add a new project"} onClick={() => setComposerOpen((open) => !open)} className="grid h-10 w-10 place-items-center rounded-full bg-ink text-paper transition-colors hover:bg-redline" >{composerOpen ? <span aria-hidden="true" className="text-xl leading-none">×</span> : <svg aria-hidden="true" viewBox="0 0 16 16" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M8 3v10M3 8h10" strokeLinecap="round" /></svg>}</button></div></div>
         <div className="space-y-3">{items.length === 0 ? <div className="rounded-2xl border border-line bg-warm-white p-8 text-center"><p className="font-display text-xl text-ink">Start with a project you are proud of.</p><p className="mt-2 text-sm text-graphite">Add a title, a few images, and the story behind the work.</p><button type="button" onClick={() => setComposerOpen(true)} className="mt-5 rounded-full bg-ink px-5 py-2.5 font-mono text-[10px] uppercase tracking-widest text-paper hover:bg-redline">Add your first project</button></div> : items.map((item) => <div key={item.id} className="rounded-2xl border border-line bg-warm-white p-5"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="min-w-0"><p className="line-clamp-2 font-display text-base font-semibold text-ink">{item.title}</p><p className="mt-1 font-mono text-[10px] uppercase tracking-wider text-graphite">{item.status}{" // "}{item.images.length} images</p></div><div className="flex shrink-0 gap-4"><button type="button" onClick={() => editItem(item)} className="font-mono text-[10px] uppercase tracking-widest text-ink transition-colors hover:text-redline">Edit</button><button type="button" onClick={() => void removeItem(item.id)} className="font-mono text-[10px] uppercase tracking-widest text-redline">Remove</button></div></div>{item.images.length > 0 && <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">{item.images.map((image, index) => <div key={image.id} className="relative overflow-hidden rounded-xl"><NextImage src={image.image_url} alt={item.title} width={640} height={360} sizes="(max-width: 640px) 50vw, 160px" className="aspect-video w-full object-cover" /><div className="absolute bottom-1 left-1 flex gap-1"><button type="button" aria-label="Move image up" onClick={() => void moveImage(item, index, -1)} className="rounded bg-paper px-1.5 font-mono text-[10px] text-ink">↑</button><button type="button" aria-label="Move image down" onClick={() => void moveImage(item, index, 1)} className="rounded bg-paper px-1.5 font-mono text-[10px] text-ink">↓</button><button type="button" onClick={() => void removeImage(item, image.id)} className="rounded bg-paper px-1.5 font-mono text-[10px] text-redline">×</button></div></div>)}</div>}</div>)}</div>
-        {message && <p role="alert" aria-live="polite" className={`mt-4 font-mono text-[10px] uppercase tracking-widest ${message.startsWith("Unable") ? "text-redline" : "text-graphite"}`}>{message}</p>}
+        {message && <p role={saving ? "status" : "alert"} aria-live="polite" className={`mt-4 font-mono text-[10px] uppercase tracking-widest ${message.startsWith("Unable") ? "text-redline" : "text-graphite"}`}>{message}</p>}
+        {uploadProgress && <div className="mt-3" role="status" aria-live="polite"><div className="mb-1 flex justify-between gap-3 font-mono text-[10px] uppercase tracking-wider text-graphite"><span>{uploadProgress.label}</span><span>{uploadProgress.done}/{uploadProgress.total}</span></div><div className="h-2 overflow-hidden border border-ink bg-paper" role="progressbar" aria-label={uploadProgress.label} aria-valuemin={0} aria-valuemax={uploadProgress.total} aria-valuenow={uploadProgress.done}><span className="block h-full origin-left bg-blue" style={{ transform: `scaleX(${uploadProgress.total ? uploadProgress.done / uploadProgress.total : 0})` }} /></div></div>}
         {composerOpen && <form onSubmit={handleSubmit} className="surface mt-6 space-y-5 rounded-2xl p-5 sm:p-7"><div><p className="eyebrow font-mono text-redline">{editingId ? "EDIT PROJECT" : "ADD A PROJECT"}</p><h3 className="mt-2 font-display text-xl font-semibold tracking-tight">{editingId ? "Update the project" : "What are you working on?"}</h3><p className="mt-2 text-sm text-graphite">Start with the name, a short description, and the images people should see first.</p></div>
             <div><label className={label}>Project title</label><input required value={title} onChange={(event) => setTitle(event.target.value)} className={input} placeholder="A title people will remember" /></div>
             <div><label className={label}>Short description</label><textarea value={description} onChange={(event) => setDescription(event.target.value)} className={`${input} resize-y`} rows={3} placeholder="What is it, and what were you trying to explore?" /></div>
-            {!editingId && <div><label className={label}>Project images</label><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple onChange={(event) => setFiles(Array.from(event.target.files ?? []))} className={`${input} file:mr-3 file:border-0 file:bg-ink file:px-3 file:py-1.5 file:font-mono file:text-[10px] file:uppercase file:text-paper`} />{files.length > 0 && <p className="mt-1 font-mono text-[10px] text-graphite">{files.length} image(s) selected</p>}<p className="mt-1 text-[11px] text-graphite">Up to 12 images · 50 MB total</p></div>}
+            {!editingId && <div><label className={label}>Project images</label><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple onChange={(event) => setFiles(Array.from(event.target.files ?? []))} className={`${input} file:mr-3 file:border-0 file:bg-ink file:px-3 file:py-1.5 file:font-mono file:text-[10px] file:uppercase file:text-paper`} />{files.length > 0 && <p className="mt-1 font-mono text-[10px] text-graphite">{files.length} image(s) selected</p>}<p className="mt-1 text-[11px] text-graphite">Up to 12 images · 36 MB total</p></div>}
             <button type="button" onClick={() => setDetailsOpen((open) => !open)} aria-expanded={detailsOpen} className="flex w-full items-center justify-between border-y border-line py-3 text-left font-mono text-[10px] uppercase tracking-widest text-graphite hover:text-ink"><span>{detailsOpen ? "Hide" : "Add"} more project details</span><span aria-hidden="true" className="text-base">{detailsOpen ? "−" : "+"}</span></button>
             {detailsOpen && <div className="space-y-5"><div className="grid gap-4 sm:grid-cols-2"><div><label className={label}>Project type</label><select value={projectType} onChange={(event) => setProjectType(event.target.value as typeof projectType)} className={input}>{projectTypes.map((value) => <option key={value}>{value}</option>)}</select></div><div><label className={label}>Category</label><select value={category} onChange={(event) => setCategory(event.target.value as typeof category)} className={input}>{categories.map((value) => <option key={value}>{value}</option>)}</select></div></div>
                 <div className="grid gap-4 sm:grid-cols-3"><div><label className={label}>Status</label><select value={status} onChange={(event) => setStatus(event.target.value as typeof status)} className={input}><option value="academic">Academic</option><option value="professional">Professional</option></select></div><div><label className={label}>Year</label><input type="number" min="1900" max="2100" value={year} onChange={(event) => setYear(event.target.value)} className={input} /></div><div><label className={label}>Location</label><input value={location} onChange={(event) => setLocation(event.target.value)} className={input} placeholder="Optional" /></div></div>

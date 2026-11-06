@@ -114,15 +114,16 @@ export default function RegistrationExperience({ kind, onboarding = "" }: { kind
         setStatus("sending"); setMessage("");
         const role = kind === "student" ? "student" : kind === "professional" ? "architect" : "firm";
         const onboarding = JSON.stringify({ account_type: kind, interests: context.interests, interest_other: context.interest_other });
-        const nextPath = kind === "student" || kind === "professional" ? `/onboarding/about?role=${role}&account_type=${kind}&onboarding=${encodeURIComponent(onboarding)}` : `/firms/onboarding?role=firm&account_type=${kind}&onboarding=${encodeURIComponent(onboarding)}`;
+        const nextPath = `/onboarding?role=${role}&account_type=${kind}&onboarding=${encodeURIComponent(onboarding)}`;
         const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
         try {
             const { error, data } = await createClient().auth.signUp({ email: email.trim(), password, options: { emailRedirectTo: redirectTo, data: metadata() } });
             if (error) { setStatus("error"); setMessage("We couldn’t create your account. Check your details and try again."); return; }
             setStatus("sent");
             if (data.session) {
-                setMessage("Your account is ready. Taking you to your profile…");
-                window.location.assign(kind === "firm" || kind === "business" ? "/firms/onboarding" : "/onboarding/about");
+                setMessage("Your account is ready. Preparing your ArchiCareer space…");
+                await fetch("/api/onboarding/bootstrap", { method: "POST" }).catch(() => null);
+                window.location.assign("/onboarding");
                 return;
             }
             setMessage("Check your email to verify your account. Your registration details are saved, and you can continue from the verification link.");
@@ -136,7 +137,7 @@ export default function RegistrationExperience({ kind, onboarding = "" }: { kind
         setStatus("sending"); setMessage("");
         const role = kind === "student" ? "student" : kind === "professional" ? "architect" : "firm";
         const onboarding = JSON.stringify({ account_type: kind, interests: context.interests, interest_other: context.interest_other });
-        const nextPath = kind === "student" || kind === "professional" ? `/onboarding/about?role=${role}&account_type=${kind}&onboarding=${encodeURIComponent(onboarding)}` : `/firms/onboarding?role=firm&account_type=${kind}&onboarding=${encodeURIComponent(onboarding)}`;
+        const nextPath = `/onboarding?role=${role}&account_type=${kind}&onboarding=${encodeURIComponent(onboarding)}`;
         try {
             const { error } = await createClient().auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}` } });
             if (error) { setStatus("error"); setMessage("Google sign-up could not be started. Try again or use email."); }
