@@ -150,17 +150,16 @@ export default function RegistrationExperience({ kind, onboarding = "" }: { kind
     if (!kind || !copy) return <main className={styles.missing}><AuthBrand /><h1>Choose an account type first.</h1><p>We’ll send you to the matching registration form after you choose how you’re joining.</p><Link href="/join" className={styles.submit}>Return to account selection</Link></main>;
 
     return <main className={styles.page}>
-        <header className={styles.topbar}><AuthBrand /><Link href="/join?step=interests" className={styles.back}>← <span>Back to account and interests</span></Link></header>
+        <header className={styles.mobileHeader}><AuthBrand /><Link href="/join?step=interests" className={styles.homeLink}>← Back to account and interests</Link></header>
         <div className={styles.layout}>
             <aside className={`${styles.story} ${styles[`story_${kind}`]}`}>
                 <Image className={styles.storyImage} src={storyImages[kind]} alt="" fill sizes="(max-width: 700px) 100vw, 48vw" preload />
-                <p className={styles.statement}>CREATES. CONNECTS. BUILDS.</p>
-                <h1>{copy.title}</h1>
-                <p className={styles.storyCopy}>{copy.side}</p>
-                <ul>{copy.benefits.map((item) => <li key={item}><span aria-hidden="true">✓</span>{item}</li>)}</ul>
-                <div className={styles.storyBottom}><span>Made for the people shaping the built world.</span><span className={styles.accountTag}>{kind === "professional" ? "INDIVIDUAL PROFESSIONAL" : kind.toUpperCase()}</span></div>
+                <div className={styles.storyTop}><AuthBrand /><div className={styles.roller} aria-label="Locked in, cook, you’re in, W’s"><span className={styles.rollerSrOnly}>Locked in, cook, you’re in, W’s</span><span className={styles.rollerWindow} aria-hidden="true"><span className={styles.rollerTrack}><span>Locked in</span><span>Cook</span><span>You’re in</span><span>W’s</span><span>Locked in</span></span></span></div></div>
+                <div className={styles.storyContent}><h1>{copy.title}</h1><p className={styles.storyCopy}>{copy.side}</p><ul>{copy.benefits.map((item) => <li key={item}><span aria-hidden="true">✓</span>{item}</li>)}</ul></div>
             </aside>
-            <section className={styles.formPanel} aria-labelledby="form-title">
+            <section className={styles.panel} aria-labelledby="form-title">
+                <div className={styles.formWrap}>
+                <Link href="/join?step=interests" className={styles.desktopBack}>← Back to account and interests</Link>
                 <div className={styles.formHeading}>
                     <p className={styles.formEyebrow}>{kind === "student" ? "STUDENT ACCOUNT" : kind === "professional" ? "INDIVIDUAL ACCOUNT" : kind === "firm" ? "FIRM ACCOUNT" : "BUSINESS ACCOUNT"}</p>
                     <h2 id="form-title">{isOrganization ? kind === "firm" ? "Tell us about your practice." : "Tell us about your business." : copy.title}</h2>
@@ -195,6 +194,7 @@ export default function RegistrationExperience({ kind, onboarding = "" }: { kind
                     <p className={styles.legal}>By creating an account, you agree to our <Link href="/terms">Terms</Link> and <Link href="/privacy">Privacy Policy</Link>.</p>
                     {message && <p role={status === "error" ? "alert" : "status"} aria-live="polite" className={`${styles.message} ${status === "error" ? styles.error : styles.success}`}>{message}</p>}
                 </form>
+                </div>
             </section>
         </div>
     </main>;

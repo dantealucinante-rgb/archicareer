@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import LegalDocumentLayout from "@/app/components/LegalDocumentLayout";
 
 // Content is stored in keyed section tuples and each section gets its React key below.
 /* eslint-disable react/jsx-key */
@@ -25,12 +26,5 @@ const sections = [
 ] as const;
 
 export default function PrivacyPage() {
-    return <main className="mx-auto w-full max-w-4xl px-5 py-12 sm:px-8 sm:py-20">
-        <div className="eyebrow font-mono text-redline">LEGAL / PRIVACY</div>
-        <h1 className="display-balance mt-5 max-w-3xl font-display text-5xl font-semibold leading-[0.92] tracking-[-0.06em] sm:text-7xl">Privacy Policy</h1>
-        <p className="mt-6 max-w-2xl text-sm leading-relaxed text-graphite">How ArchiCareer handles information across accounts, public portfolios, applications, and community features.</p>
-        <p className="mt-3 text-xs text-graphite">Last updated: 3 November 2026</p>
-        <article className="mt-10 space-y-8 text-sm leading-relaxed text-graphite">{sections.map(([title, body]) => <section key={title}><h2 className="font-display text-2xl font-semibold text-ink">{title}</h2><div className="mt-3">{body}</div></section>)}</article>
-        <Link href="/" className="mt-8 inline-flex font-mono text-[11px] uppercase tracking-widest text-graphite hover:text-redline">← Back to ArchiCareer</Link>
-    </main>;
+    return <LegalDocumentLayout label="Legal / Privacy" title="Privacy Policy" description="How ArchiCareer handles information across accounts, public portfolios, applications, and community features." updated="3 November 2026" sections={sections} />;
 }
