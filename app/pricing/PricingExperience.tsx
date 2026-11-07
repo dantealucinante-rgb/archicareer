@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import type { PortfolioEntitlements } from "@/lib/billing";
 import { MarketingFooter, MarketingHeader } from "@/app/components/MarketingChrome";
+import PricingPlanIndicators from "./PricingPlanIndicators";
 import brand from "@/app/(marketing)/landing.module.css";
 import styles from "./pricing.module.css";
 import {
@@ -123,8 +124,8 @@ export default function PricingExperience({ account }: { account: Account }) {
                     <p>Start with a professional home for your work. Add capacity as your portfolio grows.</p>
                 </div>
                 <div className={styles.carousel} aria-label="Membership plans">
-                    <div className={styles.planTrack}>
-                        <div className={styles.planSlide}>
+                    <div id="pricing-plan-track" className={styles.planTrack}>
+                        <div className={styles.planSlide} data-plan-slide>
                             <PricingCard className={styles.freeCard}>
                                 <div className={styles.planTopline}><div><StatusPill tone="teal">Available</StatusPill>{account.kind === "ready" && account.summary.plan === "free" && <StatusPill>Current plan</StatusPill>}</div></div>
                                 <h3>Free</h3>
@@ -135,7 +136,7 @@ export default function PricingExperience({ account }: { account: Account }) {
                             </PricingCard>
                         </div>
 
-                        <div className={styles.planSlide}>
+                        <div className={styles.planSlide} data-plan-slide>
                             <PricingCard className={styles.proCard}>
                                 <div className={styles.planTopline}><div><StatusPill tone="teal">Recommended</StatusPill>{account.kind === "ready" && account.summary.plan === "pro" && <StatusPill tone="pink">Current plan</StatusPill>}<StatusPill tone="orange">Coming soon</StatusPill></div></div>
                                 <h3>Pro</h3>
@@ -151,7 +152,7 @@ export default function PricingExperience({ account }: { account: Account }) {
                             </PricingCard>
                         </div>
 
-                        <div className={styles.planSlide}>
+                        <div className={styles.planSlide} data-plan-slide>
                             <PricingCard className={styles.plusCard}>
                                 <div className={styles.planTopline}><div>{account.kind === "ready" && account.summary.plan === "pro_plus" && <StatusPill tone="pink">Current plan</StatusPill>}<StatusPill tone="orange">Coming soon</StatusPill></div></div>
                                 <h3>Pro Plus</h3>
@@ -164,7 +165,7 @@ export default function PricingExperience({ account }: { account: Account }) {
                         </div>
                     </div>
                 </div>
-                <div className={styles.swipeFooter} role="img" aria-label="Three plans. Swipe to compare."><i /><i /><i /></div>
+                <PricingPlanIndicators trackId="pricing-plan-track" />
             </section>
 
             <section className={styles.spacesSection} aria-labelledby="spaces-title">
