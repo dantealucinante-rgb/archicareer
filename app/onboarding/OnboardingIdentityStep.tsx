@@ -20,7 +20,6 @@ function Field({ label, children, optional = false }: { label: string; children:
 
 export default function OnboardingIdentityStep({
     accountType,
-    name,
     draft,
     onChange,
     photoUrl,
@@ -28,7 +27,6 @@ export default function OnboardingIdentityStep({
     onPhotoBusyChange,
 }: {
     accountType: AccountType;
-    name: string;
     draft: OnboardingDraft;
     onChange: (updates: Partial<OnboardingDraft>) => void;
     photoUrl: string | null;
@@ -97,7 +95,7 @@ export default function OnboardingIdentityStep({
             </>}
 
             {accountType === "firm" && <>
-                <div className={styles.identityName}><span>FIRM NAME</span><strong>{name}</strong><small>Collected during registration</small></div>
+                <Field label="Firm name"><input value={draft.organization_name} onChange={(event) => onChange({ organization_name: event.target.value })} autoComplete="organization" maxLength={180} placeholder="Your practice or studio name" /></Field>
                 <div className={styles.twoFields}><Field label="Organisation type"><select value={draft.organization_type} onChange={(event) => onChange({ organization_type: event.target.value })}><option value="">Choose a type</option>{organisationTypes.map((item) => <option key={item}>{item}</option>)}</select></Field><Field label="Company size" optional><select value={draft.company_size} onChange={(event) => onChange({ company_size: event.target.value })}><option value="">Choose size</option>{companySizes.map((item) => <option key={item}>{item}</option>)}</select></Field></div>
                 {draft.organization_type === "Other" && <Field label="Organisation type"><input value={draft.organization_type_other} onChange={(event) => onChange({ organization_type_other: event.target.value })} placeholder="Describe your practice type" maxLength={100} /></Field>}
                 <div className={styles.twoFields}><Field label="Primary location" optional><input value={draft.location} onChange={(event) => onChange({ location: event.target.value })} placeholder="City or state" maxLength={100} /></Field><Field label="Website" optional><input type="url" value={draft.website} onChange={(event) => onChange({ website: event.target.value })} placeholder="https://yourpractice.com" maxLength={300} /></Field></div>
@@ -106,7 +104,7 @@ export default function OnboardingIdentityStep({
             </>}
 
             {accountType === "business" && <>
-                <div className={styles.identityName}><span>BUSINESS NAME</span><strong>{name}</strong><small>Collected during registration</small></div>
+                <Field label="Business name"><input value={draft.organization_name} onChange={(event) => onChange({ organization_name: event.target.value })} autoComplete="organization" maxLength={180} placeholder="Your business name" /></Field>
                 <Field label="Business category"><input list="business-categories" value={draft.business_category} onChange={(event) => onChange({ business_category: event.target.value })} placeholder="Choose or enter a category" maxLength={120} /><datalist id="business-categories">{["Building Materials", "Manufacturing", "Furniture", "Construction Supplies", "Real Estate", "Technology", "Design Products", "Professional Services"].map((item) => <option key={item} value={item} />)}</datalist></Field>
                 <div className={styles.field}><span className={styles.fieldLabel}>Products or services <small>Optional</small></span><div className={styles.choicePills}>{businessProducts.map((item) => { const selected = draft.products_services.includes(item); return <button key={item} type="button" aria-pressed={selected} onClick={() => onChange({ products_services: selected ? draft.products_services.filter((value) => value !== item) : [...draft.products_services, item] })} className={`${styles.choicePill} ${selected ? styles.choiceSelected : ""}`}><span aria-hidden="true">{selected ? "✓" : "+"}</span>{item}</button>; })}</div></div>
                 <div className={styles.twoFields}><Field label="Primary location" optional><input value={draft.location} onChange={(event) => onChange({ location: event.target.value })} placeholder="City or state" maxLength={100} /></Field><Field label="Website" optional><input type="url" value={draft.website} onChange={(event) => onChange({ website: event.target.value })} placeholder="https://yourbusiness.com" maxLength={300} /></Field></div>

@@ -88,7 +88,7 @@ export default function OnboardingExperience({ accountType, profile, onboarding,
     async function savePublicIdentity() {
         const newName = (accountType === "student" || accountType === "professional")
             ? `${draft.first_name.trim()} ${draft.last_name.trim()}`.trim()
-            : profileName.trim();
+            : draft.organization_name.trim();
         const body: Record<string, unknown> = { name: newName };
         if (accountType === "student") {
             body.school_or_firm = draft.institution.trim();
@@ -97,6 +97,7 @@ export default function OnboardingExperience({ accountType, profile, onboarding,
             body.location = draft.location.trim() || null;
             body.bio = draft.bio.trim() || null;
         } else {
+            body.name = newName;
             body.location = draft.location.trim() || null;
             body.bio = draft.description.trim() || null;
             body.personal_site_url = draft.website.trim() || null;
@@ -119,6 +120,7 @@ export default function OnboardingExperience({ accountType, profile, onboarding,
             if (!draft.discipline.trim()) return "Add your primary discipline.";
         }
         if (accountType === "firm" && !draft.organization_type) return "Choose your organisation type.";
+        if ((accountType === "firm" || accountType === "business") && !draft.organization_name.trim()) return `Add your ${accountType === "firm" ? "firm" : "business"} name.`;
         if (accountType === "firm" && draft.organization_type === "Other" && !draft.organization_type_other.trim()) return "Describe your organisation type.";
         if (accountType === "business" && !draft.business_category.trim()) return "Add a business category.";
         if (draft.website.trim()) {
@@ -198,7 +200,7 @@ export default function OnboardingExperience({ accountType, profile, onboarding,
                 {isImmersive ? <OnboardingWelcomeStep ready={step === 5} accountType={accountType} name={displayName || profile.name} avatarUrl={photoUrl} draft={draft} interests={interests} projectCount={projectItems.length} /> : <div className={styles.setupLayout}>
                     <OnboardingStepVisual accountType={accountType} stage={visualStage} />
                     <section className={styles.stepContent} aria-live="polite">
-                        {step === 1 && <OnboardingIdentityStep accountType={accountType} name={profileName} draft={draft} onChange={updateDraft} photoUrl={photoUrl} onPhotoChange={setPhotoUrl} onPhotoBusyChange={setPhotoBusy} />}
+                        {step === 1 && <OnboardingIdentityStep accountType={accountType} draft={draft} onChange={updateDraft} photoUrl={photoUrl} onPhotoChange={setPhotoUrl} onPhotoBusyChange={setPhotoBusy} />}
                         {step === 2 && <OnboardingInterestsStep interests={interests} other={interestOther} onChange={(nextInterests, nextOther) => { setInterests(nextInterests); setInterestOther(nextOther); setErrorMessage(""); }} />}
                         {step === 3 && <div className={styles.projectContent}><div className={styles.sectionHeading}><p className={styles.sectionKicker}>04 / YOUR FIRST PROJECT · OPTIONAL</p><h2>Your work deserves to be seen.</h2><p>Give people a glimpse of what you create. Add a first project to start building your presence on ArchiCareer.</p></div><PortfolioEditor initialItems={projectItems} variant={accountType === "firm" ? "firm" : "individual"} onItemsChange={projectItemsChanged} /></div>}
                         {step === 4 && <OnboardingConnectionsStep />}

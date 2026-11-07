@@ -41,7 +41,8 @@ export default function SignInExperience({ accountType, nextPath, callbackError,
     const callbackMessage = callbackError === "account_type_mismatch"
         ? `This account is registered as a ${selectedType ?? "different"} account. Sign in through the correct account page.`
         : callbackError === "account_type_unavailable" ? "We couldn’t find a supported account profile for this sign-in. Please contact support or return to account selection."
-            : callbackError === "missing_code" ? "That sign-in link is incomplete. Request a new one below."
+            : callbackError === "cancelled" ? "Google sign-in was cancelled. You can try again whenever you’re ready."
+                : callbackError === "missing_code" ? "That sign-in link is incomplete. Request a new one below."
             : callbackError === "authentication_failed" ? "That sign-in link has expired or could not be verified. Request a new one below." : "";
     const correctLoginHref = selectedType && validTypes.includes(selectedType) ? loginHref(selectedType) : "/join";
 
@@ -95,6 +96,8 @@ export default function SignInExperience({ accountType, nextPath, callbackError,
         callback.searchParams.set("next", safeNext(nextPath, detail.destination));
         callback.searchParams.set("signin_type", accountType);
         try {
+            const cleared = await fetch("/api/auth/google-intent", { method: "DELETE" });
+            if (!cleared.ok) throw new Error("Could not clear the previous Google sign-up attempt.");
             const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: callback.toString() } });
             if (error) throw error;
         } catch { setStatus("error"); setMessage("Google sign-in couldn’t be started. Please try again."); }

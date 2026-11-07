@@ -101,7 +101,7 @@ export const getCurrentProfile = cache(async function getCurrentProfile(): Promi
             return existing;
         }
 
-        return createProfileForUser(supabase, user);
+        return createProfileForUser(user);
     } catch (err) {
         console.error("Unhandled error in getCurrentProfile:", err);
         return { data: null, error: err instanceof Error ? err : new Error(String(err)) };
@@ -123,7 +123,6 @@ export async function getProfileForUser(
 }
 
 async function createProfileForUser(
-    supabase: ServerClient,
     user: User
 ): Promise<QueryResult<Profile>> {
     const metadata = user.user_metadata ?? {};
@@ -135,9 +134,10 @@ async function createProfileForUser(
     const accountTypeValue = metadata.account_type;
     const account_type: AccountType = accountTypeValue === "professional" || accountTypeValue === "firm" || accountTypeValue === "business" ? accountTypeValue : role === "architect" ? "professional" : role;
 
-    const { data, error } = await createAdminClient()
+    const admin = createAdminClient();
+    const { data, error } = await admin
         .from("profiles")
-        .insert({
+        .upsert({
             user_id: user.id,
             name,
             slug,
@@ -150,15 +150,34 @@ async function createProfileForUser(
             social_links: typeof metadata.social_links === "object" && metadata.social_links !== null
                 ? metadata.social_links
                 : {},
-        })
+        }, { onConflict: "user_id", ignoreDuplicates: true })
         .select(PROFILE_COLUMNS)
-        .single();
+        .maybeSingle();
 
-    if (error) {
-        return { data: null, error: new Error(error.message) };
+    if (error || !data) {
+        // A database trigger or another concurrent request may have created
+        // the profile between the initial read and this idempotent upsert.
+        const recovered = await admin.from("profiles").select(PROFILE_COLUMNS).eq("user_id", user.id).maybeSingle();
+        if (recovered.data) return { data: recovered.data as Profile, error: null };
+        if (error) return { data: null, error: new Error(error.message) };
+        if (recovered.error) return { data: null, error: new Error(recovered.error.message) };
+        return { data: null, error: new Error("Profile creation did not return a profile") };
     }
 
     return { data: data as Profile, error: null };
+}
+
+/** Retrieves or creates the current authenticated user's application profile without overwriting a trigger-created row. */
+export async function ensureProfileForUser(user: User): Promise<QueryResult<Profile>> {
+    try {
+        const admin = createAdminClient();
+        const { data, error } = await admin.from("profiles").select(PROFILE_COLUMNS).eq("user_id", user.id).maybeSingle();
+        if (error) return { data: null, error: new Error(error.message) };
+        if (data) return { data: data as Profile, error: null };
+        return createProfileForUser(user);
+    } catch (err) {
+        return { data: null, error: err instanceof Error ? err : new Error(String(err)) };
+    }
 }
 
 export async function updateProfile(

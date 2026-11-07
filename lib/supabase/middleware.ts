@@ -56,6 +56,7 @@ export async function updateSession(request: NextRequest) {
         "/cookies",
         "/reset-password",
         "/auth/callback",
+        "/auth/recovery",
         "/onboarding",
     ];
     const isExempt = url.pathname.startsWith("/api/")

@@ -22,13 +22,14 @@ const identitySchemas = {
         location: text(100), experience: z.enum(["0–2 years", "3–5 years", "6–10 years", "11–15 years", "16+ years"]).optional(), bio: text(500),
     }),
     firm: z.object({
+        organization_name: text(180),
         organization_type: z.enum(["Architecture Studio", "Architecture Firm", "Interior Design Studio", "Engineering Consultancy", "Construction Company", "Design Consultancy", "Multidisciplinary Practice", "Other"]).optional(),
         organization_type_other: text(100), location: text(100), website, year_established: z.string().trim().max(4).optional(),
         company_size: z.enum(["Just me", "2–5 employees", "6–10 employees", "11–25 employees", "26–50 employees", "51–100 employees", "100+ employees"]).optional(),
         description: text(700),
     }),
     business: z.object({
-        business_category: text(120), location: text(100), website,
+        organization_name: text(180), business_category: text(120), location: text(100), website,
         products_services: z.array(z.string().trim().min(1).max(100)).max(24).optional(), description: text(700),
     }),
 } satisfies Record<string, z.ZodType>;
@@ -110,8 +111,8 @@ export async function PATCH(request: Request) {
                     : accountType === "professional"
                         ? [mergedData.first_name, mergedData.last_name, mergedData.professional_title, mergedData.discipline]
                         : accountType === "firm"
-                            ? [profile.name, mergedData.organization_type]
-                            : [profile.name, mergedData.business_category];
+                            ? [mergedData.organization_name, mergedData.organization_type]
+                            : [mergedData.organization_name, mergedData.business_category];
                 if (required.some((value) => typeof value !== "string" || !value.trim())) return NextResponse.json({ error: "Complete the required identity details before continuing." }, { status: 400 });
             }
             if (forward && current.data.onboarding_step === 2 && interests.length === 0) return NextResponse.json({ error: "Choose at least one professional interest before continuing." }, { status: 400 });

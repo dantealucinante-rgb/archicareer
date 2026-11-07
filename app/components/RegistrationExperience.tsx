@@ -32,7 +32,7 @@ function parseContext(raw: string): InterestContext {
     } catch { return { interests: [], interest_other: "" }; }
 }
 
-export default function RegistrationExperience({ kind, onboarding = "" }: { kind: RegistrationKind | null; onboarding?: string }) {
+export default function RegistrationExperience({ kind, onboarding = "", oauthError }: { kind: RegistrationKind | null; onboarding?: string; oauthError?: string }) {
     const copy = kind ? headings[kind] : null;
     const context = useMemo(() => parseContext(onboarding), [onboarding]);
     const [firstName, setFirstName] = useState("");
@@ -55,8 +55,14 @@ export default function RegistrationExperience({ kind, onboarding = "" }: { kind
     const [businessCategory, setBusinessCategory] = useState("");
     const [products, setProducts] = useState<string[]>([]);
     const [description, setDescription] = useState("");
-    const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
-    const [message, setMessage] = useState("");
+    const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(oauthError ? "error" : "idle");
+    const [message, setMessage] = useState(() => oauthError === "cancelled"
+        ? "Google sign-up was cancelled. Your details are still here; continue with Google or create an account with email."
+        : oauthError === "account_not_found"
+            ? "This Google account does not have an ArchiCareer profile yet. Continue with sign-up to set up your account."
+            : oauthError
+                ? "Google sign-up could not be completed. Your Google account was not treated as a failed login; try again or use email."
+                : "");
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [confirmVisible, setConfirmVisible] = useState(false);
     const isOrganization = kind === "firm" || kind === "business";
@@ -114,7 +120,7 @@ export default function RegistrationExperience({ kind, onboarding = "" }: { kind
         setStatus("sending"); setMessage("");
         const role = kind === "student" ? "student" : kind === "professional" ? "architect" : "firm";
         const onboarding = JSON.stringify({ account_type: kind, interests: context.interests, interest_other: context.interest_other });
-        const nextPath = `/onboarding?role=${role}&account_type=${kind}&onboarding=${encodeURIComponent(onboarding)}`;
+        const nextPath = `/onboarding?intent=signup&role=${role}&account_type=${kind}&onboarding=${encodeURIComponent(onboarding)}`;
         const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
         try {
             const { error, data } = await createClient().auth.signUp({ email: email.trim(), password, options: { emailRedirectTo: redirectTo, data: metadata() } });
@@ -137,12 +143,22 @@ export default function RegistrationExperience({ kind, onboarding = "" }: { kind
         setStatus("sending"); setMessage("");
         const role = kind === "student" ? "student" : kind === "professional" ? "architect" : "firm";
         const onboarding = JSON.stringify({ account_type: kind, interests: context.interests, interest_other: context.interest_other });
-        const nextPath = `/onboarding?role=${role}&account_type=${kind}&onboarding=${encodeURIComponent(onboarding)}`;
+        const nextPath = `/onboarding?intent=signup&role=${role}&account_type=${kind}&onboarding=${encodeURIComponent(onboarding)}`;
         try {
+            const intentResponse = await fetch("/api/auth/google-intent", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ account_type: kind, user_metadata: metadata() }),
+            });
+            if (!intentResponse.ok) {
+                const result = await intentResponse.json().catch(() => ({}));
+                throw new Error(result.error ?? "Google sign-up could not be prepared. Try again or use email.");
+            }
             const { error } = await createClient().auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}` } });
-            if (error) { setStatus("error"); setMessage("Google sign-up could not be started. Try again or use email."); }
-        } catch {
-            setStatus("error"); setMessage("Google sign-up could not be started. Check your connection and try again.");
+            if (error) throw error;
+        } catch (error) {
+            await fetch("/api/auth/google-intent", { method: "DELETE" }).catch(() => null);
+            setStatus("error"); setMessage(error instanceof Error && error.message ? error.message : "Google sign-up could not be started. Check your connection and try again.");
         }
     }
 

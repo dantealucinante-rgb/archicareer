@@ -42,6 +42,9 @@ export default function JoinExperience() {
                 setDraft({ accountType: accounts.some((item) => item.id === parsed.accountType) ? parsed.accountType! : null, interests: interests.filter((item) => Array.isArray(parsed.interests) && parsed.interests.includes(item)), custom: typeof parsed.custom === "string" ? parsed.custom.slice(0, 120) : "" });
             }
             if (new URLSearchParams(window.location.search).get("step") === "interests") setStep(2);
+            if (new URLSearchParams(window.location.search).get("auth_error") === "account_type_required") {
+                setMessage("Your Google account is signed in, but we need you to choose an ArchiCareer account type before setting up your profile.");
+            }
         } catch { /* Continue with a fresh draft if storage is unavailable. */ }
     }, []);
 

@@ -18,6 +18,7 @@ export type OnboardingDraft = {
     year_established: string;
     description: string;
     business_category: string;
+    organization_name: string;
     products_services: string[];
 };
 
@@ -48,7 +49,7 @@ export const INTERESTS = [
 export const EMPTY_DRAFT: OnboardingDraft = {
     first_name: "", last_name: "", institution: "", discipline: "", academic_level: "", graduation_year: "",
     professional_title: "", experience: "", bio: "", organization_type: "", organization_type_other: "",
-    company_size: "", location: "", website: "", year_established: "", description: "", business_category: "", products_services: [],
+    company_size: "", location: "", website: "", year_established: "", description: "", business_category: "", organization_name: "", products_services: [],
 };
 
 export function getStages(accountType: AccountType): OnboardingStage[] {
@@ -81,8 +82,8 @@ export function initialDraft(accountType: AccountType, profile: { name: string; 
     const saved = readOnboardingDraft(stateData);
     const registration = registrationDetails && typeof registrationDetails === "object" ? registrationDetails as Record<string, unknown> : {};
     const parts = profile.name.trim().split(/\s+/);
-    const first = typeof registration.first_name === "string" ? registration.first_name : parts[0] ?? "";
-    const last = typeof registration.last_name === "string" ? registration.last_name : parts.slice(1).join(" ");
+    const first = typeof registration.first_name === "string" && registration.first_name.trim() ? registration.first_name : parts[0] ?? "";
+    const last = typeof registration.last_name === "string" && registration.last_name.trim() ? registration.last_name : parts.slice(1).join(" ");
     const registered = (key: string) => typeof registration[key] === "string" ? registration[key] as string : "";
     const products = Array.isArray(registration.products_services) ? registration.products_services.filter((item): item is string => typeof item === "string") : [];
     return {
@@ -104,6 +105,7 @@ export function initialDraft(accountType: AccountType, profile: { name: string; 
         year_established: saved.year_established ?? registered("year_established"),
         description: saved.description ?? profile.bio ?? registered("description"),
         business_category: saved.business_category ?? registered("business_category"),
+        organization_name: saved.organization_name ?? (accountType === "firm" || accountType === "business" ? profile.name : ""),
         products_services: saved.products_services ?? products,
     };
 }
