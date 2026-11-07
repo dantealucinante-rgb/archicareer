@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getCurrentProfile } from "@/lib/queries/profiles";
 import { getFeed } from "@/lib/queries/posts";
 import FeedList from "@/app/components/FeedList";
-import Link from "next/link";
+import ProfileAvatar from "@/app/components/ProfileAvatar";
+import PrimaryNav from "@/app/components/PrimaryNav";
+import styles from "./feed.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -12,48 +15,45 @@ export const metadata: Metadata = {
     alternates: { canonical: "/feed" },
 };
 
+function roleLabel(role: string) {
+    if (role === "student") return "Student";
+    if (role === "firm") return "Firm";
+    return "Built environment professional";
+}
+
 export default async function FeedPage() {
-    const [{ data: posts }, { data: profile }] = await Promise.all([getFeed(10, 0), getCurrentProfile()]);
-    const postCount = posts?.length ?? 0;
+    const [feedResult, profileResult] = await Promise.all([getFeed(10, 0), getCurrentProfile()]);
+    const posts = feedResult.data ?? [];
+    const profile = profileResult.data;
+    const activeAuthors = [...new Map(posts
+        .filter((post) => post.author.slug && post.author.slug !== profile?.slug)
+        .map((post) => [post.author.slug, post.author])).values()].slice(0, 5);
 
-    return <div className="min-h-screen bg-paper py-5 text-ink sm:px-8 sm:py-10">
-        <main className="mx-auto w-full max-w-[var(--page-max)]">
-            <div className="px-5 sm:px-0">
-                <section className="feed-intro border-b border-line pb-6 sm:pb-8">
-                    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_14rem] lg:items-end lg:gap-12">
-                        <div>
-                            <p className="ui-kicker">Community / field notes</p>
-                            <h1 className="mt-3 max-w-2xl font-display text-3xl font-semibold tracking-tight sm:text-5xl">The work, as it happens.</h1>
-                            <p className="mt-3 max-w-xl text-sm leading-relaxed text-graphite sm:text-base">Projects in progress, practical questions, and perspectives from the architecture community.</p>
-                        </div>
-                        <div className="flex items-center justify-between gap-4 border-t border-line pt-4 lg:block lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-                            <p className="ui-meta font-mono uppercase tracking-widest">Current edition</p>
-                            <p className="mt-1 font-display text-2xl font-semibold text-ink">{postCount}</p>
-                            <p className="text-xs text-graphite">recent field notes</p>
-                        </div>
-                    </div>
-                </section>
-            </div>
+    return <main className={styles.feedPage}>
+        <div className={`${styles.feedShell} ${styles.feedShellWithRail} ${activeAuthors.length ? styles.feedShellWithAside : ""}`}>
+            <aside className={styles.leftRail} aria-label="Feed navigation">
+                <PrimaryNav orientation="vertical" profileHref={profile?.slug ? `/p/${profile.slug}` : undefined} />
+            </aside>
 
-            <div className="feed-layout mt-6 lg:grid lg:grid-cols-[minmax(0,44rem)_16rem] lg:items-start lg:justify-center lg:gap-12">
-                <section aria-label="Community posts" className="min-w-0">
-                    <div className="mb-3 flex items-center justify-between px-5 sm:px-0">
-                        <p className="ui-meta font-mono uppercase tracking-widest">Latest from the field</p>
-                        <span className="h-px w-16 bg-line" aria-hidden="true" />
-                    </div>
-                    <FeedList initialPosts={posts ?? []} currentUserId={profile?.user_id ?? null} />
-                </section>
+            <section className={styles.timeline} aria-label="Community feed">
+                <header className={styles.timelineHeader}>
+                    <h1>Home</h1>
+                    <span className={styles.latestLabel}>Latest</span>
+                </header>
+                <FeedList initialPosts={posts} initialError={feedResult.error ? "Couldn’t load posts. Try again." : ""} currentUserId={profile?.user_id ?? null} />
+            </section>
 
-                <aside className="feed-aside mx-5 mt-10 hidden border-t border-line pt-5 lg:sticky lg:top-28 lg:mx-0 lg:mt-0 lg:block" aria-label="Explore ArchiCareer">
-                    <p className="ui-kicker">Keep exploring</p>
-                    <p className="mt-3 font-display text-xl font-semibold tracking-tight">Find people and opportunities through the work.</p>
-                    <div className="mt-5 space-y-1 border-y border-line py-3 text-sm">
-                        <Link href="/discover" className="feed-aside-link">Discover professionals</Link>
-                        <Link href="/jobs" className="feed-aside-link">Browse opportunities</Link>
-                    </div>
-                    {!profile && <p className="mt-5 text-sm leading-relaxed text-graphite"><Link href="/signup" className="font-medium text-ink underline decoration-redline underline-offset-4 hover:text-redline">Create a profile</Link> to add your voice to the field.</p>}
-                </aside>
-            </div>
-        </main>
-    </div>;
+            {activeAuthors.length > 0 && <aside className={styles.activePeople} aria-label="People recently active in the feed">
+                <div className={styles.activePeopleInner}>
+                    <h2 className={styles.sidebarHeading}>Recent voices</h2>
+                    <p className={styles.sidebarDescription}>People sharing updates with the community.</p>
+                    {activeAuthors.map((author) => <Link key={author.slug} href={`/p/${author.slug}`} className={styles.activePerson}>
+                        <ProfileAvatar profile={author} size={36} className={styles.activeAvatar} />
+                        <span className={styles.activePersonInfo}><strong className={styles.activeName}>{author.name}</strong><span className={styles.activeRole}>{roleLabel(author.role)}</span></span>
+                    </Link>)}
+                    <Link href="/discover" className={styles.activePerson}><span className={styles.activePersonInfo}><strong className={styles.activeName}>Explore more people</strong><span className={styles.activeRole}>Open Discover</span></span></Link>
+                </div>
+            </aside>}
+        </div>
+    </main>;
 }

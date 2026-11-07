@@ -7,18 +7,23 @@ import type { FeedPost } from "@/types";
 import ProfileAvatar from "./ProfileAvatar";
 import ContentEngagement from "./ContentEngagement";
 import { formatCommunityDate } from "@/lib/date-format";
+import styles from "@/app/feed/feed.module.css";
 
-export default function FeedList({ initialPosts, currentUserId }: { initialPosts: FeedPost[]; currentUserId: string | null }) {
+type Props = { initialPosts: FeedPost[]; initialError?: string; currentUserId: string | null };
+
+export default function FeedList({ initialPosts, initialError = "", currentUserId }: Props) {
     const [posts, setPosts] = useState(initialPosts);
     const [offset, setOffset] = useState(initialPosts.length);
-    const [hasMore, setHasMore] = useState(initialPosts.length === 10);
+    const [hasMore, setHasMore] = useState(Boolean(initialError) || initialPosts.length === 10);
     const [loading, setLoading] = useState(false);
-    const [feedMessage, setFeedMessage] = useState("");
-    const [feedHasError, setFeedHasError] = useState(false);
+    const [feedMessage, setFeedMessage] = useState(initialError);
+    const [feedHasError, setFeedHasError] = useState(Boolean(initialError));
+    const [pageError, setPageError] = useState(Boolean(initialError));
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [confirmingId, setConfirmingId] = useState<string | null>(null);
     const loadMoreInFlight = useRef(false);
     const loadMoreSentinelRef = useRef<HTMLDivElement>(null);
+    const requestRef = useRef<AbortController | null>(null);
 
     const loadMore = useCallback(async () => {
         if (loadMoreInFlight.current || !hasMore) return;
@@ -26,20 +31,35 @@ export default function FeedList({ initialPosts, currentUserId }: { initialPosts
         setLoading(true);
         setFeedMessage("");
         setFeedHasError(false);
+        setPageError(false);
+        const controller = new AbortController();
+        requestRef.current = controller;
         try {
-            const response = await fetch(`/api/posts?limit=10&offset=${offset}`);
+            const response = await fetch(`/api/posts?limit=10&offset=${offset}`, { signal: controller.signal });
             const payload = await response.json().catch(() => ({}));
-            if (!response.ok) throw new Error(payload.error ?? "Unable to load more posts.");
-            const addedCount = payload.posts?.length ?? 0;
-            setPosts((current) => [...current, ...(payload.posts ?? [])]);
-            setOffset((current) => current + addedCount);
+            if (!response.ok) throw new Error("Couldn’t load more posts.");
+            const batch = (payload.posts ?? []) as FeedPost[];
+            setPosts((current) => {
+                const seen = new Set(current.map((post) => post.id));
+                const additions = batch.filter((post) => {
+                    if (seen.has(post.id)) return false;
+                    seen.add(post.id);
+                    return true;
+                });
+                return [...current, ...additions];
+            });
+            setOffset((current) => current + batch.length);
             setHasMore(Boolean(payload.hasMore));
         } catch (error) {
-            setFeedHasError(true);
-            setFeedMessage(error instanceof Error ? error.message : "Unable to load more posts.");
+            if (!(error instanceof Error && error.name === "AbortError")) {
+                setPageError(true);
+                setFeedHasError(true);
+                setFeedMessage("Couldn’t load more posts. Try again.");
+            }
         } finally {
+            if (requestRef.current === controller) requestRef.current = null;
             loadMoreInFlight.current = false;
-            setLoading(false);
+            if (!controller.signal.aborted) setLoading(false);
         }
     }, [hasMore, offset]);
 
@@ -64,15 +84,17 @@ export default function FeedList({ initialPosts, currentUserId }: { initialPosts
         return () => window.removeEventListener("post-created", onPostCreated);
     }, []);
 
+    useEffect(() => () => requestRef.current?.abort(), []);
+
     useEffect(() => {
         const sentinel = loadMoreSentinelRef.current;
-        if (!sentinel || !hasMore) return;
+        if (!sentinel || !hasMore || pageError) return;
         const observer = new IntersectionObserver((entries) => {
             if (entries[0]?.isIntersecting) void loadMore();
         }, { rootMargin: "320px 0px" });
         observer.observe(sentinel);
         return () => observer.disconnect();
-    }, [hasMore, loadMore]);
+    }, [hasMore, loadMore, pageError]);
 
     async function removePost(id: string) {
         setConfirmingId(null);
@@ -86,38 +108,71 @@ export default function FeedList({ initialPosts, currentUserId }: { initialPosts
         setOffset((current) => Math.max(0, current - 1));
         try {
             const response = await fetch("/api/posts", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
-            const payload = await response.json().catch(() => ({}));
-            if (!response.ok) throw new Error(payload.error ?? "Unable to delete post.");
+            if (!response.ok) throw new Error("Unable to delete post.");
         } catch {
             setPosts((current) => current.some((post) => post.id === id) ? current : [...current.slice(0, previousIndex), removed, ...current.slice(previousIndex)]);
             setOffset((current) => current + 1);
             setFeedHasError(true);
-            setFeedMessage("Couldn’t delete post. It has been restored. Try again.");
+            setFeedMessage("Couldn’t delete post. It has been restored.");
         } finally {
             setDeletingId(null);
         }
     }
 
-    return <>
-        <div className="mx-auto w-full max-w-[var(--content-max)] space-y-4">
-            {!currentUserId && <div className="ui-panel mx-5 border-dashed p-5 text-center text-sm text-graphite sm:mx-0"><Link href="/login" className="text-redline underline underline-offset-4 hover:text-ink">Sign in</Link> to share your own work and join the conversation.</div>}
-            {feedMessage && <p aria-live="polite" className={`mx-5 py-3 font-mono text-[10px] uppercase tracking-widest sm:mx-0 ${feedHasError ? "text-redline" : "text-graphite"}`}>{feedMessage}</p>}
-            {posts.length === 0 ? <div className="ui-panel mx-5 border-dashed p-10 text-center sm:mx-0"><p className="ui-kicker">The field is quiet</p><p className="mt-3 text-sm text-graphite">Be the first to share a thought, question, or piece of work.</p>{currentUserId && <button type="button" onClick={openComposer} className="ui-button-primary interactive mt-4">Start a post</button>}</div> : posts.map((post) => <article id={`post-${post.id}`} key={post.id} className="feed-post overflow-hidden bg-warm-white p-5 sm:p-6">
-                <div>
-                    <div className="flex items-start justify-between gap-3">
-                        <Link href={post.author.slug ? `/p/${post.author.slug}` : "/discover"} className="group flex min-w-0 items-center gap-3">
-                            <ProfileAvatar profile={post.author} size={48} className="h-12 w-12 shrink-0 rounded-xl border border-line object-cover sm:h-11 sm:w-11" />
-                            <div className="min-w-0"><p className="line-clamp-2 font-display text-base font-semibold text-ink transition-colors duration-300 group-hover:text-redline">{post.author.name}</p><p className="ui-meta mt-1 break-words">{post.author.role} {post.author.location && <><span aria-hidden="true">·</span> {post.author.location} </>}<span aria-hidden="true">·</span> {formatCommunityDate(post.created_at)}</p></div>
-                        </Link>
-                        {post.user_id === currentUserId && <button type="button" disabled={deletingId === post.id} onClick={() => setConfirmingId(post.id)} aria-label="Delete post" className="feedback-control grid h-10 w-10 shrink-0 place-items-center rounded-full text-lg leading-none text-graphite hover:bg-sand hover:text-redline disabled:cursor-wait disabled:opacity-50">{deletingId === post.id ? "…" : "⋯"}</button>}
-                    </div>
-                    {post.content && <p className={`mt-5 whitespace-pre-wrap leading-relaxed text-ink ${post.image_url ? "text-sm sm:text-base" : "feed-post-copy text-sm sm:text-base"}`}>{post.content}</p>}
-                </div>
-                {post.image_url && <><p className="mt-6 font-mono text-[9px] uppercase tracking-widest text-redline">Visual field note <span aria-hidden="true">/</span> {new Date(post.created_at).getFullYear()}</p><div className="relative mt-2 aspect-[4/3] overflow-hidden rounded-xl border border-line bg-sand sm:mt-3"><Image src={post.image_url} alt={`Image shared by ${post.author.name}`} fill sizes="(max-width: 672px) 100vw, 672px" className="object-cover" /></div></>}
-                {post.client_status ? <div className="mt-5 border-t border-line pt-3 font-mono text-[10px] uppercase tracking-widest text-graphite">{post.client_status === "pending" ? "Publishing post…" : <>Post wasn’t published. <button type="button" onClick={openComposer} className="underline underline-offset-2">Retry in composer</button></>}</div> : <ContentEngagement target={{ post_id: post.id }} initial={{ reactionCount: post.reaction_count, commentCount: post.comment_count, userReacted: post.user_reacted }} currentUserId={currentUserId} />}
-            </article>)}
-            {hasMore && <div ref={loadMoreSentinelRef} className="mx-5 my-6 min-h-10 text-center sm:mx-0" aria-live="polite">{loading && <span className="font-mono text-[10px] uppercase tracking-widest text-graphite">Loading more posts…</span>}{feedHasError && <button type="button" onClick={() => void loadMore()} className="feedback-control rounded-full border border-ink px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-ink hover:bg-ink hover:text-paper">Retry loading posts</button>}</div>}
+    return <div className={styles.postList}>
+        {currentUserId && <div className={styles.composePrompt}><button type="button" onClick={openComposer}>Share a thought, question or work <span>Post</span></button></div>}
+        {!currentUserId && <p className={styles.feedNotice}><Link href="/login">Sign in</Link> to share a thought and join the conversation.</p>}
+        {feedMessage && feedHasError && !pageError && posts.length > 0 && <p role="alert" className={styles.feedNotice}>{feedMessage}</p>}
+        {posts.length === 0 && loading ? <div role="status" className={styles.emptyState}><p>Loading posts…</p></div>
+            : posts.length === 0 && feedHasError ? <div role="alert" className={styles.feedError}><span>{feedMessage || "Couldn’t load posts. Try again."}</span><button type="button" onClick={() => void loadMore()} disabled={loading} className={styles.retryButton}>{loading ? "Loading…" : "Retry"}</button></div>
+            : posts.length === 0 ? <div className={styles.emptyState}><h2>The feed is quiet right now.</h2><p>When people share ideas, questions, and work, they’ll appear here.</p>{currentUserId && <button type="button" onClick={openComposer} className={styles.emptyAction}>Start a post</button>}</div>
+                : posts.map((post) => <FeedPostItem key={post.id} post={post} currentUserId={currentUserId} deleting={deletingId === post.id} onDelete={() => setConfirmingId(post.id)} onOpenComposer={openComposer} />)}
+        {hasMore && posts.length > 0 && <div ref={loadMoreSentinelRef} className={styles.loadMore} aria-live="polite">
+            {loading ? "Loading more posts…" : pageError ? <><span>Couldn’t load more posts.</span><button type="button" onClick={() => void loadMore()} className={styles.retryButton}>Retry</button></> : ""}
+        </div>}
+        {confirmingId && <div role="dialog" aria-modal="true" aria-labelledby="delete-post-title" className={styles.deleteDialog}><div className={styles.deleteDialogContent}><h2 id="delete-post-title">Delete this post?</h2><p>This cannot be undone.</p><div className={styles.dialogActions}><button type="button" onClick={() => setConfirmingId(null)} className={styles.dialogButton}>Cancel</button><button type="button" onClick={() => void removePost(confirmingId)} className={`${styles.dialogButton} ${styles.dialogDelete}`} disabled={Boolean(deletingId)}>Delete post</button></div></div></div>}
+    </div>;
+}
+
+function FeedPostItem({ post, currentUserId, deleting, onDelete, onOpenComposer }: { post: FeedPost; currentUserId: string | null; deleting: boolean; onDelete: () => void; onOpenComposer: () => void }) {
+    const authorHref = post.author.slug ? `/p/${post.author.slug}` : null;
+    return <article id={`post-${post.id}`} className={styles.post}>
+        <div className={styles.postRow}>
+            {authorHref ? <Link href={authorHref} aria-label={`View ${post.author.name}'s profile`} className={styles.authorAvatarLink}><ProfileAvatar profile={post.author} size={44} className={styles.authorAvatar} /></Link>
+                : <ProfileAvatar profile={post.author} size={44} className={styles.authorAvatar} />}
+            <div className={styles.postBody}>
+                <header className={styles.authorRow}>
+                    {authorHref ? <Link href={authorHref} className={styles.authorLink}><AuthorDetails post={post} /></Link> : <div className={styles.authorInfo}><AuthorDetails post={post} /></div>}
+                    {post.user_id === currentUserId && <button type="button" disabled={deleting} onClick={onDelete} aria-label="Delete post" title="Delete post" className={styles.postOptions}>{deleting ? "…" : "⋯"}</button>}
+                </header>
+                {post.content && <p className={styles.postContent}>{linkifyPost(post.content)}</p>}
+                {post.image_url && <div className={styles.postMedia}><Image src={post.image_url} alt={`Image shared by ${post.author.name}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 680px, 640px" className={styles.postMediaImage} /></div>}
+                {post.client_status ? <div className={styles.pendingStatus}>{post.client_status === "pending" ? "Publishing post…" : <>Post wasn’t published. <button type="button" onClick={onOpenComposer}>Retry in composer</button></>}</div>
+                    : <div className={styles.engagement}><ContentEngagement target={{ post_id: post.id }} initial={{ reactionCount: post.reaction_count, commentCount: post.comment_count, userReacted: post.user_reacted }} currentUserId={currentUserId} /></div>}
+            </div>
         </div>
-        {confirmingId && <div role="dialog" aria-modal="true" aria-labelledby="delete-post-title" className="fixed inset-0 z-50 grid place-items-center bg-night/50 p-5"><div className="w-full max-w-sm rounded-2xl border border-line bg-paper p-6"><h2 id="delete-post-title" className="font-display text-2xl font-semibold">Delete this post?</h2><p className="mt-3 text-sm text-graphite">This cannot be undone.</p><div className="mt-6 flex justify-end gap-3"><button type="button" onClick={() => setConfirmingId(null)} className="feedback-control rounded-full border border-line px-4 py-2 font-mono text-[10px] uppercase tracking-widest">Cancel</button><button type="button" onClick={() => void removePost(confirmingId)} className="feedback-control rounded-full bg-redline px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-paper">Delete post</button></div></div></div>}
-    </>;
+    </article>;
+}
+
+function AuthorDetails({ post }: { post: FeedPost }) {
+    return <><span className={styles.authorMeta}><strong className={styles.authorName}>{post.author.name}</strong>{post.author.slug && <span className={styles.username}>@{post.author.slug}</span>}<span className={styles.timestamp} aria-hidden="true">·</span><time className={styles.timestamp} dateTime={post.created_at}>{formatCommunityDate(post.created_at)}</time></span><span className={styles.authorRole}>{post.author.role === "student" ? "Student" : post.author.role === "firm" ? "Firm" : "Built environment professional"}{post.author.location ? ` · ${post.author.location}` : ""}</span></>;
+}
+
+function linkifyPost(content: string) {
+    const matcher = /https?:\/\/[^\s<>]+/gi;
+    const parts: React.ReactNode[] = [];
+    let cursor = 0;
+    let match: RegExpExecArray | null;
+    while ((match = matcher.exec(content))) {
+        const raw = match[0];
+        const url = raw.replace(/[),.!?;:]+$/, "");
+        const trailing = raw.slice(url.length);
+        if (!url) continue;
+        if (match.index > cursor) parts.push(content.slice(cursor, match.index));
+        parts.push(<a key={`${match.index}-${url}`} href={url} target="_blank" rel="noreferrer">{url}</a>);
+        if (trailing) parts.push(trailing);
+        cursor = match.index + raw.length;
+    }
+    if (cursor < content.length) parts.push(content.slice(cursor));
+    return parts.length ? parts : content;
 }
