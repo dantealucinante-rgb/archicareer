@@ -87,6 +87,23 @@ export const getProfileBySlug = cache(async function getProfileBySlug(slug: stri
     }
 });
 
+export const getPublicProfileById = cache(async function getPublicProfileById(profileId: string): Promise<QueryResult<Profile>> {
+    try {
+        const { data, error } = await createPublicClient()
+            .from("profiles")
+            .select(PUBLIC_PROFILE_COLUMNS)
+            .eq("id", profileId)
+            .eq("search_indexable", true)
+            .eq("account_status", "active")
+            .maybeSingle();
+        if (error) return { data: null, error: new Error(error.message) };
+        return { data: data as Profile | null, error: null };
+    } catch (err) {
+        console.error("Unhandled error in getPublicProfileById:", err);
+        return { data: null, error: err instanceof Error ? err : new Error(String(err)) };
+    }
+});
+
 export const getCurrentProfile = cache(async function getCurrentProfile(): Promise<QueryResult<Profile>> {
     try {
         const supabase = await createClient();

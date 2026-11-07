@@ -126,6 +126,26 @@ export const getPortfolioItemForProfile = cache(async function getPortfolioItemF
     }
 });
 
+export const getPortfolioItemById = cache(async function getPortfolioItemById(
+    portfolioItemId: string
+): Promise<QueryResult<PortfolioItem>> {
+    try {
+        const supabase = createPublicClient();
+        const { data, error } = await supabase
+            .from("portfolio_items")
+            .select(PORTFOLIO_COLS)
+            .eq("id", portfolioItemId)
+            .maybeSingle();
+        if (error) return { data: null, error: new Error(error.message) };
+        if (!data) return { data: null, error: null };
+        const [item] = await attachImages(supabase, [data as Omit<PortfolioItem, "images">]);
+        return { data: item, error: null };
+    } catch (err) {
+        console.error("[portfolio] getPortfolioItemById:", err);
+        return { data: null, error: err instanceof Error ? err : new Error(String(err)) };
+    }
+});
+
 export async function addPortfolioItem(
     rawItem: unknown
 ): Promise<QueryResult<PortfolioItem>> {
