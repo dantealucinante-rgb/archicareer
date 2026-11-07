@@ -1,12 +1,14 @@
 import ProfileEditor from "../ProfileEditor";
 import { getCurrentProfile } from "@/lib/queries/profiles";
 import { redirect } from "next/navigation";
+import { getProfileOnboardingState } from "@/lib/onboarding";
 
 export const dynamic = "force-dynamic";
 
 export default async function ProfileEditPage() {
     const { data: profile } = await getCurrentProfile();
     if (!profile) redirect("/onboarding/about");
+    const onboarding = await getProfileOnboardingState(profile.user_id);
 
     return (
         <div className="bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
@@ -32,7 +34,7 @@ export default async function ProfileEditPage() {
                     </aside>
 
                     <div className="surface p-5 sm:p-8">
-                        <ProfileEditor profile={profile} variant={profile?.role === "firm" ? "firm" : "individual"} />
+                        <ProfileEditor profile={profile} variant={profile?.role === "firm" ? "firm" : "individual"} professionalInterests={onboarding.data?.professional_interests ?? []} professionalInterestOther={onboarding.data?.professional_interest_other ?? ""} />
                     </div>
                 </div>
             </main>

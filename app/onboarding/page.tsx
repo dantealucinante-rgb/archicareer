@@ -52,7 +52,9 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
         ? onboarding.data.professional_interests
         : context.interests;
     const selectedInterests = savedInterests.filter((value): value is typeof savedInterests[number] => typeof value === "string");
-    const currentStep = profile.account_type === "business" && onboarding.data.onboarding_step === 3 ? 4 : onboarding.data.onboarding_step;
+    const currentStep = onboarding.data.onboarding_step === 2 || (profile.account_type === "business" && onboarding.data.onboarding_step === 3)
+        ? profile.account_type === "business" ? 4 : 3
+        : onboarding.data.onboarding_step;
 
     return <OnboardingExperience
         accountType={profile.account_type}

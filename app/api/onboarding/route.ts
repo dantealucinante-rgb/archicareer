@@ -4,6 +4,7 @@ import { getCurrentProfile } from "@/lib/queries/profiles";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { getProfileOnboardingState } from "@/lib/onboarding";
 import { isAccountActive } from "@/lib/admin";
+import { PROFESSIONAL_INTEREST_OPTIONS } from "@/lib/professional-interests";
 
 const text = (max: number) => z.string().trim().max(max).optional();
 const website = z.string().trim().max(300).optional().refine((value) => {
@@ -34,19 +35,23 @@ const identitySchemas = {
     }),
 } satisfies Record<string, z.ZodType>;
 
-const interestValues = ["Architecture", "Interior Design", "Landscape Architecture", "Structural Engineering", "Civil Engineering", "Construction", "Building", "Contracting", "Urban Planning", "3D Visualisation", "3D Modelling", "Product Design", "Furniture Design", "Material Design", "Project Management", "Real Estate", "Building Materials", "Manufacturing", "Photography", "Graphic Design", "Other"] as const;
-
 const requestSchema = z.object({
     data: z.record(z.string(), z.unknown()).optional(),
     step: z.number().int().min(0).max(5).optional(),
     skip: z.enum(["project", "connections"]).optional(),
     complete: z.boolean().optional(),
-    interests: z.array(z.enum(interestValues)).max(21).optional(),
+    interests: z.array(z.enum(PROFESSIONAL_INTEREST_OPTIONS)).max(21).optional(),
     interest_other: z.string().trim().max(120).optional(),
 });
 
-const stageBefore = (step: number, accountType: string) => accountType === "business" && step === 4 ? 2 : step - 1;
-const stageAfter = (step: number, accountType: string) => accountType === "business" && step === 2 ? 4 : step + 1;
+function normalizeStep(step: number, accountType: string) {
+    if (step === 2) return accountType === "business" ? 4 : 3;
+    if (accountType === "business" && step === 3) return 4;
+    return step;
+}
+
+const stageBefore = (step: number, accountType: string) => step === 4 && accountType === "business" ? 1 : step === 3 && accountType !== "business" ? 1 : step - 1;
+const stageAfter = (step: number, accountType: string) => step === 1 ? accountType === "business" ? 4 : 3 : step === 3 && accountType !== "business" ? 4 : step + 1;
 
 export async function GET() {
     try {
@@ -86,26 +91,26 @@ export async function PATCH(request: Request) {
         if (identity && !identity.success) return NextResponse.json({ error: identity.error.issues[0]?.message ?? "Check the details and try again." }, { status: 400 });
 
         const mergedData: Record<string, unknown> = { ...current.data.onboarding_data, ...(identity?.success ? identity.data as Record<string, unknown> : {}) };
-        const interests = patch.interests ?? current.data.professional_interests;
+        const interests = patch.interests?.length ? patch.interests : current.data.professional_interests;
         const interestOther = patch.interest_other ?? current.data.professional_interest_other;
         if (new Set(interests).size !== interests.length) return NextResponse.json({ error: "Remove duplicate interest selections." }, { status: 400 });
 
-        let nextStep = current.data.onboarding_step;
+        const currentStep = normalizeStep(current.data.onboarding_step, accountType);
+        let nextStep = currentStep;
         const skipped = [...current.data.onboarding_skipped_steps];
         if (patch.complete) {
-            if (current.data.onboarding_step !== 5) return NextResponse.json({ error: "Complete the remaining setup stages first." }, { status: 409 });
-            if (interests.length === 0 || (interests.includes("Other") && !interestOther.trim())) return NextResponse.json({ error: "Choose at least one interest and describe Other if selected." }, { status: 400 });
+            if (currentStep !== 5) return NextResponse.json({ error: "Complete the remaining setup stages first." }, { status: 409 });
         } else if (patch.skip) {
-            const validSkip = (patch.skip === "project" && accountType !== "business" && current.data.onboarding_step === 3)
-                || (patch.skip === "connections" && current.data.onboarding_step === 4);
+            const validSkip = (patch.skip === "project" && accountType !== "business" && currentStep === 3)
+                || (patch.skip === "connections" && currentStep === 4);
             if (!validSkip) return NextResponse.json({ error: "That optional stage cannot be skipped from here." }, { status: 409 });
             if (!skipped.includes(patch.skip)) skipped.push(patch.skip);
-            nextStep = stageAfter(current.data.onboarding_step, accountType);
-        } else if (patch.step !== undefined && patch.step !== current.data.onboarding_step) {
-            const forward = patch.step === stageAfter(current.data.onboarding_step, accountType);
-            const backward = patch.step === stageBefore(current.data.onboarding_step, accountType);
+            nextStep = stageAfter(currentStep, accountType);
+        } else if (patch.step !== undefined && patch.step !== currentStep) {
+            const forward = patch.step === stageAfter(currentStep, accountType);
+            const backward = patch.step === stageBefore(currentStep, accountType);
             if (!forward && !backward) return NextResponse.json({ error: "Continue through setup one stage at a time." }, { status: 409 });
-            if (forward && current.data.onboarding_step === 1) {
+            if (forward && currentStep === 1) {
                 const required = accountType === "student"
                     ? [mergedData.first_name, mergedData.last_name, mergedData.institution, mergedData.discipline, mergedData.academic_level]
                     : accountType === "professional"
@@ -115,9 +120,6 @@ export async function PATCH(request: Request) {
                             : [mergedData.organization_name, mergedData.business_category];
                 if (required.some((value) => typeof value !== "string" || !value.trim())) return NextResponse.json({ error: "Complete the required identity details before continuing." }, { status: 400 });
             }
-            if (forward && current.data.onboarding_step === 2 && interests.length === 0) return NextResponse.json({ error: "Choose at least one professional interest before continuing." }, { status: 400 });
-            if (forward && current.data.onboarding_step === 2 && interests.includes("Other") && !interestOther.trim()) return NextResponse.json({ error: "Describe your other interest before continuing." }, { status: 400 });
-            if (forward && accountType === "business" && current.data.onboarding_step === 2 && !skipped.includes("project")) skipped.push("project");
             nextStep = patch.step;
         }
 

@@ -21,7 +21,7 @@ export default function OnboardingProgress({ stages, currentStep, saveStatus }: 
                 {stages.map((stage, index) => {
                     const state = index < currentIndex ? "complete" : index === currentIndex ? "current" : "upcoming";
                     return <li key={stage.id} data-progress-state={state} aria-current={state === "current" ? "step" : undefined} aria-label={`${stage.label}, ${state}`}>
-                        <span className={styles.progressSegment} aria-hidden="true" style={{ "--segment-color": stageColors[stage.id] ?? stageColors[index % stageColors.length] } as CSSProperties} />
+                        <span className={styles.progressSegment} aria-hidden="true" style={{ "--segment-color": stageColors[index % stageColors.length] } as CSSProperties} />
                         <span className={styles.progressStageLabel}>{stage.label}{stage.optional && <small>optional</small>}</span>
                     </li>;
                 })}

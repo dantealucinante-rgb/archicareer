@@ -6,7 +6,6 @@ import PortfolioEditor from "@/app/(dashboard)/profile/PortfolioEditor";
 import type { AccountType, PortfolioItem } from "@/types";
 import OnboardingConnectionsStep from "./OnboardingConnectionsStep";
 import OnboardingIdentityStep from "./OnboardingIdentityStep";
-import OnboardingInterestsStep from "./OnboardingInterestsStep";
 import OnboardingProgress from "./OnboardingProgress";
 import OnboardingStepVisual from "./OnboardingStepVisual";
 import OnboardingWelcomeStep from "./OnboardingWelcomeStep";
@@ -34,8 +33,8 @@ export default function OnboardingExperience({ accountType, profile, onboarding,
     const stages = useMemo(() => getStages(accountType), [accountType]);
     const [step, setStep] = useState(onboarding.step);
     const [draft, setDraft] = useState<OnboardingDraft>(() => initialDraft(accountType, profile, onboarding.data, registrationDetails));
-    const [interests, setInterests] = useState(onboarding.interests);
-    const [interestOther, setInterestOther] = useState(onboarding.interestOther);
+    const interests = onboarding.interests;
+    const interestOther = onboarding.interestOther;
     const [profileName, setProfileName] = useState(profile.name);
     const [photoUrl, setPhotoUrl] = useState(profile.avatar_url);
     const [projectItems, setProjectItems] = useState(initialProjects);
@@ -47,11 +46,14 @@ export default function OnboardingExperience({ accountType, profile, onboarding,
 
     const patchProgress = useCallback((body: Record<string, unknown>) => {
         setSaveStatus("saving");
+        const savedBody = interests.length > 0 && !Array.isArray(body.interests)
+            ? { ...body, interests, interest_other: interestOther }
+            : body;
         const request = queue.current.catch(() => undefined).then(async () => {
             const response = await fetch("/api/onboarding", {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body),
+                body: JSON.stringify(savedBody),
                 keepalive: true,
             });
             const payload = await responseError(response, "Setup could not be saved. Try again.");
@@ -63,12 +65,12 @@ export default function OnboardingExperience({ accountType, profile, onboarding,
         });
         queue.current = request.then(() => undefined, () => undefined);
         return request;
-    }, []);
+    }, [interestOther, interests]);
 
     useEffect(() => {
-        if (step !== 1 && step !== 2) return;
+        if (step !== 1) return;
         const timer = window.setTimeout(() => {
-            const body = step === 1 ? { data: draft } : { interests, interest_other: interestOther };
+            const body = { data: draft, ...(interests.length > 0 ? { interests, interest_other: interestOther } : {}) };
             void patchProgress(body).catch(() => undefined);
         }, 850);
         return () => window.clearTimeout(timer);
@@ -139,14 +141,10 @@ export default function OnboardingExperience({ accountType, profile, onboarding,
             } else if (step === 1) {
                 const validationError = identityError();
                 if (validationError) throw new Error(validationError);
-                await patchProgress({ data: draft });
+                await patchProgress({ data: draft, ...(interests.length > 0 ? { interests, interest_other: interestOther } : {}) });
                 await savePublicIdentity();
-                await patchProgress({ data: draft, step: 2 }); setStep(2);
-            } else if (step === 2) {
-                if (interests.length === 0) throw new Error("Choose at least one area that reflects your work or interests.");
-                if (interests.includes("Other") && !interestOther.trim()) throw new Error("Describe the other interest you selected.");
                 const next = accountType === "business" ? 4 : 3;
-                await patchProgress({ interests, interest_other: interestOther, step: next }); setStep(next);
+                await patchProgress({ data: draft, ...(interests.length > 0 ? { interests, interest_other: interestOther } : {}), step: next }); setStep(next);
             } else if (step === 3) {
                 await patchProgress({ step: 4 }); setStep(4);
             } else if (step === 4) {
@@ -184,14 +182,14 @@ export default function OnboardingExperience({ accountType, profile, onboarding,
 
     async function retrySave() {
         setErrorMessage("");
-        const body = step === 1 ? { data: draft } : step === 2 ? { interests, interest_other: interestOther } : { step };
+        const body = step === 1 ? { data: draft, ...(interests.length > 0 ? { interests, interest_other: interestOther } : {}) } : { step };
         try { await patchProgress(body); }
         catch (error) { setErrorMessage(error instanceof Error ? error.message : "We could not save your progress."); }
     }
 
-    const continueLabel = step === 0 ? "Let’s Get Started" : step === 1 ? "Continue to interests" : step === 2 ? accountType === "business" ? "Continue to people" : "Continue to your work" : step === 3 ? "Continue to people" : step === 4 ? "Finish setup" : "Enter ArchiCareer";
+    const continueLabel = step === 0 ? "Let’s Get Started" : step === 1 ? accountType === "business" ? "Continue to people" : "Continue to your work" : step === 3 ? "Continue to people" : step === 4 ? "Finish setup" : "Enter ArchiCareer";
     const isImmersive = step === 0 || step === 5;
-    const visualStage = step === 1 ? "identity" : step === 2 ? "interests" : step === 3 ? "project" : "connections";
+    const visualStage = step === 1 ? "identity" : step === 3 ? "project" : "connections";
 
     return <main className={styles.page}>
         <OnboardingProgress stages={stages} currentStep={step} saveStatus={saveStatus} />
@@ -201,8 +199,9 @@ export default function OnboardingExperience({ accountType, profile, onboarding,
                     <OnboardingStepVisual accountType={accountType} stage={visualStage} />
                     <section className={styles.stepContent} aria-live="polite">
                         {step === 1 && <OnboardingIdentityStep accountType={accountType} draft={draft} onChange={updateDraft} photoUrl={photoUrl} onPhotoChange={setPhotoUrl} onPhotoBusyChange={setPhotoBusy} />}
-                        {step === 2 && <OnboardingInterestsStep interests={interests} other={interestOther} onChange={(nextInterests, nextOther) => { setInterests(nextInterests); setInterestOther(nextOther); setErrorMessage(""); }} />}
-                        {step === 3 && <div className={styles.projectContent}><div className={styles.sectionHeading}><p className={styles.sectionKicker}>04 / YOUR FIRST PROJECT · OPTIONAL</p><h2>Your work deserves to be seen.</h2><p>Give people a glimpse of what you create. Add a first project to start building your presence on ArchiCareer.</p></div><PortfolioEditor initialItems={projectItems} variant={accountType === "firm" ? "firm" : "individual"} onItemsChange={projectItemsChanged} /></div>}
+                        {step === 3 && <div className={styles.projectContent}><div className={styles.sectionHeading}><p className={styles.sectionKicker}>YOUR FIRST PROJECT · OPTIONAL</p><h2>LET YOUR WORK SPEAK.</h2><p>Your projects deserve to be seen. Start building your portfolio by sharing a project you’re proud of.</p></div><PortfolioEditor onboardingExperience initialItems={projectItems} variant={accountType === "firm" ? "firm" : "individual"} onItemsChange={projectItemsChanged} />
+                            <p className={styles.projectLater}>You can skip this step and add projects to your profile whenever you’re ready.</p>
+                        </div>}
                         {step === 4 && <OnboardingConnectionsStep />}
                     </section>
                 </div>}

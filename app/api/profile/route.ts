@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { getCurrentProfile, isOwnedAvatarUrl, removeAvatarFile, removeCvFile, updateProfile } from "@/lib/queries/profiles";
 import { verifyStoredAsset } from "@/lib/storage-validation";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { isFallbackAvatarUrl } from "@/lib/avatar";
+import { PROFESSIONAL_INTEREST_OPTIONS } from "@/lib/professional-interests";
 
 export async function POST(request: Request) {
     try {
@@ -11,6 +12,23 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Request body must be a JSON object" }, { status: 400 });
         }
         const has = (key: string) => Object.prototype.hasOwnProperty.call(body, key);
+        let submittedInterests: string[] | undefined;
+        let submittedInterestOther = "";
+        if (has("professional_interests")) {
+            const interestInput: unknown = body.professional_interests;
+            if (!Array.isArray(interestInput) || interestInput.length > PROFESSIONAL_INTEREST_OPTIONS.length) {
+                return NextResponse.json({ error: "Professional interests are invalid." }, { status: 400 });
+            }
+            if (interestInput.some((interest: unknown) => typeof interest !== "string" || !PROFESSIONAL_INTEREST_OPTIONS.includes(interest as (typeof PROFESSIONAL_INTEREST_OPTIONS)[number])) || new Set(interestInput).size !== interestInput.length) {
+                return NextResponse.json({ error: "Professional interests are invalid." }, { status: 400 });
+            }
+            submittedInterests = interestInput as string[];
+            const other = body.professional_interest_other;
+            if (other !== undefined && (typeof other !== "string" || other.trim().length > 120)) {
+                return NextResponse.json({ error: "Your other interest must be 120 characters or fewer." }, { status: 400 });
+            }
+            submittedInterestOther = typeof other === "string" ? other.trim() : "";
+        }
         const rawName = typeof body.name === "string" ? body.name.trim() : "";
         const rawBio = typeof body.bio === "string" ? body.bio.trim() : "";
         const rawSchool = typeof body.school_or_firm === "string" ? body.school_or_firm.trim() : "";
@@ -82,6 +100,22 @@ export async function POST(request: Request) {
         }
         if (profile.avatar_url && profile.avatar_url !== data.avatar_url) {
             await removeAvatarFile(profile.avatar_url);
+        }
+
+        if (submittedInterests) {
+            const { data: savedInterestState, error: interestSaveError } = await createAdminClient()
+                .from("profile_onboarding")
+                .update({
+                    professional_interests: submittedInterests,
+                    professional_interest_other: submittedInterests.includes("Other") ? submittedInterestOther : "",
+                })
+                .eq("user_id", profile.user_id)
+                .eq("profile_id", profile.id)
+                .select("user_id")
+                .maybeSingle();
+            if (interestSaveError || !savedInterestState) {
+                return NextResponse.json({ error: "Your profile was saved, but your interests could not be updated. Try saving again." }, { status: 503 });
+            }
         }
 
         return NextResponse.json({ ok: true, profile: data });

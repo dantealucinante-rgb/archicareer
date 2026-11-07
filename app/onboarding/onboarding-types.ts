@@ -39,13 +39,6 @@ export type Recommendation = {
 
 export type OnboardingStage = { id: number; label: string; optional?: boolean };
 
-export const INTERESTS = [
-    "Architecture", "Interior Design", "Landscape Architecture", "Structural Engineering", "Civil Engineering",
-    "Construction", "Building", "Contracting", "Urban Planning", "3D Visualisation", "3D Modelling",
-    "Product Design", "Furniture Design", "Material Design", "Project Management", "Real Estate",
-    "Building Materials", "Manufacturing", "Photography", "Graphic Design", "Other",
-] as const;
-
 export const EMPTY_DRAFT: OnboardingDraft = {
     first_name: "", last_name: "", institution: "", discipline: "", academic_level: "", graduation_year: "",
     professional_title: "", experience: "", bio: "", organization_type: "", organization_type_other: "",
@@ -56,7 +49,6 @@ export function getStages(accountType: AccountType): OnboardingStage[] {
     const stages: OnboardingStage[] = [
         { id: 0, label: "Welcome" },
         { id: 1, label: "Identity" },
-        { id: 2, label: "Interests" },
     ];
     if (accountType !== "business") stages.push({ id: 3, label: "Portfolio", optional: true });
     stages.push({ id: 4, label: "Connections", optional: true }, { id: 5, label: "Ready" });

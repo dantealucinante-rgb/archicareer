@@ -5,9 +5,10 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/types";
 import { ARCHITECTURE_SOFTWARE, NIGERIAN_ARCHITECTURE_SCHOOLS, NIGERIAN_STATES } from "@/lib/profile-options";
+import { PROFESSIONAL_INTEREST_OPTIONS } from "@/lib/professional-interests";
 import { compressImageForUpload } from "@/lib/image-compression";
 
-type Props = { profile: Profile | null; variant?: "individual" | "firm" };
+type Props = { profile: Profile | null; variant?: "individual" | "firm"; professionalInterests?: string[]; professionalInterestOther?: string };
 
 function TagsInput({ values, onChange, placeholder }: { values: string[]; onChange: (values: string[]) => void; placeholder: string }) {
     const [draft, setDraft] = useState("");
@@ -38,7 +39,7 @@ function TagsInput({ values, onChange, placeholder }: { values: string[]; onChan
     );
 }
 
-export default function ProfileEditor({ profile, variant = "individual" }: Props) {
+export default function ProfileEditor({ profile, variant = "individual", professionalInterests = [], professionalInterestOther = "" }: Props) {
     const router = useRouter();
     const canUploadAvatar = variant === "individual";
     const [name, setName] = useState(profile?.name ?? "");
@@ -47,6 +48,9 @@ export default function ProfileEditor({ profile, variant = "individual" }: Props
     const [location, setLocation] = useState(profile?.location ?? "");
     const [slug, setSlug] = useState(profile?.slug ?? "");
     const [software, setSoftware] = useState(profile?.software_proficiency ?? []);
+    const [interests, setInterests] = useState(professionalInterests);
+    const [interestOther, setInterestOther] = useState(professionalInterestOther);
+    const [interestsChanged, setInterestsChanged] = useState(false);
     const [cvUrl] = useState(profile?.cv_url ?? "");
     const [instagramUrl, setInstagramUrl] = useState(profile?.instagram_url ?? "");
     const [siteUrl, setSiteUrl] = useState(profile?.personal_site_url ?? "");
@@ -117,7 +121,7 @@ export default function ProfileEditor({ profile, variant = "individual" }: Props
             const response = await fetch("/api/profile", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, bio, school_or_firm: schoolOrFirm, location, slug, software_proficiency: software, cv_url: uploadedCv.url, avatar_url: uploadedAvatar.url, instagram_url: instagramUrl, personal_site_url: siteUrl, linkedin_url: linkedinUrl }),
+                body: JSON.stringify({ name, bio, school_or_firm: schoolOrFirm, location, slug, software_proficiency: software, ...(interestsChanged ? { professional_interests: interests, professional_interest_other: interestOther } : {}), cv_url: uploadedCv.url, avatar_url: uploadedAvatar.url, instagram_url: instagramUrl, personal_site_url: siteUrl, linkedin_url: linkedinUrl }),
             });
             const payload = await response.json().catch(() => ({}));
             if (!response.ok) {
@@ -146,6 +150,7 @@ export default function ProfileEditor({ profile, variant = "individual" }: Props
                     <div><label htmlFor="profile-slug" className={labelClass}>Short public link</label><input id="profile-slug" value={slug} onChange={(event) => setSlug(event.target.value.toLowerCase())} className={fieldClass} pattern="[a-z0-9-]+" minLength={2} /><p className="mt-2 text-xs text-graphite">Your profile will be available at archicareer.ng/p/{slug || "your-name"}</p></div>
                     <div><label htmlFor="profile-bio" className={labelClass}>{variant === "firm" ? "About the organisation" : "Bio"}</label><textarea id="profile-bio" value={bio} onChange={(event) => setBio(event.target.value)} className={`${fieldClass} resize-y`} rows={5} placeholder={variant === "firm" ? "What does the organisation do, and what kind of work does it take on?" : "What do you do, care about, or want to work on?"} /></div>
                     <div><label className={labelClass}>{variant === "firm" ? "Tools & capabilities" : "Software proficiency"}</label><p className="mt-2 text-xs text-graphite">Choose common tools below or add your own.</p><div className="mt-3 flex flex-wrap gap-2">{ARCHITECTURE_SOFTWARE.map((tool) => <button key={tool} type="button" onClick={() => setSoftware((current) => current.includes(tool) ? current.filter((item) => item !== tool) : [...current, tool])} className={`rounded-full border px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider transition-colors ${software.includes(tool) ? "border-ink bg-ink text-paper" : "border-line bg-warm-white text-graphite hover:border-redline hover:text-redline"}`}>{tool}</button>)}</div><div className="mt-3"><TagsInput values={software} onChange={setSoftware} placeholder={variant === "firm" ? "Add another capability or tool" : "Add another tool and press Enter"} /></div></div>
+                    <div><label className={labelClass}>Professional interests</label><p className="mt-2 text-sm text-graphite">These help tailor people and opportunities to your work. You can change them any time.</p><div className="mt-3 flex flex-wrap gap-2">{PROFESSIONAL_INTEREST_OPTIONS.map((interest) => { const selected = interests.includes(interest); return <button key={interest} type="button" aria-pressed={selected} onClick={() => { setInterestsChanged(true); setInterests((current) => selected ? current.filter((value) => value !== interest) : [...current, interest]); }} className={`min-h-10 rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${selected ? "border-ink bg-ink text-paper" : "border-line bg-warm-white text-graphite hover:border-redline hover:text-redline"}`}>{selected ? "✓ " : "+ "}{interest}</button>; })}</div>{interests.includes("Other") && <label htmlFor="professional-interest-other" className="mt-4 block max-w-xl text-sm font-semibold text-ink">Describe your other interest<input id="professional-interest-other" value={interestOther} onChange={(event) => { setInterestOther(event.target.value); setInterestsChanged(true); }} maxLength={120} className={fieldClass} placeholder="Add a field or specialisation" /></label>}</div>
                 </div>
             </section>
 
