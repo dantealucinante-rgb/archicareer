@@ -43,9 +43,12 @@ export default function FeedList({ initialPosts, currentUserId }: { initialPosts
         }
     }, [hasMore, offset]);
 
-    function addPost(post: FeedPost) {
-        setPosts((current) => [post, ...current.filter((currentPost) => currentPost.id !== post.id)]);
-        setOffset((current) => current + 1);
+    function addPost(post: FeedPost, replaceId?: string) {
+        setPosts((current) => {
+            const next = current.filter((currentPost) => currentPost.id !== post.id && currentPost.id !== replaceId);
+            return [post, ...next];
+        });
+        if (replaceId && !post.client_status) setOffset((current) => current + 1);
     }
 
     function openComposer() {
@@ -53,7 +56,10 @@ export default function FeedList({ initialPosts, currentUserId }: { initialPosts
     }
 
     useEffect(() => {
-        const onPostCreated = (event: Event) => addPost((event as CustomEvent<FeedPost>).detail);
+        const onPostCreated = (event: Event) => {
+            const detail = (event as CustomEvent<{ post: FeedPost; replaceId?: string }>).detail;
+            addPost(detail.post, detail.replaceId);
+        };
         window.addEventListener("post-created", onPostCreated);
         return () => window.removeEventListener("post-created", onPostCreated);
     }, []);
@@ -73,15 +79,20 @@ export default function FeedList({ initialPosts, currentUserId }: { initialPosts
         setDeletingId(id);
         setFeedMessage("");
         setFeedHasError(false);
+        const previousIndex = posts.findIndex((post) => post.id === id);
+        const removed = posts[previousIndex];
+        if (!removed) return;
+        setPosts((current) => current.filter((post) => post.id !== id));
+        setOffset((current) => Math.max(0, current - 1));
         try {
             const response = await fetch("/api/posts", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
             const payload = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(payload.error ?? "Unable to delete post.");
-            setPosts((current) => current.filter((post) => post.id !== id));
-            setOffset((current) => Math.max(0, current - 1));
-        } catch (error) {
+        } catch {
+            setPosts((current) => current.some((post) => post.id === id) ? current : [...current.slice(0, previousIndex), removed, ...current.slice(previousIndex)]);
+            setOffset((current) => current + 1);
             setFeedHasError(true);
-            setFeedMessage(error instanceof Error ? error.message : "Unable to delete post.");
+            setFeedMessage("Couldn’t delete post. It has been restored. Try again.");
         } finally {
             setDeletingId(null);
         }
@@ -103,7 +114,7 @@ export default function FeedList({ initialPosts, currentUserId }: { initialPosts
                     {post.content && <p className={`mt-5 whitespace-pre-wrap leading-relaxed text-ink ${post.image_url ? "text-sm sm:text-base" : "feed-post-copy text-sm sm:text-base"}`}>{post.content}</p>}
                 </div>
                 {post.image_url && <><p className="mt-6 font-mono text-[9px] uppercase tracking-widest text-redline">Visual field note <span aria-hidden="true">/</span> {new Date(post.created_at).getFullYear()}</p><div className="relative mt-2 aspect-[4/3] overflow-hidden rounded-xl border border-line bg-sand sm:mt-3"><Image src={post.image_url} alt={`Image shared by ${post.author.name}`} fill sizes="(max-width: 672px) 100vw, 672px" className="object-cover" /></div></>}
-                <ContentEngagement target={{ post_id: post.id }} initial={{ reactionCount: post.reaction_count, commentCount: post.comment_count, userReacted: post.user_reacted }} currentUserId={currentUserId} />
+                {post.client_status ? <div className="mt-5 border-t border-line pt-3 font-mono text-[10px] uppercase tracking-widest text-graphite">{post.client_status === "pending" ? "Publishing post…" : <>Post wasn’t published. <button type="button" onClick={openComposer} className="underline underline-offset-2">Retry in composer</button></>}</div> : <ContentEngagement target={{ post_id: post.id }} initial={{ reactionCount: post.reaction_count, commentCount: post.comment_count, userReacted: post.user_reacted }} currentUserId={currentUserId} />}
             </article>)}
             {hasMore && <div ref={loadMoreSentinelRef} className="mx-5 my-6 min-h-10 text-center sm:mx-0" aria-live="polite">{loading && <span className="font-mono text-[10px] uppercase tracking-widest text-graphite">Loading more posts…</span>}{feedHasError && <button type="button" onClick={() => void loadMore()} className="feedback-control rounded-full border border-ink px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-ink hover:bg-ink hover:text-paper">Retry loading posts</button>}</div>}
         </div>

@@ -153,12 +153,14 @@ export default function PortfolioEditor({ initialItems, variant = "individual", 
         const images = [...item.images];
         [images[index], images[target]] = [images[target], images[index]];
         setMessage("");
+        const previousItems = items;
+        setItems((current) => current.map((currentItem) => currentItem.id === item.id ? { ...currentItem, images } : currentItem));
         try {
             const response = await fetch("/api/portfolio", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id, imageOrder: images.map((image) => image.id) }) });
             const payload = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(payload.error ?? "Unable to reorder portfolio images.");
-            setItems((current) => current.map((currentItem) => currentItem.id === item.id ? { ...currentItem, images } : currentItem));
         } catch (error) {
+            setItems(previousItems);
             setMessage(error instanceof Error ? error.message : "Unable to reorder portfolio images.");
         }
     }
@@ -166,12 +168,14 @@ export default function PortfolioEditor({ initialItems, variant = "individual", 
     async function removeImage(item: PortfolioItem, imageId: string) {
         if (!window.confirm("Remove this image from the project? This cannot be undone.")) return;
         setMessage("");
+        const previousItems = items;
+        setItems((current) => current.map((currentItem) => currentItem.id === item.id ? { ...currentItem, images: currentItem.images.filter((image) => image.id !== imageId) } : currentItem));
         try {
             const response = await fetch("/api/portfolio", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ imageId }) });
             const payload = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(payload.error ?? "Unable to remove portfolio image.");
-            setItems((current) => current.map((currentItem) => currentItem.id === item.id ? { ...currentItem, images: currentItem.images.filter((image) => image.id !== imageId) } : currentItem));
         } catch (error) {
+            setItems(previousItems);
             setMessage(error instanceof Error ? error.message : "Unable to remove portfolio image.");
         }
     }
@@ -179,12 +183,14 @@ export default function PortfolioEditor({ initialItems, variant = "individual", 
     async function removeItem(id: string) {
         if (!window.confirm("Remove this project? This cannot be undone.")) return;
         setMessage("");
+        const previousItems = items;
+        setItems((current) => current.filter((item) => item.id !== id));
         try {
             const response = await fetch("/api/portfolio", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
             const payload = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(payload.error ?? "Unable to remove portfolio item.");
-            setItems((current) => current.filter((item) => item.id !== id));
         } catch (error) {
+            setItems(previousItems);
             setMessage(error instanceof Error ? error.message : "Unable to remove portfolio item.");
         }
     }

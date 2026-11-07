@@ -170,6 +170,8 @@ export interface FeedPost {
     reaction_count: number;
     comment_count: number;
     user_reacted: boolean;
+    /** Client-only delivery state for posts being created. Never persisted. */
+    client_status?: "pending" | "failed";
 }
 
 export interface Bookmark {

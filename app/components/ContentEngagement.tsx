@@ -11,6 +11,8 @@ type Target = { portfolio_item_id?: string; post_id?: string };
 export default function ContentEngagement({ target, initial, currentUserId, canModerate = false }: { target: Target; initial: EngagementSummary; currentUserId: string | null; canModerate?: boolean }) {
     const [summary, setSummary] = useState(initial);
     const [comments, setComments] = useState<Comment[]>([]);
+    const [failedCommentIds, setFailedCommentIds] = useState<string[]>([]);
+    const [commentInFlight, setCommentInFlight] = useState(false);
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [body, setBody] = useState("");
@@ -23,6 +25,7 @@ export default function ContentEngagement({ target, initial, currentUserId, canM
     const [shareMessage, setShareMessage] = useState("");
     const [sharePending, setSharePending] = useState(false);
     const reactionRequestInFlight = useRef(false);
+    const commentRequestInFlight = useRef(false);
 
     function collectCommentThreadIds(rootId: string) {
         const ids = new Set([rootId]);
@@ -91,16 +94,46 @@ export default function ContentEngagement({ target, initial, currentUserId, canM
         }
     }
 
+    async function sendComment(content: string, parentId: string | null, temporaryId = `temp-${crypto.randomUUID()}`) {
+        if (!currentUserId || commentRequestInFlight.current) return;
+        commentRequestInFlight.current = true;
+        setCommentInFlight(true);
+        setMessage("");
+        setFailedCommentIds((current) => current.filter((id) => id !== temporaryId));
+        const comment: Comment = {
+            id: temporaryId,
+            portfolio_item_id: target.portfolio_item_id ?? null,
+            post_id: target.post_id ?? null,
+            parent_comment_id: parentId,
+            user_id: currentUserId,
+            content,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+        };
+        const isNew = !comments.some((item) => item.id === temporaryId);
+        if (isNew) {
+            setComments((current) => [...current, comment]);
+            setSummary((current) => ({ ...current, commentCount: current.commentCount + 1 }));
+        }
+        try {
+            const response = await fetch("/api/comments", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...target, parent_comment_id: parentId, content }) });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.error ?? "Couldn’t add comment. Try again.");
+            setComments((current) => current.map((item) => item.id === temporaryId ? payload.comment : item));
+            setBody(""); setReplyingTo(null);
+        } catch {
+            setFailedCommentIds((current) => current.includes(temporaryId) ? current : [...current, temporaryId]);
+            setMessage("Couldn’t add comment. Try again.");
+        } finally {
+            commentRequestInFlight.current = false;
+            setCommentInFlight(false);
+        }
+    }
+
     async function submitComment(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        if (!body.trim() || !currentUserId) return;
-        setMessage("");
-        const response = await fetch("/api/comments", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...target, parent_comment_id: replyingTo, content: body }) });
-        const payload = await response.json().catch(() => ({}));
-        if (!response.ok) { setMessage(payload.error ?? "Unable to add comment"); return; }
-        setComments((current) => [...current, payload.comment]);
-        setSummary((current) => ({ ...current, commentCount: current.commentCount + 1 }));
-        setBody(""); setReplyingTo(null);
+        if (!body.trim() || !currentUserId || commentInFlight) return;
+        await sendComment(body.trim(), replyingTo);
     }
 
     async function saveComment(id: string) {
@@ -173,6 +206,7 @@ export default function ContentEngagement({ target, initial, currentUserId, canM
                 <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-baseline gap-2"><span className="font-mono text-[10px] uppercase tracking-widest text-ink">{comment.author?.name ?? "Community member"}</span><span className="font-mono text-[9px] uppercase tracking-widest text-graphite">{formatCommunityDate(comment.created_at)}</span>{currentUserId && <button type="button" onClick={() => { setReplyingTo(comment.id); setBody(""); }} className="font-mono text-[9px] uppercase tracking-widest text-ink hover:text-redline">Reply</button>}{comment.user_id === currentUserId && <button type="button" onClick={() => { setEditingId(comment.id); setEditingBody(comment.content); }} className="font-mono text-[9px] uppercase tracking-widest text-ink hover:text-redline">Edit</button>}{(comment.user_id === currentUserId || canModerate) && <button type="button" onClick={() => void removeComment(comment.id)} className="font-mono text-[9px] uppercase tracking-widest text-redline hover:text-ink">Delete</button>}</div>
                     {editingId === comment.id ? <form onSubmit={(event) => { event.preventDefault(); void saveComment(comment.id); }} className="mt-2 flex gap-2"><input value={editingBody} onChange={(event) => setEditingBody(event.target.value)} maxLength={500} className="field-input text-sm" /><button type="submit" className="shrink-0 rounded-full bg-ink px-3 py-2 font-mono text-[9px] uppercase tracking-widest text-paper">Save</button></form> : <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-graphite">{comment.content}</p>}
+                    {comment.id.startsWith("temp-") && <p className={`mt-1 font-mono text-[9px] uppercase tracking-wider ${failedCommentIds.includes(comment.id) ? "text-redline" : "text-graphite"}`}>{failedCommentIds.includes(comment.id) ? <>Not sent. <button type="button" onClick={() => void sendComment(comment.content, comment.parent_comment_id, comment.id)} className="underline">Retry</button></> : "Sending…"}</p>}
                 </div>
             </div>
             {replies.length > 0 && <div className="mt-3 space-y-3">{replies.map((reply) => renderComment(reply, depth + 1))}</div>}
@@ -189,6 +223,6 @@ export default function ContentEngagement({ target, initial, currentUserId, canM
         </div>
         {reactionError && <p role="alert" className="mt-1 font-mono text-[9px] uppercase tracking-wider text-redline">{reactionError} <button type="button" onClick={() => void toggleReaction()} className="underline underline-offset-2 hover:text-ink">Retry</button></p>}
         {shareMessage && <p aria-live="polite" className="mt-1 font-mono text-[9px] uppercase tracking-wider text-graphite">{shareMessage}</p>}
-        {open && <div className="mt-4 space-y-4"><div className="space-y-3">{loading ? <div role="status" className="rounded-xl bg-warm-white px-4 py-3 text-sm text-graphite"><span className="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-ink" />Loading discussion…</div> : message && comments.length === 0 ? <div role="alert" className="rounded-xl border border-redline/30 bg-redline/5 px-4 py-3 text-sm text-redline">{message}</div> : topLevelComments.length === 0 ? <div className="rounded-xl border border-dashed border-line bg-warm-white px-4 py-4 text-sm text-graphite">No comments yet. Be the first to add a note.</div> : topLevelComments.map((comment) => renderComment(comment))}</div>{currentUserId ? <form onSubmit={submitComment} className="flex gap-2">{replyingTo && <button type="button" onClick={() => setReplyingTo(null)} className="shrink-0 font-mono text-[9px] uppercase tracking-widest text-redline">Cancel reply</button>}<input autoFocus={Boolean(replyingTo)} value={body} onChange={(event) => setBody(event.target.value)} maxLength={500} className="field-input text-sm" placeholder={replyingTo ? "Write a reply" : "Add a note"} /><button type="submit" className="shrink-0 rounded-full border border-ink bg-ink px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-paper hover:bg-redline">{replyingTo ? "Reply" : "Post"}</button></form> : <p className="font-mono text-[10px] uppercase tracking-widest text-graphite"><Link href="/login" className="text-redline hover:text-ink">Sign in</Link> to join the conversation.</p>}{message && comments.length > 0 && <p role="alert" className="rounded-lg bg-redline/5 px-3 py-2 text-sm text-redline">{message}</p>}</div>}
+        {open && <div className="mt-4 space-y-4"><div className="space-y-3">{loading ? <div role="status" className="rounded-xl bg-warm-white px-4 py-3 text-sm text-graphite"><span className="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-ink" />Loading discussion…</div> : message && comments.length === 0 ? <div role="alert" className="rounded-xl border border-redline/30 bg-redline/5 px-4 py-3 text-sm text-redline">{message}</div> : topLevelComments.length === 0 ? <div className="rounded-xl border border-dashed border-line bg-warm-white px-4 py-4 text-sm text-graphite">No comments yet. Be the first to add a note.</div> : topLevelComments.map((comment) => renderComment(comment))}</div>{currentUserId ? <form onSubmit={submitComment} className="flex gap-2">{replyingTo && <button type="button" onClick={() => setReplyingTo(null)} className="shrink-0 font-mono text-[9px] uppercase tracking-widest text-redline">Cancel reply</button>}<input autoFocus={Boolean(replyingTo)} value={body} onChange={(event) => setBody(event.target.value)} maxLength={500} className="field-input text-sm" placeholder={replyingTo ? "Write a reply" : "Add a note"} /><button type="submit" disabled={commentInFlight} className="shrink-0 rounded-full border border-ink bg-ink px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-paper hover:bg-redline disabled:opacity-60">{commentInFlight ? "Sending…" : replyingTo ? "Reply" : "Post"}</button></form> : <p className="font-mono text-[10px] uppercase tracking-widest text-graphite"><Link href="/login" className="text-redline hover:text-ink">Sign in</Link> to join the conversation.</p>}{message && comments.length > 0 && <p role="alert" className="rounded-lg bg-redline/5 px-3 py-2 text-sm text-redline">{message}</p>}</div>}
     </div>;
 }

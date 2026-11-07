@@ -76,8 +76,8 @@ export default function MobileAppHeader({ authenticated, profile }: MobileAppHea
 
     const openComposer = useCallback(() => setComposerOpen(true), []);
     const closeComposer = useCallback(() => setComposerOpen(false), []);
-    const addPostToFeed = useCallback((post: FeedPost) => {
-        window.dispatchEvent(new CustomEvent<FeedPost>("post-created", { detail: post }));
+    const addPostToFeed = useCallback((post: FeedPost, replaceId?: string) => {
+        window.dispatchEvent(new CustomEvent("post-created", { detail: { post, replaceId } }));
     }, []);
 
     useEffect(() => {
@@ -108,7 +108,7 @@ export default function MobileAppHeader({ authenticated, profile }: MobileAppHea
                 <Link href="/feed" aria-label="ArchiCareer feed" className="group justify-self-center font-display text-[1.3rem] font-bold tracking-[-0.055em] text-ink transition-colors hover:text-redline"><BrandLogo /></Link>
                 {showMobileMenu && <MobileNav authenticated={authenticated} profile={profile} />}
             </div>
-            {profile && <PostComposer open={composerOpen} onClose={closeComposer} onCreated={addPostToFeed} author={{ name: profile.name, avatar_url: profile.avatar_url }} />}
+            {profile && <PostComposer open={composerOpen} onClose={closeComposer} onCreated={addPostToFeed} author={{ id: profile.id, name: profile.name, slug: profile.slug, role: profile.role, location: profile.location, avatar_url: profile.avatar_url }} />}
             {typeof document !== "undefined" && createPortal(<MobileBottomNav pathname={pathname} onOpenComposer={openComposer} />, document.body)}
         </>
     );

@@ -11,8 +11,8 @@ import ProfileAvatar from "./ProfileAvatar";
 type Props = {
     open: boolean;
     onClose: () => void;
-    onCreated: (post: FeedPost) => void;
-    author: { name: string; avatar_url: string | null } | null;
+    onCreated: (post: FeedPost, replaceId?: string) => void;
+    author: { id: string; name: string; slug: string; role: "student" | "architect" | "firm"; location: string | null; avatar_url: string | null } | null;
 };
 
 export default function PostComposer({ open, onClose, onCreated, author }: Props) {
@@ -26,6 +26,7 @@ export default function PostComposer({ open, onClose, onCreated, author }: Props
     const [dragClosing, setDragClosing] = useState(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const dragRef = useRef<{ pointerId: number; startY: number; lastY: number; lastTime: number; velocity: number; offset: number } | null>(null);
+    const optimisticPostId = useRef<string | null>(null);
 
     useEffect(() => () => {
         if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -115,6 +116,9 @@ export default function PostComposer({ open, onClose, onCreated, author }: Props
 
         setSaving(true);
         setMessage("");
+        const pendingId = optimisticPostId.current ?? `temp-${crypto.randomUUID()}`;
+        optimisticPostId.current = pendingId;
+        if (author) onCreated({ id: pendingId, user_id: author.id, content: content.trim() || null, image_url: previewUrl, created_at: new Date().toISOString(), updated_at: new Date().toISOString(), author, reaction_count: 0, comment_count: 0, user_reacted: false, client_status: "pending" });
         let path = "";
         try {
             let imageUrl: string | null = null;
@@ -138,12 +142,14 @@ export default function PostComposer({ open, onClose, onCreated, author }: Props
                 if (path) await createClient().storage.from("post-images").remove([path]);
                 throw new Error(payload.error ?? "Unable to publish post");
             }
-            onCreated(payload.post as FeedPost);
+            onCreated(payload.post as FeedPost, pendingId);
+            optimisticPostId.current = null;
             setContent("");
             selectImage(null);
             setMessage("");
             requestClose(true);
         } catch (error) {
+            if (author) onCreated({ id: pendingId, user_id: author.id, content: content.trim() || null, image_url: previewUrl, created_at: new Date().toISOString(), updated_at: new Date().toISOString(), author, reaction_count: 0, comment_count: 0, user_reacted: false, client_status: "failed" }, pendingId);
             setMessage(error instanceof Error ? error.message : "Unable to publish post");
         } finally {
             setSaving(false);
