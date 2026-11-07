@@ -11,6 +11,7 @@ import ProfileAvatar from "./ProfileAvatar";
 import { Plus } from "./UiIcon";
 import PostComposer from "./PostComposer";
 import type { FeedPost } from "@/types";
+import bottomNavStyles from "./mobile-bottom-nav.module.css";
 
 type MobileAppHeaderProps = {
     authenticated: boolean;
@@ -45,23 +46,18 @@ function BriefcaseIcon() {
 
 function MobileBottomNav({ pathname, onOpenComposer }: { pathname: string; onOpenComposer: () => void }) {
     const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
-    const itemClass = (active: boolean) => `mobile-nav-item flex min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[10px] font-medium ${active ? "text-redline" : "text-graphite"}`;
-
-    function openComposer() {
-        onOpenComposer();
-    }
 
     return (
-        <nav aria-label="Mobile app navigation" className="fixed inset-x-0 bottom-0 z-40 border-t border-line/80 bg-paper/95 px-3 pb-[env(safe-area-inset-bottom)] pt-1.5 shadow-[0_-10px_30px_rgba(23,33,38,0.08)] backdrop-blur-xl sm:hidden">
-            <div className="mx-auto grid max-w-md grid-cols-5 items-end">
-                <Link href="/feed" aria-current={isActive("/feed") ? "page" : undefined} className={itemClass(isActive("/feed"))}><HomeIcon /><span>Home</span></Link>
-                <Link href="/discover" aria-current={isActive("/discover") ? "page" : undefined} className={itemClass(isActive("/discover"))}><NetworkIcon /><span>Network</span></Link>
-                <button type="button" onClick={openComposer} className="mobile-nav-create group -translate-y-3 flex min-w-0 flex-col items-center gap-1 rounded-xl text-[10px] font-medium text-ink" aria-label="Create a post">
-                    <span className="grid h-12 w-12 place-items-center rounded-full border-4 border-paper bg-ink text-paper shadow-lg transition-colors group-hover:bg-redline"><Plus className="h-5 w-5" /></span>
-                    <span>Create</span>
+        <nav aria-label="Mobile app navigation" className={`${bottomNavStyles.dock} sm:hidden`}>
+            <div className={bottomNavStyles.items}>
+                <Link href="/feed" aria-current={isActive("/feed") ? "page" : undefined} className={`${bottomNavStyles.item} ${isActive("/feed") ? bottomNavStyles.active : ""}`}><HomeIcon /><span>Home</span></Link>
+                <Link href="/discover" aria-current={isActive("/discover") ? "page" : undefined} className={`${bottomNavStyles.item} ${isActive("/discover") ? bottomNavStyles.active : ""}`}><NetworkIcon /><span>Discover</span></Link>
+                <button type="button" onClick={onOpenComposer} className={`${bottomNavStyles.item} ${bottomNavStyles.create}`} aria-label="Create a post">
+                    <Plus className="h-5 w-5" />
+                    <span>Post</span>
                 </button>
-                <span aria-disabled="true" title="Notifications are not available yet" className="flex min-w-0 flex-col items-center gap-1 px-1 py-2 font-mono text-[9px] uppercase tracking-[0.12em] text-graphite/45"><BellIcon /><span>Alerts</span></span>
-                <Link href="/jobs" aria-current={isActive("/jobs") ? "page" : undefined} className={itemClass(isActive("/jobs"))}><BriefcaseIcon /><span>Jobs</span></Link>
+                <span aria-disabled="true" title="Notifications are not available yet" className={`${bottomNavStyles.item} ${bottomNavStyles.disabled}`}><BellIcon /><span>Alerts</span></span>
+                <Link href="/jobs" aria-current={isActive("/jobs") ? "page" : undefined} className={`${bottomNavStyles.item} ${isActive("/jobs") ? bottomNavStyles.active : ""}`}><BriefcaseIcon /><span>Jobs</span></Link>
             </div>
         </nav>
     );
