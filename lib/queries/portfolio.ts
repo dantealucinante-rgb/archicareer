@@ -84,18 +84,23 @@ async function attachImages(
 }
 
 export async function getPortfolioItemsForProfile(
-    profileId: string
+    profileId: string,
+    limit = 12,
+    offset = 0
 ): Promise<QueryResult<PortfolioItem[]>> {
     try {
         const supabase = createPublicClient();
-        const { data, error } = await supabase
+        const safeLimit = Math.min(Math.max(Math.floor(limit) || 12, 1), 24);
+        const safeOffset = Math.max(Math.floor(offset) || 0, 0);
+        const { data, error, count } = await supabase
             .from("portfolio_items")
-            .select(PORTFOLIO_COLS)
+            .select(PORTFOLIO_COLS, { count: "exact" })
             .eq("profile_id", profileId)
-            .order("display_order", { ascending: true });
+            .order("display_order", { ascending: true })
+            .range(safeOffset, safeOffset + safeLimit - 1);
 
         if (error) return { data: null, error: new Error(error.message) };
-        return { data: await attachImages(supabase, (data ?? []) as Omit<PortfolioItem, "images">[]), error: null };
+        return { data: await attachImages(supabase, (data ?? []) as Omit<PortfolioItem, "images">[]), error: null, count: count ?? undefined };
     } catch (err) {
         console.error("[portfolio] getPortfolioItemsForProfile:", err);
         return { data: null, error: err instanceof Error ? err : new Error(String(err)) };

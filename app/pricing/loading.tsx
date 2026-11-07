@@ -1,12 +1,24 @@
+import { MarketingFooter, MarketingHeader } from "@/app/components/MarketingChrome";
+import brand from "@/app/(marketing)/landing.module.css";
+import styles from "./pricing.module.css";
+
 export default function PricingLoading() {
-    return (
-        <main aria-label="Loading membership pricing" className="mx-auto min-h-screen w-full max-w-7xl px-5 pb-24 pt-14 sm:px-8 sm:pt-20 lg:px-12">
-            <div className="h-3 w-48 animate-pulse bg-sand" />
-            <div className="mt-8 h-24 max-w-4xl animate-pulse bg-sand sm:h-32" />
-            <div className="mt-5 h-12 max-w-2xl animate-pulse bg-sand/70" />
-            <div className="mt-16 grid gap-4 md:grid-cols-3">
-                {["free", "pro", "pro-plus"].map((plan) => <div key={plan} className="h-[30rem] animate-pulse border border-line bg-white" />)}
-            </div>
+    return <div className={`${brand.landingPage} ${styles.pricingPage}`}>
+        <MarketingHeader />
+        <main aria-label="Loading membership pricing">
+            <section className={styles.hero}>
+                <div className={styles.heroInner}>
+                    <div><div className={`h-10 w-48 animate-pulse rounded-full ${styles.loadingLabel}`} /><div className={`mt-6 h-24 max-w-2xl animate-pulse sm:h-36 ${styles.loadingHeadline}`} /><div className={`mt-5 h-12 max-w-xl animate-pulse ${styles.loadingCopy}`} /></div>
+                    <div className={`hidden min-h-[22rem] animate-pulse border-2 border-ink md:block ${styles.loadingVisual}`} />
+                </div>
+            </section>
+            <section className={styles.plansSection}>
+                <div className={styles.sectionHeading}><div className={`h-12 w-64 animate-pulse ${styles.loadingHeadline}`} /></div>
+                <div className={styles.carousel}><div className={styles.planTrack}>
+                    {[0, 1, 2].map((plan) => <div key={plan} className={styles.planSlide}><div className={`${styles.planCard} ${styles.loadingCard} h-[34rem] animate-pulse`} /></div>)}
+                </div></div>
+            </section>
         </main>
-    );
+        <MarketingFooter />
+    </div>;
 }

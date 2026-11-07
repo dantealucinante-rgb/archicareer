@@ -1,53 +1,93 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Link from "next/link";
-import Image from "next/image";
 import { getCurrentProfile, getProfileBySlug } from "@/lib/queries/profiles";
 import { getPortfolioItemsForProfile } from "@/lib/queries/portfolio";
 import { getPostsForProfile } from "@/lib/queries/posts";
-import FirmPublicProfile from "@/app/components/FirmPublicProfile";
 import { getFollowCounts, getFollowState, getProfileOwnerUserId } from "@/lib/queries/follows";
 import { getEngagementSummaries } from "@/lib/queries/engagement";
 import { absoluteUrl, locationLabel, safeJsonLd } from "@/lib/seo";
-import ProfileAvatar from "@/app/components/ProfileAvatar";
-import ContentEngagement from "@/app/components/ContentEngagement";
-import BrandMark from "@/app/components/BrandMark";
+import type { AccountType } from "@/types";
+import type { PublicProfilePageData } from "@/app/components/profile-experience/ProfilePageData";
+import StudentProfileLayout from "@/app/components/profile-experience/StudentProfileLayout";
+import ProfessionalProfileLayout from "@/app/components/profile-experience/ProfessionalProfileLayout";
+import FirmProfileLayout from "@/app/components/profile-experience/FirmProfileLayout";
+import BusinessProfileLayout from "@/app/components/profile-experience/BusinessProfileLayout";
 
 interface PageProps { params: Promise<{ slug: string }> }
-const categoryName = (value: string) => value.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+const labels: Record<AccountType, string> = {
+  student: "Student",
+  professional: "Individual professional",
+  firm: "Firm",
+  business: "Business",
+};
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-    const { slug } = await params;
-    const { data: profile } = await getProfileBySlug(slug);
-    if (!profile) return { title: "Profile not found", robots: { index: false, follow: false } };
-    const roleLabel = profile.role === "firm" ? "Architecture Firm" : profile.role === "architect" ? "Architect" : "Architecture Student";
-    return { title: `${profile.name} — ${roleLabel} in ${locationLabel(profile.location)}`, description: profile.bio?.trim() || `${profile.name}'s public ${roleLabel.toLowerCase()} profile and portfolio on ArchiCareer.`, alternates: { canonical: `/p/${profile.slug}` }, openGraph: { type: "profile", title: `${profile.name} — ${roleLabel} in ${locationLabel(profile.location)}`, description: profile.bio?.trim() || `${profile.name}'s public profile and portfolio on ArchiCareer.`, url: absoluteUrl(`/p/${profile.slug}`), images: profile.avatar_url ? [{ url: profile.avatar_url, alt: `${profile.name}'s profile image` }] : undefined } };
+  const { slug } = await params;
+  const { data: profile } = await getProfileBySlug(slug);
+  if (!profile) return { title: "Profile not found", robots: { index: false, follow: false } };
+  const type = profile.account_type in labels ? profile.account_type : "professional";
+  const label = labels[type];
+  const title = `${profile.name} — ${label}${profile.location ? ` in ${locationLabel(profile.location)}` : ""}`;
+  const description = profile.bio?.trim() || `${profile.name}'s ${label.toLowerCase()} profile and work on ArchiCareer.`;
+  return {
+    title,
+    description,
+    alternates: { canonical: `/p/${profile.slug}` },
+    openGraph: { type: "profile", title, description, url: absoluteUrl(`/p/${profile.slug}`), images: profile.avatar_url ? [{ url: profile.avatar_url, alt: `${profile.name} profile image` }] : undefined },
+  };
 }
 
-export default async function PublicPortfolioPage({ params }: PageProps) {
-    const { slug } = await params;
-    if (!slug) notFound();
-    const { data: profile, error } = await getProfileBySlug(slug);
-    if (error || !profile) notFound();
-    const [{ data: projects }, { data: posts }, { data: currentProfile }] = await Promise.all([getPortfolioItemsForProfile(profile.id), getPostsForProfile(profile.id), getCurrentProfile()]);
-    const items = projects ?? [];
-    const isOwner = currentProfile?.id === profile.id;
-    const profileOwnerId = await getProfileOwnerUserId(profile.id);
-    const [followCounts, followState] = profileOwnerId ? await Promise.all([getFollowCounts(profileOwnerId), getFollowState(currentProfile?.user_id ?? null, profileOwnerId)]) : [{ followers: 0, following: 0 }, { isFollowing: false, isMutual: false }];
-    const engagement = await getEngagementSummaries({ portfolioItemIds: items.map((item) => item.id), postIds: (posts ?? []).map((post) => post.id) }, currentProfile?.user_id);
-    const profileSchema = { "@context": "https://schema.org", "@type": profile.role === "firm" ? "Organization" : "Person", name: profile.name, description: profile.bio ?? undefined, url: absoluteUrl(`/p/${profile.slug}`), image: profile.avatar_url ?? undefined, jobTitle: profile.role === "firm" ? undefined : "Architect", address: { "@type": "PostalAddress", addressLocality: profile.location ?? undefined, addressCountry: "NG" }, sameAs: [profile.instagram_url, profile.personal_site_url, profile.linkedin_url].filter(Boolean) };
-    if (profile.role === "firm") return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(profileSchema) }} /><FirmPublicProfile profile={profile} portfolioItems={items} engagement={engagement} portfolioError={null} isOwner={isOwner} profileOwnerId={profileOwnerId} followerCount={followCounts.followers} followingCount={followCounts.following} isFollowing={followState.isFollowing} isMutual={followState.isMutual} currentUserId={currentProfile?.user_id ?? null} posts={posts ?? []} /></>;
-    const featured = items[0];
-    const experience = profile.role === "student" ? "Architecture student" : "Architect";
-    return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(profileSchema) }} /><div className="portfolio-site min-h-screen bg-white text-ink">
-        <header className="portfolio-nav"><Link href="/" className="portfolio-brand" aria-label="ArchiCareer home"><BrandMark className="portfolio-brand-mark" /><span>ARCHICAREER</span></Link><a href="#top" className="portfolio-nav-name">{profile.name}</a><nav aria-label="Portfolio navigation"><a href="#overview">Overview</a><a href="#projects">Projects <span>{String(items.length).padStart(2, "0")}</span></a><a href="#about">About</a><a href="#contact">Contact</a>{isOwner && <Link href="/profile" className="portfolio-workspace-link">My profile</Link>}</nav></header>
-        <main id="top" className="portfolio-main">
-            <section id="overview" className="portfolio-intro"><div className="portfolio-intro-copy"><p className="portfolio-kicker">INDEPENDENT ARCHITECTURAL PRACTICE <span>—</span> {profile.location || "LOCATION NOT LISTED"}</p><div className="portfolio-identity">{profile.avatar_url && <ProfileAvatar profile={profile} size={88} className="portfolio-avatar" priority />}<div><h1>{profile.name}</h1><p className="portfolio-role">{profile.school_or_firm || experience}{profile.location ? ` · ${profile.location}` : ""}</p></div></div>{profile.bio && <p className="portfolio-bio">{profile.bio}</p>}<div className="portfolio-actions">{profile.personal_site_url ? <a className="portfolio-contact-link" href={profile.personal_site_url} target="_blank" rel="noreferrer">Start a conversation <span aria-hidden="true">↗</span></a> : profile.linkedin_url ? <a className="portfolio-contact-link" href={profile.linkedin_url} target="_blank" rel="noreferrer">Start a conversation <span aria-hidden="true">↗</span></a> : profile.instagram_url ? <a className="portfolio-contact-link" href={profile.instagram_url} target="_blank" rel="noreferrer">Start a conversation <span aria-hidden="true">↗</span></a> : <a className="portfolio-contact-link" href="#about">View professional profile <span aria-hidden="true">↓</span></a>}{profile.personal_site_url && <a href={profile.personal_site_url} target="_blank" rel="noreferrer">Personal website ↗</a>}</div><div className="portfolio-stats"><span>{String(items.length).padStart(2, "0")} <small>SELECTED PROJECTS</small></span><span>{String(followCounts.followers).padStart(2, "0")} <small>FOLLOWERS</small></span></div>{isOwner && <Link href="/profile/edit" className="portfolio-owner-link">Edit portfolio ↗</Link>}</div><div className="portfolio-hero-art">{featured?.images[0] ? <Link href={`/p/${slug}/projects/${featured.id}`} aria-label={`View featured project ${featured.title}`}><Image src={featured.images[0].image_url} alt={featured.title} fill priority sizes="(max-width: 800px) 100vw, 60vw" className="portfolio-cover" /></Link> : <div className="portfolio-art-empty"><span>ARCHITECTURE<br />PORTFOLIO</span><i aria-hidden="true" /></div>}<span className="portfolio-image-index">01 / {String(items.length).padStart(2, "0")}</span></div></section>
-            {featured && <section className="portfolio-featured"><p className="portfolio-section-label">01 — FEATURED PROJECT</p><Link href={`/p/${slug}/projects/${featured.id}`} className="portfolio-feature-link"><div><h2>{featured.title}</h2><p>{featured.description || categoryName(featured.project_type)}</p></div><span>{[featured.location, featured.year, categoryName(featured.project_type)].filter(Boolean).join(" · ")} <b>↗</b></span></Link></section>}
-            <section id="projects" className="portfolio-projects"><div className="portfolio-section-heading"><div><p className="portfolio-section-label">SELECTED WORK — {String(items.length).padStart(2, "0")}</p><h2>Projects</h2></div><p>A collection of built work, studies, and ideas.</p></div>{items.length ? <div className="portfolio-project-list">{items.map((project, index) => <article key={project.id} className={`portfolio-project ${index % 2 ? "portfolio-project-reverse" : ""}`}><Link href={`/p/${slug}/projects/${project.id}`} className="portfolio-project-image" aria-label={`View ${project.title}`}>{project.images[0] ? <Image src={project.images[0].image_url} alt={project.title} fill sizes="(max-width: 700px) 100vw, 60vw" className="portfolio-cover" /> : <span className="portfolio-art-empty">{categoryName(project.project_type)}</span>}<span className="portfolio-view">VIEW PROJECT ↗</span></Link><div className="portfolio-project-copy"><p className="portfolio-section-label">{String(index + 1).padStart(2, "0")} / {categoryName(project.project_type)}</p><Link href={`/p/${slug}/projects/${project.id}`}><h3>{project.title}</h3></Link>{project.description && <p>{project.description}</p>}<dl>{project.location && <div><dt>LOCATION</dt><dd>{project.location}</dd></div>}{project.year && <div><dt>YEAR</dt><dd>{project.year}</dd></div>}<div><dt>STATUS</dt><dd>{categoryName(project.status)}</dd></div>{project.software_used.length > 0 && <div><dt>TOOLS</dt><dd>{project.software_used.join(" · ")}</dd></div>}</dl><Link href={`/p/${slug}/projects/${project.id}`} className="portfolio-read-link">Explore project <span>↗</span></Link></div></article>)}</div> : <p className="portfolio-empty">{isOwner ? "Your published projects will appear here." : "No projects have been published yet."}</p>}</section>
-            <section id="about" className="portfolio-about"><p className="portfolio-section-label">A NOTE ON PRACTICE</p><div><h2>About</h2><p>{profile.bio || `${profile.name} is an ${experience.toLowerCase()}${profile.location ? ` based in ${profile.location}` : ""}.`}</p><dl>{profile.school_or_firm && <div><dt>EDUCATION / PRACTICE</dt><dd>{profile.school_or_firm}</dd></div>}{profile.software_proficiency.length > 0 && <div><dt>TOOLS & SKILLS</dt><dd>{profile.software_proficiency.join(" · ")}</dd></div>}</dl><div className="portfolio-socials">{profile.linkedin_url && <a href={profile.linkedin_url} target="_blank" rel="noreferrer">LinkedIn ↗</a>}{profile.instagram_url && <a href={profile.instagram_url} target="_blank" rel="noreferrer">Instagram ↗</a>}{profile.personal_site_url && <a href={profile.personal_site_url} target="_blank" rel="noreferrer">Website ↗</a>}</div></div></section>
-            {(posts ?? []).length > 0 && <section className="portfolio-notes"><p className="portfolio-section-label">FIELD NOTES</p>{(posts ?? []).map((post) => <article key={post.id}><time dateTime={post.created_at}>{new Date(post.created_at).toLocaleDateString("en-NG", { dateStyle: "long" })}</time>{post.content && <p>{post.content}</p>}{post.image_url && <div className="portfolio-note-image"><Image src={post.image_url} alt="" fill sizes="(max-width: 700px) 100vw, 55vw" className="portfolio-cover" /></div>}<ContentEngagement target={{ post_id: post.id }} initial={engagement[post.id] ?? { reactionCount: post.reaction_count, commentCount: post.comment_count, userReacted: post.user_reacted }} currentUserId={currentProfile?.user_id ?? null} /></article>)}</section>}
-            <footer id="contact" className="portfolio-contact"><p className="portfolio-section-label">HAVE A PROJECT IN MIND?</p><h2>Let’s make something<br />considered.</h2><div>{profile.personal_site_url ? <a href={profile.personal_site_url} target="_blank" rel="noreferrer">Contact {profile.name} <span>↗</span></a> : profile.linkedin_url ? <a href={profile.linkedin_url} target="_blank" rel="noreferrer">Contact {profile.name} on LinkedIn <span>↗</span></a> : profile.instagram_url ? <a href={profile.instagram_url} target="_blank" rel="noreferrer">Contact {profile.name} on Instagram <span>↗</span></a> : <a href="#about">View professional profile <span>↓</span></a>}</div></footer>
-        </main><div className="portfolio-footer"><Link href="/">ARCHICAREER</Link><span>AN ARCHITECTURE NETWORK</span><a href="#top">BACK TO TOP ↑</a></div>
-    </div></>;
+export default async function PublicProfilePage({ params }: PageProps) {
+  const { slug } = await params;
+  if (!slug) notFound();
+  const { data: profile } = await getProfileBySlug(slug);
+  if (!profile) notFound();
+
+  const [projectResult, postResult, currentResult, profileOwnerId] = await Promise.all([
+    getPortfolioItemsForProfile(profile.id, 12, 0),
+    getPostsForProfile(profile.id, 12),
+    getCurrentProfile(),
+    getProfileOwnerUserId(profile.id),
+  ]);
+  const projects = projectResult.data ?? [];
+  const posts = postResult.data ?? [];
+  const currentProfile = currentResult.data;
+  const isOwner = currentProfile?.id === profile.id;
+  const [followCounts, followState] = profileOwnerId ? await Promise.all([
+    getFollowCounts(profileOwnerId),
+    getFollowState(currentProfile?.user_id ?? null, profileOwnerId),
+  ]) : [{ followers: 0, following: 0 }, { isFollowing: false, isMutual: false }];
+  const engagement = await getEngagementSummaries({ portfolioItemIds: projects.map((item) => item.id), postIds: posts.map((post) => post.id) }, currentProfile?.user_id);
+  const profileSchema = {
+    "@context": "https://schema.org",
+    "@type": profile.account_type === "firm" || profile.account_type === "business" ? "Organization" : "Person",
+    name: profile.name,
+    description: profile.bio ?? undefined,
+    url: absoluteUrl(`/p/${profile.slug}`),
+    image: profile.avatar_url ?? undefined,
+    address: profile.location ? { "@type": "PostalAddress", addressLocality: profile.location } : undefined,
+    sameAs: [profile.instagram_url, profile.personal_site_url, profile.linkedin_url].filter(Boolean),
+  };
+  const data: PublicProfilePageData = {
+    profile,
+    projects,
+    projectCount: projectResult.count ?? projects.length,
+    posts,
+    engagement,
+    currentUserId: currentProfile?.user_id ?? null,
+    isOwner,
+    profileOwnerId,
+    followers: followCounts.followers,
+    following: followCounts.following,
+    isFollowing: followState.isFollowing,
+    isMutual: followState.isMutual,
+  };
+
+  return <>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(profileSchema) }} />
+    {profile.account_type === "student" ? <StudentProfileLayout data={data} />
+      : profile.account_type === "firm" ? <FirmProfileLayout data={data} />
+        : profile.account_type === "business" ? <BusinessProfileLayout data={data} />
+          : <ProfessionalProfileLayout data={data} />}
+  </>;
 }

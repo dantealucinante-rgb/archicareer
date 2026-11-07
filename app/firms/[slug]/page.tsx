@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { getFirmBySlug } from "@/lib/queries/firms";
 import type { Metadata } from "next";
 import { absoluteUrl, safeJsonLd } from "@/lib/seo";
+import Image from "next/image";
+import styles from "@/app/components/profile-experience/profile-experience.module.css";
 
 interface PageProps {
     params: Promise<{
@@ -47,16 +49,25 @@ export default async function FirmDetailPage({ params }: PageProps) {
     };
 
     return (
-        <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(firmSchema) }} /><div className="bg-paper text-ink flex flex-col font-sans selection:bg-redline selection:text-paper">
-            <main className="max-w-4xl mx-auto px-6 py-12">
-                <div className="border border-line rounded-[2px] p-8 text-center">
-                    <h1 className="font-display text-3xl uppercase tracking-tight text-ink mb-4 font-normal">{firm.name}</h1>
-                    <p className="text-graphite mb-6">{firm.verified ? "Verified firm" : "Architecture firm"}</p>
-                    <div className="border border-dashed border-line rounded-[2px] p-6 text-graphite">
-                        Firm details and active opportunities will appear here as this profile is expanded.
-                    </div>
+        <>
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(firmSchema) }} />
+            <main className={`${styles.profilePage} ${styles.firm}`}>
+                <div className={styles.container}>
+                    <header className={styles.identity}>
+                        <div className={styles.identityTop}><span className={styles.accountLabel}>Firm directory</span>{firm.verified && <span className={`${styles.pill} ${styles.verified}`}>Verified firm</span>}</div>
+                        <div className={styles.identityBody}>
+                            <div className={`${styles.avatar} ${styles.firmLogo}`}>
+                                {firm.logo_url ? <Image src={firm.logo_url} alt={`${firm.name} logo`} fill sizes="(max-width: 700px) 66px, 84px" priority /> : <span aria-hidden="true">{firm.name.trim().charAt(0).toUpperCase()}</span>}
+                            </div>
+                            <div className={styles.identityCopy}><p className={styles.descriptor}>Architecture firm</p><h1>{firm.name}</h1><p className={styles.bio}>Firm listing on ArchiCareer.</p></div>
+                        </div>
+                    </header>
+                    <section className={styles.firmDirectoryNote} aria-label="Firm information">
+                        <p className={styles.infoLabel}>PUBLIC LISTING</p>
+                        <p>Additional firm information is not available on this listing.</p>
+                    </section>
                 </div>
             </main>
-        </div></>
+        </>
     );
 }

@@ -88,8 +88,8 @@
 .field { display: grid; min-width: 0; gap: 7px; }
 .fieldLabel { display: flex; align-items: baseline; gap: 8px; font-size: 14px; font-weight: 700; }
 .fieldLabel small { color: var(--muted); font-size: 12px; font-weight: 400; }
-.field input, .field select, .field textarea, .otherInterest input { width: 100%; min-width: 0; min-height: 50px; padding: 11px 13px; border: var(--stroke); border-radius: 0; background: var(--white); color: var(--ink); font: inherit; font-size: 16px; }
-.field textarea { min-height: 96px; resize: vertical; }
+.field input, .field select, .otherInterest input { width: 100%; min-width: 0; min-height: 50px; padding: 11px 16px; border: var(--stroke); border-radius: 9999px; background: var(--white); color: var(--ink); font: inherit; font-size: 16px; }
+.field textarea { width: 100%; min-width: 0; min-height: 96px; padding: 13px 16px; border: var(--stroke); border-radius: 24px; background: var(--white); color: var(--ink); font: inherit; font-size: 16px; resize: vertical; }
 .field input::placeholder, .field textarea::placeholder, .otherInterest input::placeholder { color: #827d77; opacity: 1; }
 .field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible, .otherInterest input:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
 .twoFields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }

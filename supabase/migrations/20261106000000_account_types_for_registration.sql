@@ -16,9 +16,20 @@ ALTER TABLE public.profiles
   ALTER COLUMN account_type SET DEFAULT 'student',
   ALTER COLUMN account_type SET NOT NULL;
 
-ALTER TABLE public.profiles
-  ADD CONSTRAINT profiles_account_type_check
-  CHECK (account_type IN ('student', 'professional', 'firm', 'business'));
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'profiles_account_type_check'
+      AND conrelid = 'public.profiles'::regclass
+  ) THEN
+    ALTER TABLE public.profiles
+      ADD CONSTRAINT profiles_account_type_check
+      CHECK (account_type IN ('student', 'professional', 'firm', 'business'));
+  END IF;
+END;
+$$;
 
 CREATE OR REPLACE FUNCTION public.normalize_profile_account_type()
 RETURNS trigger
@@ -40,6 +51,7 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS normalize_profile_account_type ON public.profiles;
 CREATE TRIGGER normalize_profile_account_type
 BEFORE INSERT OR UPDATE OF role, account_type ON public.profiles
 FOR EACH ROW EXECUTE FUNCTION public.normalize_profile_account_type();
@@ -115,7 +127,7 @@ $$;
 
 -- Public profile lookup exposes the account type, which is not a secret, and
 -- continues to omit private auth metadata and registration details.
-DROP FUNCTION public.get_public_profile_by_slug(TEXT);
+DROP FUNCTION IF EXISTS public.get_public_profile_by_slug(TEXT);
 
 CREATE FUNCTION public.get_public_profile_by_slug(p_slug TEXT)
 RETURNS TABLE (
@@ -145,7 +157,7 @@ AS $$
   SELECT
     p.id, p.name, p.slug, p.role, p.account_type, p.school_or_firm,
     p.bio, p.location, p.social_links, p.software_proficiency, p.cv_url,
-    p.personal_site_url, p.instagram_url, p.linkedin_url, p.avatar_url,
+    p.instagram_url, p.personal_site_url, p.linkedin_url, p.avatar_url,
     p.created_at, p.updated_at
   FROM public.profiles AS p
   WHERE p.slug = p_slug
