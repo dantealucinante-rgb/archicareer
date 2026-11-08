@@ -13,7 +13,8 @@ export default function FeedLoading() {
         <div className={`${styles.feedShell} ${styles.feedShellWithRail}`}>
             <aside className={styles.leftRail}><div className={styles.skeletonNav} aria-hidden="true"><span /><span /><span /><span /></div></aside>
             <section className={styles.timeline}>
-                <header className={styles.timelineHeader}><span className={styles.skeletonTitle} /><span className={styles.latestLabel}>Latest</span></header>
+                <header className={styles.timelineHeader}><div><p className={styles.sectionEyebrow}>ArchiCareer community</p><span className={styles.skeletonTitle} /></div><span className={styles.latestLabel}><span aria-hidden="true" />Latest</span></header>
+                <div className={styles.feedFilterBar} aria-hidden="true"><span className={styles.feedFilterActive}>Latest</span><span className={styles.feedFilterNote}>From across the built environment</span></div>
                 <LoadingPost media /><LoadingPost /><LoadingPost />
             </section>
         </div>

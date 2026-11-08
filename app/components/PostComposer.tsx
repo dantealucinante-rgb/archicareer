@@ -25,6 +25,8 @@ export default function PostComposer({ open, onClose, onCreated, author }: Props
     const [dragOffset, setDragOffset] = useState(0);
     const [dragClosing, setDragClosing] = useState(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const dialogRef = useRef<HTMLElement>(null);
+    const focusReturnRef = useRef<HTMLElement | null>(null);
     const dragRef = useRef<{ pointerId: number; startY: number; lastY: number; lastTime: number; velocity: number; offset: number } | null>(null);
     const optimisticPostId = useRef<string | null>(null);
 
@@ -33,6 +35,18 @@ export default function PostComposer({ open, onClose, onCreated, author }: Props
     }, [previewUrl]);
 
     const mounted = open || closing;
+
+    useEffect(() => {
+        if (mounted) {
+            if (!focusReturnRef.current && document.activeElement instanceof HTMLElement) {
+                focusReturnRef.current = document.activeElement;
+            }
+            return;
+        }
+
+        focusReturnRef.current?.focus();
+        focusReturnRef.current = null;
+    }, [mounted]);
 
     const requestClose = useCallback((force = false, fromDrag = false) => {
         if (closing || (!force && saving)) return;
@@ -55,7 +69,26 @@ export default function PostComposer({ open, onClose, onCreated, author }: Props
         const previousOverflow = document.body.style.overflow;
         document.body.style.overflow = "hidden";
         const onKeyDown = (event: KeyboardEvent) => {
-            if (event.key === "Escape" && !saving) requestClose();
+            if (event.key === "Escape" && !saving) {
+                requestClose();
+                return;
+            }
+            if (event.key !== "Tab" || !dialogRef.current) return;
+            const focusable = Array.from(dialogRef.current.querySelectorAll<HTMLElement>("a[href], button:not(:disabled), input:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex='-1'])"));
+            if (focusable.length === 0) {
+                event.preventDefault();
+                dialogRef.current.focus();
+                return;
+            }
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (event.shiftKey && (document.activeElement === first || !dialogRef.current.contains(document.activeElement))) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && (document.activeElement === last || !dialogRef.current.contains(document.activeElement))) {
+                event.preventDefault();
+                first.focus();
+            }
         };
         window.addEventListener("keydown", onKeyDown);
         return () => {
@@ -166,18 +199,18 @@ export default function PostComposer({ open, onClose, onCreated, author }: Props
     const canDismissFromBackdrop = !saving && !content.trim() && !file;
     return createPortal(
         <div className={`post-composer-overlay fixed inset-0 z-[70] flex items-end bg-night/45 p-0 sm:items-center sm:justify-center sm:p-6 ${closing ? "is-closing" : "is-open"}`} onMouseDown={() => { if (canDismissFromBackdrop) requestClose(); }}>
-            <section role="dialog" aria-modal="true" aria-labelledby="post-composer-title" className={`t-modal relative w-full rounded-t-[1.5rem] border border-line bg-warm-white px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5 shadow-2xl sm:max-w-xl sm:rounded-2xl sm:p-6 ${closing ? "is-closing" : "is-open"}`} style={dragOffset || dragClosing ? { transform: `translateY(${dragClosing ? "100vh" : `${dragOffset}px`})`, transition: dragClosing ? "transform 150ms cubic-bezier(0.22, 1, 0.36, 1)" : "transform 180ms cubic-bezier(0.22, 1, 0.36, 1)" } : undefined} onMouseDown={(event) => event.stopPropagation()} onPointerDown={startSheetDrag} onPointerMove={moveSheetDrag} onPointerUp={endSheetDrag} onPointerCancel={cancelSheetDrag}>
+            <section ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="post-composer-title" className={`t-modal relative max-h-[min(88svh,44rem)] w-full overflow-y-auto rounded-t-2xl border border-ink bg-paper px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-6 shadow-lg sm:max-w-xl sm:rounded-2xl sm:p-6 ${closing ? "is-closing" : "is-open"}`} style={dragOffset || dragClosing ? { transform: `translateY(${dragClosing ? "100vh" : `${dragOffset}px`})`, transition: dragClosing ? "transform 150ms cubic-bezier(0.22, 1, 0.36, 1)" : "transform 180ms cubic-bezier(0.22, 1, 0.36, 1)" } : undefined} onMouseDown={(event) => event.stopPropagation()} onPointerDown={startSheetDrag} onPointerMove={moveSheetDrag} onPointerUp={endSheetDrag} onPointerCancel={cancelSheetDrag}>
                 <div className="flex items-start justify-between gap-4">
                     <span aria-hidden="true" className="absolute left-1/2 top-2 h-1 w-10 -translate-x-1/2 rounded-full bg-line sm:hidden" />
                     <div className="flex min-w-0 items-center gap-3">
                         {author && <ProfileAvatar profile={author} size={44} className="h-11 w-11 shrink-0 rounded-full border border-line object-cover" />}
-                        <div className="min-w-0"><h2 id="post-composer-title" className="line-clamp-2 font-display text-lg font-semibold text-ink">{author?.name ?? "Share a post"}</h2><p className="font-mono text-[9px] uppercase tracking-widest text-graphite">Share with the field</p></div>
+                        <div className="min-w-0"><h2 id="post-composer-title" className="font-display text-lg font-semibold text-ink">Create a post</h2><p className="font-mono text-[9px] uppercase tracking-widest text-graphite">{author?.name ? `Posting as ${author.name}` : "Share with the field"}</p></div>
                     </div>
                     <button type="button" onClick={() => requestClose()} disabled={saving} aria-label="Close post composer" className="feedback-control grid h-10 w-10 shrink-0 place-items-center rounded-full text-xl text-graphite hover:bg-sand hover:text-ink disabled:opacity-50">×</button>
                 </div>
                 <form onSubmit={submit} className="mt-5">
                     <fieldset disabled={saving}>
-                        <textarea ref={textareaRef} value={content} onChange={(event) => { setContent(event.target.value); resizeTextarea(event.currentTarget); }} maxLength={1000} rows={5} className="min-h-40 w-full resize-none border-0 bg-transparent p-0 text-base leading-relaxed text-ink outline-none placeholder:text-graphite/65" placeholder="Share your thoughts..." aria-label="Post content" />
+                    <textarea ref={textareaRef} value={content} onChange={(event) => { setContent(event.target.value); resizeTextarea(event.currentTarget); }} maxLength={1000} rows={4} className="min-h-36 w-full resize-none border-0 bg-transparent p-0 text-base leading-relaxed text-ink outline-none placeholder:text-graphite/65" placeholder="What’s happening in your world?" aria-label="Post content" />
                         {previewUrl && <div className="relative mt-4 aspect-[4/3] overflow-hidden rounded-2xl border border-line"><NextImage src={previewUrl} alt="Selected post preview" fill unoptimized className="object-cover" /><button type="button" onClick={() => selectImage(null)} className="feedback-control absolute right-2 top-2 rounded-full bg-ink/80 px-3 py-1.5 font-mono text-[9px] uppercase tracking-widest text-paper">Remove</button></div>}
                         <div className="mt-4 flex items-center justify-between gap-3 border-t border-line pt-4">
                             <label className="feedback-control inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-full px-3 font-mono text-[10px] uppercase tracking-widest text-graphite hover:bg-sand hover:text-ink"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-5 w-5"><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="8" cy="9" r="1.5" /><path d="m4 18 5-5 3.5 3.5 2.5-2.5 5 4" strokeLinecap="round" strokeLinejoin="round" /></svg><span>{file ? "Change image" : "Image"}</span><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="sr-only" onChange={handleFileChange} /></label>

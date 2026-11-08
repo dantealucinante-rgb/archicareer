@@ -9,9 +9,14 @@ import ContentEngagement from "./ContentEngagement";
 import { formatCommunityDate } from "@/lib/date-format";
 import styles from "@/app/feed/feed.module.css";
 
-type Props = { initialPosts: FeedPost[]; initialError?: string; currentUserId: string | null };
+type Props = {
+    initialPosts: FeedPost[];
+    initialError?: string;
+    currentUserId: string | null;
+    currentProfile: { id: string; slug: string; name: string; avatar_url: string | null } | null;
+};
 
-export default function FeedList({ initialPosts, initialError = "", currentUserId }: Props) {
+export default function FeedList({ initialPosts, initialError = "", currentUserId, currentProfile }: Props) {
     const [posts, setPosts] = useState(initialPosts);
     const [offset, setOffset] = useState(initialPosts.length);
     const [hasMore, setHasMore] = useState(Boolean(initialError) || initialPosts.length === 10);
@@ -120,7 +125,11 @@ export default function FeedList({ initialPosts, initialError = "", currentUserI
     }
 
     return <div className={styles.postList}>
-        {currentUserId && <div className={styles.composePrompt}><button type="button" onClick={openComposer}>Share a thought, question or work <span>Post</span></button></div>}
+        {currentUserId && <div className={styles.composePrompt}>
+            {currentProfile && <ProfileAvatar profile={currentProfile} size={42} className={styles.composeAvatar} />}
+            <button type="button" onClick={openComposer} className={styles.composeEntry}>What’s happening in your world?</button>
+            <button type="button" onClick={openComposer} className={styles.composeButton}>Post</button>
+        </div>}
         {!currentUserId && <p className={styles.feedNotice}><Link href="/login">Sign in</Link> to share a thought and join the conversation.</p>}
         {feedMessage && feedHasError && !pageError && posts.length > 0 && <p role="alert" className={styles.feedNotice}>{feedMessage}</p>}
         {posts.length === 0 && loading ? <div role="status" className={styles.emptyState}><p>Loading posts…</p></div>
@@ -136,7 +145,7 @@ export default function FeedList({ initialPosts, initialError = "", currentUserI
 
 function FeedPostItem({ post, currentUserId, deleting, onDelete, onOpenComposer }: { post: FeedPost; currentUserId: string | null; deleting: boolean; onDelete: () => void; onOpenComposer: () => void }) {
     const authorHref = post.author.slug ? `/p/${post.author.slug}` : null;
-    return <article id={`post-${post.id}`} className={styles.post}>
+    return <article id={`post-${post.id}`} aria-label={`Post by ${post.author.name}`} className={styles.post}>
         <div className={styles.postRow}>
             {authorHref ? <Link href={authorHref} aria-label={`View ${post.author.name}'s profile`} className={styles.authorAvatarLink}><ProfileAvatar profile={post.author} size={44} className={styles.authorAvatar} /></Link>
                 : <ProfileAvatar profile={post.author} size={44} className={styles.authorAvatar} />}
@@ -148,14 +157,15 @@ function FeedPostItem({ post, currentUserId, deleting, onDelete, onOpenComposer 
                 {post.content && <p className={styles.postContent}>{linkifyPost(post.content)}</p>}
                 {post.image_url && <div className={styles.postMedia}><Image src={post.image_url} alt={`Image shared by ${post.author.name}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 680px, 640px" className={styles.postMediaImage} /></div>}
                 {post.client_status ? <div className={styles.pendingStatus}>{post.client_status === "pending" ? "Publishing post…" : <>Post wasn’t published. <button type="button" onClick={onOpenComposer}>Retry in composer</button></>}</div>
-                    : <div className={styles.engagement}><ContentEngagement target={{ post_id: post.id }} initial={{ reactionCount: post.reaction_count, commentCount: post.comment_count, userReacted: post.user_reacted }} currentUserId={currentUserId} /></div>}
+                    : <div className={styles.engagement}><ContentEngagement target={{ post_id: post.id }} initial={{ reactionCount: post.reaction_count, commentCount: post.comment_count, userReacted: post.user_reacted }} currentUserId={currentUserId} compactActions /></div>}
             </div>
         </div>
     </article>;
 }
 
 function AuthorDetails({ post }: { post: FeedPost }) {
-    return <><span className={styles.authorMeta}><strong className={styles.authorName}>{post.author.name}</strong>{post.author.slug && <span className={styles.username}>@{post.author.slug}</span>}<span className={styles.timestamp} aria-hidden="true">·</span><time className={styles.timestamp} dateTime={post.created_at}>{formatCommunityDate(post.created_at)}</time></span><span className={styles.authorRole}>{post.author.role === "student" ? "Student" : post.author.role === "firm" ? "Firm" : "Built environment professional"}{post.author.location ? ` · ${post.author.location}` : ""}</span></>;
+    const roleLabel = post.author.role === "student" ? "Architecture student" : post.author.role === "architect" ? "Architect" : post.author.role === "firm" ? "Architecture practice" : "Built environment professional";
+    return <><span className={styles.authorMeta}><strong className={styles.authorName}>{post.author.name}</strong>{post.author.slug && <span className={styles.username}>@{post.author.slug}</span>}<span className={styles.timestamp} aria-hidden="true">·</span><time className={styles.timestamp} dateTime={post.created_at}>{formatCommunityDate(post.created_at)}</time></span><span className={styles.authorRole}>{roleLabel}{post.author.location ? ` · ${post.author.location}` : ""}</span></>;
 }
 
 function linkifyPost(content: string) {

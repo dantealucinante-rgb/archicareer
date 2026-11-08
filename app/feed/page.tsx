@@ -16,8 +16,9 @@ export const metadata: Metadata = {
 };
 
 function roleLabel(role: string) {
-    if (role === "student") return "Student";
-    if (role === "firm") return "Firm";
+    if (role === "student") return "Architecture student";
+    if (role === "architect") return "Architect";
+    if (role === "firm") return "Architecture practice";
     return "Built environment professional";
 }
 
@@ -32,26 +33,35 @@ export default async function FeedPage() {
     return <main className={styles.feedPage}>
         <div className={`${styles.feedShell} ${styles.feedShellWithRail} ${activeAuthors.length ? styles.feedShellWithAside : ""}`}>
             <aside className={styles.leftRail} aria-label="Feed navigation">
+                <p className={styles.railLabel}>Your space</p>
                 <PrimaryNav orientation="vertical" profileHref={profile?.slug ? `/p/${profile.slug}` : undefined} />
             </aside>
 
             <section className={styles.timeline} aria-label="Community feed">
                 <header className={styles.timelineHeader}>
-                    <h1>Home</h1>
-                    <span className={styles.latestLabel}>Latest</span>
+                    <div>
+                        <p className={styles.sectionEyebrow}>ArchiCareer community</p>
+                        <h1>Home</h1>
+                    </div>
+                    <span className={styles.latestLabel}><span aria-hidden="true" />Latest</span>
                 </header>
-                <FeedList initialPosts={posts} initialError={feedResult.error ? "Couldn’t load posts. Try again." : ""} currentUserId={profile?.user_id ?? null} />
+                <div className={styles.feedFilterBar} aria-label="Feed order">
+                    <span aria-current="page" className={styles.feedFilterActive}>Latest</span>
+                    <span className={styles.feedFilterNote}>From across the built environment</span>
+                </div>
+                <FeedList initialPosts={posts} initialError={feedResult.error ? "Couldn’t load posts. Try again." : ""} currentUserId={profile?.user_id ?? null} currentProfile={profile ? { id: profile.id, slug: profile.slug, name: profile.name, avatar_url: profile.avatar_url } : null} />
             </section>
 
             {activeAuthors.length > 0 && <aside className={styles.activePeople} aria-label="People recently active in the feed">
                 <div className={styles.activePeopleInner}>
+                    <p className={styles.sectionEyebrow}>The community</p>
                     <h2 className={styles.sidebarHeading}>Recent voices</h2>
-                    <p className={styles.sidebarDescription}>People sharing updates with the community.</p>
+                    <p className={styles.sidebarDescription}>People sharing work and ideas in the feed.</p>
                     {activeAuthors.map((author) => <Link key={author.slug} href={`/p/${author.slug}`} className={styles.activePerson}>
                         <ProfileAvatar profile={author} size={36} className={styles.activeAvatar} />
                         <span className={styles.activePersonInfo}><strong className={styles.activeName}>{author.name}</strong><span className={styles.activeRole}>{roleLabel(author.role)}</span></span>
                     </Link>)}
-                    <Link href="/discover" className={styles.activePerson}><span className={styles.activePersonInfo}><strong className={styles.activeName}>Explore more people</strong><span className={styles.activeRole}>Open Discover</span></span></Link>
+                    <Link href="/discover" className={styles.discoverLink}>Meet more people <span aria-hidden="true">↗</span></Link>
                 </div>
             </aside>}
         </div>
