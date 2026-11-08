@@ -1,7 +1,7 @@
 .feedPage { min-height:100%; background:var(--color-paper); color:var(--color-ink); }
-.feedShell { display:grid; grid-template-columns:minmax(0, 680px); justify-content:center; gap:24px; width:min(100%, 1280px); margin-inline:auto; padding:8px 20px 64px; }
-.feedShellWithRail { grid-template-columns:170px minmax(0, 680px); justify-content:center; }
-.feedShellWithAside { grid-template-columns:170px minmax(0, 640px) 230px; gap:28px; }
+.feedShell { display:grid; grid-template-columns:minmax(0, 680px); justify-content:center; gap:24px; width:min(100%, 1440px); margin-inline:auto; padding:8px 20px 64px; }
+.feedShellWithRail { grid-template-columns:minmax(0, 680px); }
+.feedShellWithAside { grid-template-columns:minmax(0, 680px); }
 .leftRail { display:none; min-width:0; }
 .skeletonNav { display:grid; gap:13px; padding-top:10px; }
 .skeletonNav span { display:block; height:38px; border-radius:9999px; background:var(--color-sand); animation:skeletonPulse 1.6s ease-in-out infinite alternate; }
@@ -90,14 +90,13 @@
   .composePrompt button:hover { border-color:var(--color-ink); color:var(--color-ink); }
   .composePrompt button span { float:right; margin-top:-1px; padding:4px 12px; border:1px solid var(--color-ink); border-radius:9999px; background:var(--color-redline); color:white; font-size:12px; font-weight:700; }
 }
-@media (min-width: 1024px) {
-  .feedShellWithRail { grid-template-columns:170px minmax(0,680px); gap:24px; }
-  .leftRail { display:block; }
+@media (min-width: 1100px) {
+  .feedShellWithRail, .feedShellWithAside { grid-template-columns:minmax(0,1fr) minmax(0,680px) minmax(0,1fr); gap:24px; }
+  .leftRail { display:block; width:min(100%,160px); justify-self:end; }
   .skeletonNav { position:sticky; top:calc(var(--site-header-height) + 20px); }
 }
-@media (min-width: 1240px) {
-  .feedShellWithAside { grid-template-columns:170px minmax(0,640px) 230px; gap:28px; }
-  .activePeople { display:block; }
+@media (min-width: 1280px) {
+  .activePeople { display:block; width:min(100%,230px); }
 }
 @media (max-width: 639px) {
   .feedShell { padding:0 0 34px; }
