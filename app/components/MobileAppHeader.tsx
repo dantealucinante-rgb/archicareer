@@ -12,6 +12,7 @@ import { Plus } from "./UiIcon";
 import PostComposer from "./PostComposer";
 import type { FeedPost } from "@/types";
 import bottomNavStyles from "./mobile-bottom-nav.module.css";
+import feedStyles from "@/app/feed/feed.module.css";
 
 type MobileAppHeaderProps = {
     authenticated: boolean;
@@ -48,7 +49,7 @@ function MobileBottomNav({ pathname, onOpenComposer }: { pathname: string; onOpe
     const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
     return (
-        <nav aria-label="Mobile app navigation" className={`${bottomNavStyles.dock} sm:hidden`}>
+        <nav aria-label="Mobile app navigation" className={`${bottomNavStyles.dock} ${pathname === "/feed" ? feedStyles.mobileDock : ""} sm:hidden`}>
             <div className={bottomNavStyles.items}>
                 <Link href="/feed" aria-current={isActive("/feed") ? "page" : undefined} className={`${bottomNavStyles.item} ${isActive("/feed") ? bottomNavStyles.active : ""}`}><HomeIcon /><span>Home</span></Link>
                 <Link href="/discover" aria-current={isActive("/discover") ? "page" : undefined} className={`${bottomNavStyles.item} ${isActive("/discover") ? bottomNavStyles.active : ""}`}><NetworkIcon /><span>Discover</span></Link>
