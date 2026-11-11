@@ -48,9 +48,9 @@ export function OrganizationFacts({ profile, heading, includeOrganisation = true
   </section>;
 }
 
-export function PostsSection({ data }: { data: PublicProfilePageData }) {
-  return <section id="posts" className={styles.contentSection}>
-    <SectionTitle eyebrow="COMMUNITY ACTIVITY" title="Posts" count={data.posts.length ? String(data.posts.length) : undefined} />
+export function PostsSection({ data, id = "posts", showTitle = true }: { data: PublicProfilePageData; id?: string; showTitle?: boolean }) {
+  return <section id={id} className={styles.contentSection}>
+    {showTitle && <SectionTitle eyebrow="COMMUNITY ACTIVITY" title="Posts" count={data.posts.length ? String(data.posts.length) : undefined} />}
     {data.posts.length ? <div className={styles.postList}>{data.posts.map((post) => <PostItem key={post.id} post={post} engagement={data.engagement} currentUserId={data.currentUserId} isOwner={data.isOwner} />)}</div> : <p className={styles.emptyInline}>{data.isOwner ? "Your posts will appear here when you share them." : "No posts yet."}</p>}
   </section>;
 }

@@ -8,10 +8,7 @@ import { getEngagementSummaries } from "@/lib/queries/engagement";
 import { absoluteUrl, cleanDescription, locationLabel, pageMetadata, safeJsonLd } from "@/lib/seo";
 import type { AccountType } from "@/types";
 import type { PublicProfilePageData } from "@/app/components/profile-experience/ProfilePageData";
-import StudentProfileLayout from "@/app/components/profile-experience/StudentProfileLayout";
-import ProfessionalProfileLayout from "@/app/components/profile-experience/ProfessionalProfileLayout";
-import FirmProfileLayout from "@/app/components/profile-experience/FirmProfileLayout";
-import BusinessProfileLayout from "@/app/components/profile-experience/BusinessProfileLayout";
+import PublicProfileLayout from "@/app/components/profile-experience/PublicProfileLayout";
 
 interface PageProps { params: Promise<{ slug: string }> }
 const labels: Record<AccountType, string> = {
@@ -88,9 +85,6 @@ export default async function PublicProfilePage({ params }: PageProps) {
 
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(profileSchema) }} />
-    {profile.account_type === "student" ? <StudentProfileLayout data={data} />
-      : profile.account_type === "firm" ? <FirmProfileLayout data={data} />
-        : profile.account_type === "business" ? <BusinessProfileLayout data={data} />
-          : <ProfessionalProfileLayout data={data} />}
+    <PublicProfileLayout data={data} />
   </>;
 }
