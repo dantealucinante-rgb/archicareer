@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const socialLinks = [
     { label: "Email", href: "mailto:hello@archicareer.ng" },
-    { label: "Instagram", href: "https://www.instagram.com" },
+    { label: "Instagram", href: "https://www.instagram.com/archicareer.com.ng?cplk=a3JmOXczbDdhMTg1&utm_source=qr" },
     { label: "LinkedIn", href: "https://www.linkedin.com/company/archicareer/" },
     { label: "X", href: "https://x.com/archicareer?s=11" },
 ];
