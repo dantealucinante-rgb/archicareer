@@ -26,23 +26,27 @@ export default function WaitlistPage() {
 
             <div className={styles.content}>
                 <section className={styles.hero} aria-labelledby="waitlist-title">
+                    <section className={styles.formPanel} id="waitlist-form" aria-labelledby="form-title">
+                        <div className={styles.formHeading}>
+                            <span className={styles.formIndex}><i aria-hidden="true" /> YOUR NEXT MOVE</span>
+                            <h2 id="form-title">Get in early.</h2>
+                            <p>Tell us a little about yourself. We’ll save you a place.</p>
+                        </div>
+                        <WaitlistForm idPrefix="early-access" submitLabel="Join the Waitlist" />
+                    </section>
+
                     <div className={styles.heroCopy}>
-                        <p className={styles.eyebrow}><span aria-hidden="true" /> For the people who shape our world</p>
+                        <div className={styles.brandStatement} aria-label="Creates, connects, builds">
+                            <span className={styles.creates}>CREATES.</span>
+                            <span className={styles.connects}>CONNECTS.</span>
+                            <span className={styles.builds}>BUILDS.</span>
+                        </div>
                         <h1 id="waitlist-title">Good work<br />deserves to be <em>seen.</em></h1>
                         <p className={styles.description}>A place for the built environment to showcase work, connect and discover what’s next.</p>
                         <div className={styles.audience} aria-label="Architecture, design and construction">
                             <span>Architecture</span><span>Design</span><span>Construction</span>
                         </div>
                     </div>
-
-                    <section className={styles.formPanel} id="waitlist-form" aria-labelledby="form-title">
-                        <div className={styles.formHeading}>
-                            <span className={styles.formIndex}>01 <i aria-hidden="true" /></span>
-                            <h2 id="form-title">Get early access.</h2>
-                            <p>Be among the first to join ArchiCareer.</p>
-                        </div>
-                        <WaitlistForm idPrefix="early-access" submitLabel="Join the Waitlist" />
-                    </section>
                 </section>
             </div>
 
