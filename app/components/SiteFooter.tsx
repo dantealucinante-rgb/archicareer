@@ -4,6 +4,7 @@ const socialLinks = [
     { label: "Email", href: "mailto:hello@archicareer.ng" },
     { label: "Instagram", href: "https://www.instagram.com" },
     { label: "LinkedIn", href: "https://www.linkedin.com/company/archicareer/" },
+    { label: "X", href: "https://x.com/archicareer?s=11" },
 ];
 
 export default function SiteFooter() {
