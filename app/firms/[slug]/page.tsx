@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getFirmBySlug } from "@/lib/queries/firms";
 import type { Metadata } from "next";
-import { absoluteUrl, safeJsonLd } from "@/lib/seo";
+import { absoluteUrl, pageMetadata, safeJsonLd } from "@/lib/seo";
 import Image from "next/image";
 import styles from "@/app/components/profile-experience/profile-experience.module.css";
 
@@ -14,20 +14,15 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { slug } = await params;
     const { data: firm } = await getFirmBySlug(slug);
-    if (!firm) return { title: "Firm not found", robots: { index: false, follow: false } };
-    return {
-        title: `${firm.name} — Architecture Firm in Nigeria`,
-        description: `${firm.name} on ArchiCareer — discover the practice and its opportunities in Nigeria.`,
-        alternates: { canonical: `/firms/${firm.slug}` },
-        robots: { index: true, follow: true },
-        openGraph: {
-            type: "profile",
-            title: `${firm.name} — Architecture Firm in Nigeria`,
-            description: `${firm.name} on ArchiCareer — discover the practice and its opportunities in Nigeria.`,
-            url: absoluteUrl(`/firms/${firm.slug}`),
-            images: firm.logo_url ? [{ url: firm.logo_url, alt: `${firm.name} logo` }] : undefined,
-        },
-    };
+    if (!firm) return { title: { absolute: "Firm profile not found | Archicareer" }, robots: { index: false, follow: false } };
+    return pageMetadata({
+        title: `${firm.name} | Architecture Firm Profile`,
+        description: `${firm.name} on Archicareer. Explore the firm profile and its architecture work.` ,
+        path: `/firms/${firm.slug}`,
+        image: firm.logo_url,
+        imageAlt: `${firm.name} logo`,
+        type: "profile",
+    });
 }
 
 export default async function FirmDetailPage({ params }: PageProps) {
@@ -45,7 +40,6 @@ export default async function FirmDetailPage({ params }: PageProps) {
         name: firm.name,
         url: absoluteUrl(`/firms/${firm.slug}`),
         logo: firm.logo_url ?? undefined,
-        address: { "@type": "PostalAddress", addressCountry: "NG" },
     };
 
     return (

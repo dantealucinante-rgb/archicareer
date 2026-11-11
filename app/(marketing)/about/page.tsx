@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-    title: "About ArchiCareer",
-    description: "Learn how ArchiCareer helps Nigeria's architecture students, architects, studios, and companies find each other through the work.",
-    alternates: { canonical: "/about" },
-};
+export const metadata: Metadata = pageMetadata({ title: "About Archicareer", description: "Learn how Archicareer connects architecture, design, construction, and built-environment professionals through their work.", path: "/about" });
 
 export default function AboutPage() {
     return (

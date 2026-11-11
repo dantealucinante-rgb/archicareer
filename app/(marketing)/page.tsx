@@ -4,22 +4,10 @@ import Link from "next/link";
 import { MarketingFooter, MarketingHeader } from "@/app/components/MarketingChrome";
 import { getJobListings } from "@/lib/queries/jobs";
 import type { JobListing } from "@/types";
+import { DEFAULT_DESCRIPTION, DEFAULT_TITLE, SITE_NAME, absoluteUrl, pageMetadata, safeJsonLd } from "@/lib/seo";
 import styles from "./landing.module.css";
 
-export const metadata: Metadata = {
-    title: "Showcase your ideas and projects",
-    description: "Bring your work into view, connect with people across your industry and discover opportunities to take your ideas further. ArchiCareer gives the people who create and build things a place to showcase their work and grow professionally.",
-    openGraph: {
-        type: "website",
-        title: "ArchiCareer — Showcase your ideas and projects",
-        description: "Bring your work into view, connect with people across your industry and discover opportunities to take your ideas further.",
-    },
-    twitter: {
-        card: "summary_large_image",
-        title: "ArchiCareer — Showcase your ideas and projects",
-        description: "Bring your work into view, connect with people across your industry and discover opportunities to take your ideas further.",
-    },
-};
+export const metadata: Metadata = pageMetadata({ title: DEFAULT_TITLE, description: DEFAULT_DESCRIPTION, path: "/" });
 
 const professions = [
     "Architects",
@@ -72,9 +60,18 @@ function OpportunityRow({ job }: { job: JobListing }) {
 
 export default async function HomePage() {
     const { data: jobs, error: jobsError } = await getJobListings({}, { limit: 2, offset: 0 });
+    const organizationId = `${absoluteUrl("/")}#organization`;
+    const siteSchema = {
+        "@context": "https://schema.org",
+        "@graph": [
+            { "@type": "Organization", "@id": organizationId, name: SITE_NAME, url: absoluteUrl("/"), logo: absoluteUrl("/icon.svg"), sameAs: ["https://www.linkedin.com/company/archicareer/"] },
+            { "@type": "WebSite", "@id": `${absoluteUrl("/")}#website`, name: SITE_NAME, url: absoluteUrl("/"), publisher: { "@id": organizationId }, inLanguage: "en-NG" },
+        ],
+    };
 
     return (
         <div className={styles.landingPage}>
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(siteSchema) }} />
             <MarketingHeader home />
 
             <main id="home">

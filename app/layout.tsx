@@ -3,6 +3,8 @@ import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import SiteFooter from "@/app/components/SiteFooter";
 import SiteHeader from "@/app/components/SiteHeader";
 import SiteChrome from "@/app/components/SiteChrome";
+import AnalyticsLoader from "@/app/components/AnalyticsLoader";
+import { DEFAULT_DESCRIPTION, DEFAULT_SOCIAL_IMAGE, DEFAULT_TITLE, SITE_NAME, SITE_URL, absoluteUrl } from "@/lib/seo";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -23,28 +25,31 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://archicareer.ng"),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "ArchiCareer — Architecture Careers in Nigeria",
-    template: "%s | ArchiCareer",
+    default: DEFAULT_TITLE,
+    template: `%s | ${SITE_NAME}`,
   },
-  description: "A community for architecture students, architects, studios, and companies building the future of architecture in Nigeria.",
+  description: DEFAULT_DESCRIPTION,
   keywords: ["architecture jobs Nigeria", "architecture internships Nigeria", "Nigerian architects", "architecture portfolio", "architecture firms Nigeria"],
   openGraph: {
     type: "website",
     locale: "en_NG",
-    siteName: "ArchiCareer",
-    title: "ArchiCareer — Architecture Careers in Nigeria",
-    description: "Find the work, people, and opportunities shaping architecture in Nigeria.",
+    siteName: SITE_NAME,
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    url: absoluteUrl("/"),
+    images: [{ url: DEFAULT_SOCIAL_IMAGE, alt: "Archicareer — Good Work Deserves to Be Seen" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ArchiCareer — Architecture Careers in Nigeria",
-    description: "A community for Nigeria's architecture students, architects, studios, and companies.",
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    images: [{ url: DEFAULT_SOCIAL_IMAGE, alt: "Archicareer — Good Work Deserves to Be Seen" }],
   },
-  alternates: {
-    canonical: "/",
-  },
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ? {
+    verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION },
+  } : {}),
 };
 
 export default function RootLayout({
@@ -55,6 +60,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`h-full antialiased ${plusJakartaSans.variable} ${jetbrainsMono.variable}`}>
       <body className="min-h-full bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
+        <AnalyticsLoader />
         <a href="#main-content" className="sr-only absolute left-4 top-4 z-[100] rounded-full bg-ink px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-paper focus:not-sr-only">Skip to content</a>
         <div className="flex min-h-screen flex-col">
           <SiteChrome>

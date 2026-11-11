@@ -2,6 +2,11 @@ import Link from "next/link";
 import { MarketingFooter, MarketingHeader } from "@/app/components/MarketingChrome";
 import brand from "@/app/(marketing)/landing.module.css";
 import styles from "./cookies.module.css";
+import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
+import AnalyticsConsentControls from "@/app/components/AnalyticsConsentControls";
+
+export const metadata: Metadata = pageMetadata({ title: "Cookie Policy", description: "Learn how Archicareer uses essential cookies and choose whether to allow optional analytics.", path: "/cookies" });
 
 const sections = [
     {
@@ -12,8 +17,8 @@ const sections = [
     },
     {
         number: "02",
-        title: "How ArchiCareer may use them",
-        body: "We may use essential cookies for authentication and security. If we add analytics or optional marketing cookies, this policy will be updated and the relevant choices will be provided.",
+        title: "How Archicareer may use them",
+        body: "Essential cookies support authentication and security. Optional Google Analytics is disabled until you choose to allow it below. We do not use advertising cookies.",
         tone: "orange",
     },
     {
@@ -33,7 +38,7 @@ export default function CookiesPage() {
                     <div>
                         <span className={styles.label}>Cookie policy</span>
                         <h1 id="cookies-title">Small files.<br /><span>Clearly explained.</span></h1>
-                        <p>This draft Cookie Policy explains how ArchiCareer may use cookies and similar technologies as the service grows.</p>
+                        <p>This Cookie Policy explains essential cookies and your choice about optional analytics.</p>
                     </div>
                     <div className={styles.heroAccent} aria-hidden="true"><span>ARCHICAREER</span><strong>COOKIES</strong></div>
                 </div>
@@ -49,6 +54,11 @@ export default function CookiesPage() {
                         <span className={`${styles.number} ${styles[section.tone]}`} aria-hidden="true">{section.number}</span>
                         <div><h3>{section.title}</h3><p>{section.body}</p></div>
                     </article>)}
+                </div>
+                <div className={styles.analyticsChoice}>
+                    <h3>Optional analytics</h3>
+                    <p>Allow Google Analytics to measure visits and improve Archicareer. We do not send account details or private route views. You can change your choice here at any time.</p>
+                    <AnalyticsConsentControls />
                 </div>
             </section>
 

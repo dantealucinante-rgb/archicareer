@@ -2,14 +2,11 @@ import type { Metadata } from "next";
 import { getCurrentProfile } from "@/lib/queries/profiles";
 import { getPortfolioEntitlements } from "@/lib/billing";
 import PricingExperience from "./PricingExperience";
+import { pageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-    title: "Membership and pricing",
-    description: "Compare ArchiCareer membership plans and one-time portfolio space bundles.",
-    alternates: { canonical: "/pricing" },
-};
+export const metadata: Metadata = pageMetadata({ title: "Membership and Pricing", description: "Compare Archicareer membership plans and portfolio space bundles.", path: "/pricing" });
 
 export default async function PricingPage() {
     const { data: profile } = await getCurrentProfile();

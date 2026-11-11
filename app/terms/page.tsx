@@ -1,15 +1,12 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import LegalDocumentLayout from "@/app/components/LegalDocumentLayout";
+import { pageMetadata } from "@/lib/seo";
 
 // Content is stored in keyed section tuples and each section gets its React key below.
 /* eslint-disable react/jsx-key */
 
-export const metadata: Metadata = {
-    title: "Terms of Use",
-    description: "Terms governing ArchiCareer accounts, portfolios, community features, applications, and job listings.",
-    alternates: { canonical: "/terms" },
-};
+export const metadata: Metadata = pageMetadata({ title: "Terms of Use", description: "Terms governing Archicareer accounts, portfolios, community features, applications, and job listings.", path: "/terms" });
 
 const sections = [
     ["1. About these terms", <><p>These Terms of Use (“Terms”) govern your access to and use of ArchiCareer, including its website, accounts, public profiles and portfolios, project pages, posts, comments, professional connections, job listings, applications, and related services (together, the “Platform”). “ArchiCareer”, “we”, “us”, and “our” refer to the service operating under the ArchiCareer name. “You” means a visitor, account holder, applicant, recruiter, studio, firm, or other person using the Platform.</p><p className="mt-3">By browsing the Platform, creating an account, or using a feature, you agree to these Terms and our <Link href="/privacy" className="underline underline-offset-2">Privacy Policy</Link>. If you do not agree, do not use the Platform. The Platform is intended for professional networking in architecture and the wider built-environment sector.</p><p className="mt-3">These Terms are governed by applicable laws of the Federal Republic of Nigeria, subject to any mandatory consumer or other rights that apply to you. Nothing in these Terms removes rights that cannot lawfully be waived. Our contact details appear at the end.</p></>],

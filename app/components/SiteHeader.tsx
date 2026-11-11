@@ -2,13 +2,17 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import AccountMenu from "./AccountMenu";
 import PrimaryNav from "./PrimaryNav";
 import BrandLogo from "./BrandLogo";
 import MobileAppHeader from "./MobileAppHeader";
 import type { Profile } from "@/types";
+import feedStyles from "@/app/feed/feed.module.css";
 
 export default function SiteHeader() {
+    const pathname = usePathname();
+    const isFeed = pathname === "/feed";
     const [account, setAccount] = useState<{ authenticated: boolean; profile: Profile | null }>({ authenticated: false, profile: null });
     const [hidden, setHidden] = useState(false);
 
@@ -60,7 +64,7 @@ export default function SiteHeader() {
     }, []);
 
     return (
-        <header className={`site-header fixed inset-x-0 top-0 z-40 border-b border-line/80 bg-paper/95 backdrop-blur-xl ${hidden ? "site-header--hidden" : ""}`}>
+        <header className={`site-header fixed inset-x-0 top-0 z-40 border-b border-line/80 bg-paper/95 backdrop-blur-xl ${isFeed ? feedStyles.siteHeader : ""} ${hidden ? "site-header--hidden" : ""}`}>
             <div className="mx-auto hidden w-full max-w-7xl items-center gap-4 px-5 py-3.5 sm:flex sm:gap-8 sm:px-8 sm:py-4">
                 <div className="flex items-center gap-5 shrink-0">
                     <span className="hidden text-xs font-medium text-graphite sm:inline">

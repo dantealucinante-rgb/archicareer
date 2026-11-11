@@ -5,12 +5,13 @@ import { getDiscoverPageData } from "@/lib/queries/discover";
 import DiscoverExperience from "./DiscoverExperience";
 import styles from "./discover.module.css";
 import landingStyles from "@/app/(marketing)/landing.module.css";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Discover people and portfolios",
-  description: "Explore architecture projects, portfolios, and the people who create and build across ArchiCareer.",
-  alternates: { canonical: "/discover" },
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Explore Architecture and Creative Projects",
+  description: "Explore architecture projects, creative portfolios, and the professionals shaping the built environment.",
+  path: "/discover",
+});
 
 export const dynamic = "force-dynamic";
 

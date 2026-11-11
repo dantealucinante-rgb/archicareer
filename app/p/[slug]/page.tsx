@@ -5,7 +5,7 @@ import { getPortfolioItemsForProfile } from "@/lib/queries/portfolio";
 import { getPostsForProfile } from "@/lib/queries/posts";
 import { getFollowCounts, getFollowState, getProfileOwnerUserId } from "@/lib/queries/follows";
 import { getEngagementSummaries } from "@/lib/queries/engagement";
-import { absoluteUrl, locationLabel, safeJsonLd } from "@/lib/seo";
+import { absoluteUrl, cleanDescription, locationLabel, pageMetadata, safeJsonLd } from "@/lib/seo";
 import type { AccountType } from "@/types";
 import type { PublicProfilePageData } from "@/app/components/profile-experience/ProfilePageData";
 import StudentProfileLayout from "@/app/components/profile-experience/StudentProfileLayout";
@@ -24,17 +24,14 @@ const labels: Record<AccountType, string> = {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const { data: profile } = await getProfileBySlug(slug);
-  if (!profile) return { title: "Profile not found", robots: { index: false, follow: false } };
+  if (!profile) return { title: { absolute: "Portfolio not found | Archicareer" }, robots: { index: false, follow: false } };
   const type = profile.account_type in labels ? profile.account_type : "professional";
   const label = labels[type];
-  const title = `${profile.name} — ${label}${profile.location ? ` in ${locationLabel(profile.location)}` : ""}`;
-  const description = profile.bio?.trim() || `${profile.name}'s ${label.toLowerCase()} profile and work on ArchiCareer.`;
-  return {
-    title,
-    description,
-    alternates: { canonical: `/p/${profile.slug}` },
-    openGraph: { type: "profile", title, description, url: absoluteUrl(`/p/${profile.slug}`), images: profile.avatar_url ? [{ url: profile.avatar_url, alt: `${profile.name} profile image` }] : undefined },
-  };
+  const title = `${profile.name} | Architecture Portfolio`;
+  const description = cleanDescription(profile.bio, `${profile.name}'s ${label.toLowerCase()} portfolio and selected work${profile.location ? ` in ${locationLabel(profile.location)}` : ""}.`);
+  const { data: projects } = await getPortfolioItemsForProfile(profile.id, 1, 0);
+  const image = projects?.[0]?.images[0]?.image_url;
+  return pageMetadata({ title, description, path: `/p/${profile.slug}`, image, imageAlt: image ? `${profile.name}'s public portfolio work` : undefined, type: "profile" });
 }
 
 export default async function PublicProfilePage({ params }: PageProps) {
@@ -58,8 +55,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
     getFollowState(currentProfile?.user_id ?? null, profileOwnerId),
   ]) : [{ followers: 0, following: 0 }, { isFollowing: false, isMutual: false }];
   const engagement = await getEngagementSummaries({ portfolioItemIds: projects.map((item) => item.id), postIds: posts.map((post) => post.id) }, currentProfile?.user_id);
-  const profileSchema = {
-    "@context": "https://schema.org",
+  const profileEntity = {
     "@type": profile.account_type === "firm" || profile.account_type === "business" ? "Organization" : "Person",
     name: profile.name,
     description: profile.bio ?? undefined,
@@ -67,6 +63,13 @@ export default async function PublicProfilePage({ params }: PageProps) {
     image: profile.avatar_url ?? undefined,
     address: profile.location ? { "@type": "PostalAddress", addressLocality: profile.location } : undefined,
     sameAs: [profile.instagram_url, profile.personal_site_url, profile.linkedin_url].filter(Boolean),
+  };
+  const profileSchema = {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    name: `${profile.name} | Architecture Portfolio`,
+    url: absoluteUrl(`/p/${profile.slug}`),
+    mainEntity: profileEntity,
   };
   const data: PublicProfilePageData = {
     profile,

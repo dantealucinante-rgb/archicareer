@@ -58,6 +58,14 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 > Keep `SUPABASE_SERVICE_ROLE_KEY` private. It must never be exposed in browser code or committed to version control.
 
+In Vercel Production, set `NEXT_PUBLIC_SITE_URL=https://archicareer.com.ng` with **Visibility: Config** (public framework-prefixed variables cannot use Secret visibility). Generated public metadata and absolute URLs use the canonical production host; local development uses `http://localhost:3000`. Keep private credentials such as `SUPABASE_SERVICE_ROLE_KEY` secret and server-only.
+
+### Search and analytics configuration
+
+- Add `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` as a **Config** variable with the verification token from Google Search Console. In Search Console, add the `https://archicareer.com.ng` URL-prefix property, choose HTML tag verification, copy only the token value, then redeploy. The root metadata emits Google's verification tag when the variable is set.
+- Add `NEXT_PUBLIC_GA_MEASUREMENT_ID` as a **Config** variable with your GA4 measurement ID (for example, `G-XXXXXXXXXX`) to enable the optional integration. No Google Analytics request is sent until a visitor chooses **Allow analytics** at `/cookies`. Visitors can revoke the choice there. Private account and authentication routes are excluded from page-view events; URL query strings are never sent. If the variable is absent, analytics remains disabled.
+- Environment variable changes apply to new deployments, so redeploy after setting either value. These IDs/tokens are public configuration, not secrets.
+
 ### 4. Set up Supabase
 
 Run the SQL migrations in the `supabase/migrations` directory against your Supabase project. These create the database schema, storage configuration, security policies, rate limits, and supporting functions used by ArchiCareer.

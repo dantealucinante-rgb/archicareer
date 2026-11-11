@@ -3,18 +3,18 @@ import { JobListing, JobPayType, JobType } from "@/types";
 import ApplyButton from "@/app/components/ApplyButton";
 import { getCurrentUser } from "@/lib/auth";
 import type { Metadata } from "next";
-import { safeJsonLd } from "@/lib/seo";
+import { absoluteUrl, pageMetadata, safeJsonLd } from "@/lib/seo";
 import Link from "next/link";
 import Image from "next/image";
 import { createPublicClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-    title: "Architecture Jobs and Internships in Nigeria",
-    description: "Find architecture jobs, internships, competitions, and opportunities shared by studios and companies across Nigeria.",
-    alternates: { canonical: "/jobs" },
-};
+export const metadata: Metadata = pageMetadata({
+    title: "Architecture and Construction Jobs",
+    description: "Find architecture and construction jobs, internships, competitions, and opportunities from studios and companies across Nigeria.",
+    path: "/jobs",
+});
 
 function firmInitials(name: string) {
     return name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase() || "AC";
@@ -46,6 +46,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
     const jobsSchema = {
         "@context": "https://schema.org",
         "@type": "CollectionPage",
+        url: absoluteUrl("/jobs"),
         name: "Architecture Jobs and Internships in Nigeria",
         description: "Current architecture jobs, internships, competitions, and opportunities across Nigeria.",
         about: { "@type": "Thing", name: "Architecture careers in Nigeria" },

@@ -89,7 +89,7 @@ export default function MobileAppHeader({ authenticated, profile }: MobileAppHea
 
     if (!showAppChrome) {
         return (
-            <div className="flex w-full items-center justify-between px-5 py-3.5 sm:hidden">
+            <div className={`flex w-full items-center justify-between px-5 py-3.5 sm:hidden ${pathname === "/feed" ? feedStyles.mobileHeader : ""}`}>
                 <Link href="/" aria-label="ArchiCareer home" className="group flex items-center font-display text-[1.3rem] font-bold tracking-[-0.055em] text-ink transition-colors hover:text-redline"><BrandLogo /></Link>
                 {showMobileMenu && <MobileNav authenticated={authenticated} profile={profile} />}
             </div>
@@ -98,7 +98,7 @@ export default function MobileAppHeader({ authenticated, profile }: MobileAppHea
 
     return (
         <>
-            <div className={`${showProfileMenu ? "grid grid-cols-[2.5rem_1fr_2.5rem]" : "flex justify-center"} w-full items-center px-5 py-2.5 sm:hidden`}>
+            <div className={`${showProfileMenu ? "grid grid-cols-[2.5rem_1fr_2.5rem]" : "flex justify-center"} w-full items-center px-5 py-2.5 sm:hidden ${pathname === "/feed" ? feedStyles.mobileHeader : ""}`}>
                 {showProfileMenu && <Link href={profile ? `/p/${profile.slug}` : "/login"} aria-label="Your profile" className="interactive grid h-10 w-10 place-items-center rounded-full">
                     {profile ? <ProfileAvatar profile={profile} size={40} className="h-10 w-10 rounded-full border border-line object-cover" /> : <span className="h-9 w-9 rounded-full border border-line bg-sand" />}
                 </Link>}

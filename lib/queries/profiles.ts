@@ -75,12 +75,15 @@ export function isOwnedAvatarUrl(publicUrl: string, userId: string): boolean {
 export const getProfileBySlug = cache(async function getProfileBySlug(slug: string): Promise<QueryResult<Profile>> {
     try {
         const supabase = createPublicClient();
-        const result = await supabase.rpc("get_public_profile_by_slug", { p_slug: slug }).maybeSingle();
-
-        if (!result.error) {
-            return { data: result.data as Profile, error: null };
-        }
-        return { data: null, error: new Error(result.error.message) };
+        const { data, error } = await supabase
+            .from("profiles")
+            .select(PUBLIC_PROFILE_COLUMNS)
+            .eq("slug", slug)
+            .eq("search_indexable", true)
+            .eq("account_status", "active")
+            .maybeSingle();
+        if (error) return { data: null, error: new Error(error.message) };
+        return { data: data as Profile | null, error: null };
     } catch (err) {
         console.error("Unhandled error in getProfileBySlug:", err);
         return { data: null, error: err instanceof Error ? err : new Error(String(err)) };

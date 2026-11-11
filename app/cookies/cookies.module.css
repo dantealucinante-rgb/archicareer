@@ -15,6 +15,15 @@
 .policyHeading h2 { margin: 0; font-family: var(--font-plus-jakarta-sans), sans-serif; font-size: clamp(36px, 4.5vw, 58px); font-weight: 700; line-height: .98; letter-spacing: -.07em; }
 .policyHeading p { max-width: 34ch; margin: 16px 0 0; color: #4f4b49; font-size: 16px; line-height: 1.55; }
 .sections { width: min(100%, 800px); }
+.analyticsChoice { width: min(100%, 800px); margin-top: 26px; padding: 24px; border: var(--stroke); background: #f4f0e8; }
+.analyticsChoice h3 { margin: 0; font-family: var(--font-plus-jakarta-sans), sans-serif; font-size: clamp(24px, 2.8vw, 34px); font-weight: 700; letter-spacing: -.055em; }
+.analyticsChoice > p { max-width: 62ch; margin: 10px 0 0; color: #4f4b49; font-size: 14px; line-height: 1.7; }
+.consentControls { margin-top: 18px; }
+.consentControls > p { margin: 0 0 14px; color: #4f4b49; font-size: 14px; }
+.consentControls > div { display: flex; flex-wrap: wrap; gap: 10px; }
+.consentControls button { min-height: 44px; padding: 0 16px; border: var(--stroke); border-radius: 9999px; background: var(--ink); color: var(--white); font-family: var(--font-jetbrains-mono), monospace; font-size: 11px; font-weight: 700; letter-spacing: .04em; cursor: pointer; }
+.consentControls button + button { background: transparent; color: var(--ink); }
+.consentControls button:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
 .section { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 20px; padding: 26px 0 30px; border-top: var(--stroke); }
 .section:first-child { padding-top: 0; border-top: 0; }
 .number { display: grid; width: 48px; height: 48px; place-items: center; border: var(--stroke); border-radius: 50%; color: var(--white); font-family: var(--font-jetbrains-mono), monospace; font-size: 14px; font-weight: 700; }
@@ -52,6 +61,7 @@
   .number { width: 34px; height: 34px; font-size: 11px; }
   .section h3 { font-size: 24px; }
   .section p { margin-top: 10px; font-size: 14px; line-height: 1.7; }
+  .analyticsChoice { padding: 20px; }
   .legalLinks { align-items: flex-start; flex-direction: column; gap: 15px; width: calc(100% - 40px); padding-block: 30px 56px; }
   .legalLinks > div { width: 100%; }
   .legalLinks .pillButton { min-height: 48px; }

@@ -6,14 +6,11 @@ import FeedList from "@/app/components/FeedList";
 import ProfileAvatar from "@/app/components/ProfileAvatar";
 import PrimaryNav from "@/app/components/PrimaryNav";
 import styles from "./feed.module.css";
+import { pageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-    title: "The Architecture Community Feed",
-    description: "A live feed for ideas, questions, work, and conversations from Nigeria's architecture community.",
-    alternates: { canonical: "/feed" },
-};
+export const metadata: Metadata = pageMetadata({ title: "Architecture Community Feed", description: "Ideas, questions, work, and conversations from the architecture and built-environment community.", path: "/feed" });
 
 function roleLabel(role: string) {
     if (role === "student") return "Architecture student";
