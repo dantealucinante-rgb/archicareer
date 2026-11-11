@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { authCallbackUrl } from "@/lib/auth/callback-url";
 import AuthBrand from "@/app/components/AuthBrand";
 import GoogleAuthButton from "@/app/components/GoogleAuthButton";
 import { PROFESSIONAL_INTEREST_OPTIONS } from "@/lib/professional-interests";
@@ -121,7 +122,7 @@ export default function RegistrationExperience({ kind, onboarding = "", oauthErr
         const role = kind === "student" ? "student" : kind === "professional" ? "architect" : "firm";
         const onboarding = JSON.stringify({ account_type: kind, interests: context.interests, interest_other: context.interest_other });
         const nextPath = `/onboarding?intent=signup&role=${role}&account_type=${kind}&onboarding=${encodeURIComponent(onboarding)}`;
-        const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
+        const redirectTo = authCallbackUrl({ next: nextPath });
         try {
             const { error, data } = await createClient().auth.signUp({ email: email.trim(), password, options: { emailRedirectTo: redirectTo, data: metadata() } });
             if (error) { setStatus("error"); setMessage("We couldn’t create your account. Check your details and try again."); return; }
@@ -154,7 +155,7 @@ export default function RegistrationExperience({ kind, onboarding = "", oauthErr
                 const result = await intentResponse.json().catch(() => ({}));
                 throw new Error(result.error ?? "Google sign-up could not be prepared. Try again or use email.");
             }
-            const { error } = await createClient().auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}` } });
+            const { error } = await createClient().auth.signInWithOAuth({ provider: "google", options: { redirectTo: authCallbackUrl({ next: nextPath }) } });
             if (error) throw error;
         } catch (error) {
             await fetch("/api/auth/google-intent", { method: "DELETE" }).catch(() => null);

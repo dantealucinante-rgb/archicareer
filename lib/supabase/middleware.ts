@@ -37,8 +37,13 @@ export async function updateSession(request: NextRequest) {
         url.pathname.startsWith("/settings");
 
     if (isProtectedRoute && !user) {
+        const returnTo = `${url.pathname}${url.search}`;
         url.pathname = "/login";
-        return NextResponse.redirect(url);
+        url.search = "";
+        url.searchParams.set("next", returnTo);
+        const redirectResponse = NextResponse.redirect(url);
+        for (const cookie of supabaseResponse.cookies.getAll()) redirectResponse.cookies.set(cookie);
+        return redirectResponse;
     }
 
     const setupExemptRoutes = [

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { authCallbackUrl } from "@/lib/auth/callback-url";
 import AuthBrand from "@/app/components/AuthBrand";
 import GoogleAuthButton from "@/app/components/GoogleAuthButton";
 import styles from "./sign-in.module.css";
@@ -79,10 +80,7 @@ export default function SignInExperience({ accountType, nextPath, callbackError,
                 return;
             }
             const destination = safeNext(nextPath, detail.destination);
-            const callback = new URL("/auth/callback", window.location.origin);
-            callback.searchParams.set("next", destination);
-            callback.searchParams.set("signin_type", accountType);
-            const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: false, emailRedirectTo: callback.toString() } });
+            const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: false, emailRedirectTo: authCallbackUrl({ next: destination, signInType: accountType }) } });
             if (error) throw error;
             setStatus("sent"); setMessage("If your account can receive a sign-in link, you’ll get an email shortly.");
         } catch {
@@ -92,13 +90,10 @@ export default function SignInExperience({ accountType, nextPath, callbackError,
 
     async function startGoogle() {
         setStatus("loading"); setMessage(""); setMismatchHref("");
-        const callback = new URL("/auth/callback", window.location.origin);
-        callback.searchParams.set("next", safeNext(nextPath, detail.destination));
-        callback.searchParams.set("signin_type", accountType);
         try {
             const cleared = await fetch("/api/auth/google-intent", { method: "DELETE" });
             if (!cleared.ok) throw new Error("Could not clear the previous Google sign-up attempt.");
-            const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: callback.toString() } });
+            const { error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: authCallbackUrl({ next: safeNext(nextPath, detail.destination), signInType: accountType }) } });
             if (error) throw error;
         } catch { setStatus("error"); setMessage("Google sign-in couldn’t be started. Please try again."); }
     }
@@ -106,10 +101,8 @@ export default function SignInExperience({ accountType, nextPath, callbackError,
     async function resetPassword() {
         if (!email.trim()) { setStatus("error"); setMessage("Enter your email address first."); return; }
         setStatus("loading"); setMessage("");
-        const callback = new URL("/auth/callback", window.location.origin);
-        callback.searchParams.set("next", `/reset-password?account_type=${accountType}`);
         try {
-            const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: callback.toString() });
+            const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: authCallbackUrl({ next: `/reset-password?account_type=${accountType}` }) });
             if (error) throw error;
             setResetSent(true); setStatus("sent"); setMessage("If an account can receive a reset link, you’ll get an email shortly.");
         } catch { setStatus("error"); setMessage("We couldn’t send a reset link. Please try again shortly."); }

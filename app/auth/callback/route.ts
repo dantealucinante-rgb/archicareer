@@ -47,6 +47,7 @@ function callbackRedirect(path: string, origin: string) {
 }
 
 function log(event: string, detail: Record<string, string | boolean | null>) {
+    if (process.env.NODE_ENV !== "development") return;
     console.info("[auth/callback]", JSON.stringify({ event, ...detail }));
 }
 
@@ -241,7 +242,7 @@ export async function GET(request: Request) {
         completed = recoveredState.onboarding_completed;
     }
 
-    const destination = completed ? getAccountHome(profile.account_type) : "/onboarding";
+    const destination = completed ? rawNext ?? getAccountHome(profile.account_type) : "/onboarding";
     const { error: markerError } = await admin.auth.admin.updateUserById(user.id, {
         app_metadata: { ...user.app_metadata, onboarding_required: !completed },
     });
