@@ -21,7 +21,7 @@ export default function WaitlistPage() {
                 <Link href="/" className={styles.wordmark} aria-label="ArchiCareer home">
                     <BrandLogo className={styles.logo} />
                 </Link>
-                <a className={styles.headerCta} href="#waitlist-form">Join the waitlist <span aria-hidden="true">↘</span></a>
+                <a className={styles.headerCta} href="#waitlist-form">Join the waitlist</a>
             </header>
 
             <div className={styles.content}>
