@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { MarketingFooter, MarketingHeader } from "@/app/components/MarketingChrome";
+import { getProfileOnboardingState, getAccountHome, isAccountType } from "@/lib/onboarding";
+import { getProfileForUser } from "@/lib/queries/profiles";
 import { getJobListings } from "@/lib/queries/jobs";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 import type { JobListing } from "@/types";
 import { DEFAULT_DESCRIPTION, DEFAULT_TITLE, SITE_NAME, absoluteUrl, pageMetadata, safeJsonLd } from "@/lib/seo";
 import styles from "./landing.module.css";
@@ -58,7 +62,35 @@ function OpportunityRow({ job }: { job: JobListing }) {
     );
 }
 
-export default async function HomePage() {
+export default async function HomePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+    const params = await searchParams;
+    const oauthCode = typeof params.code === "string" ? params.code : null;
+    const oauthError = typeof params.error === "string" ? params.error : null;
+
+    // Supabase can fall back to its Site URL if a redirect target is rejected.
+    // If that Site URL is /, hand the returned authorization code to the same
+    // callback route used by the normal flow instead of silently showing the
+    // public landing page.
+    if (oauthCode || oauthError) {
+        const callbackParams = new URLSearchParams();
+        for (const key of ["code", "error", "error_code", "error_description", "next", "signin_type"]) {
+            const value = params[key];
+            if (typeof value === "string") callbackParams.set(key, value);
+        }
+        redirect(`/auth/callback?${callbackParams.toString()}`);
+    }
+
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+        const { data: profile } = await getProfileForUser(supabase, user.id);
+        if (profile && isAccountType(profile.account_type)) {
+            const onboarding = await getProfileOnboardingState(profile.user_id);
+            if (onboarding.data && !onboarding.data.onboarding_completed) redirect("/onboarding");
+            redirect(getAccountHome(profile.account_type));
+        }
+    }
+
     const { data: jobs, error: jobsError } = await getJobListings({}, { limit: 2, offset: 0 });
     const organizationId = `${absoluteUrl("/")}#organization`;
     const siteSchema = {
