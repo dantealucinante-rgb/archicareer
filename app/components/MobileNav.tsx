@@ -13,6 +13,7 @@ const navigationLinks = [
     { href: "/discover", label: "Discover" },
     { href: "/jobs", label: "Jobs" },
     { href: "/feed", label: "Feed" },
+    { href: "/communities", label: "Communities" },
     { href: "/pricing", label: "Pricing" },
 ];
 

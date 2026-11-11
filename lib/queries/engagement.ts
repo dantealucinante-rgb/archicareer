@@ -1,21 +1,13 @@
 import type { Comment, EngagementSummary, ReactionType } from "@/types";
 import { commentCreateSchema, commentUpdateSchema } from "@/lib/validations";
-import { createAdminClient, createClient, createPublicClient } from "@/lib/supabase/server";
+import { createClient, createPublicClient } from "@/lib/supabase/server";
 
-type Target = { portfolio_item_id?: string; post_id?: string };
+type Target = { portfolio_item_id?: string; post_id?: string; comment_id?: string };
 type QueryResult<T> = { data: T | null; error: Error | null };
 
 type EngagementTargets = {
     portfolioItemIds?: string[];
     postIds?: string[];
-};
-
-type EngagementRow = {
-    target_type: "portfolio_item" | "post";
-    target_id: string;
-    comment_count: number;
-    reaction_count: number;
-    user_reacted: boolean;
 };
 
 export async function getEngagementSummaries(targets: EngagementTargets, userId?: string | null): Promise<Record<string, EngagementSummary>> {
@@ -24,17 +16,37 @@ export async function getEngagementSummaries(targets: EngagementTargets, userId?
     if (portfolioItemIds.length === 0 && postIds.length === 0) return {};
 
     try {
-        const { data, error } = await createPublicClient().rpc("get_engagement_summaries", {
-            p_portfolio_item_ids: portfolioItemIds,
-            p_post_ids: postIds,
-            p_user_id: userId ?? null,
-        });
-        if (error) throw new Error(error.message);
-        return Object.fromEntries(((data ?? []) as EngagementRow[]).map((row) => [row.target_id, {
-            commentCount: Number(row.comment_count) || 0,
-            reactionCount: Number(row.reaction_count) || 0,
-            userReacted: Boolean(row.user_reacted),
-        }]));
+        const client = await createClient();
+        const empty = { data: [] as { portfolio_item_id: string | null; post_id: string | null; user_id?: string }[], error: null };
+        const [portfolioComments, postComments, portfolioReactions, postReactions, ownPortfolioReactions, ownPostReactions] = await Promise.all([
+            portfolioItemIds.length
+                ? client.from("comments").select("portfolio_item_id,post_id").in("portfolio_item_id", portfolioItemIds)
+                : Promise.resolve(empty),
+            postIds.length ? client.from("comments").select("portfolio_item_id,post_id").in("post_id", postIds) : Promise.resolve(empty),
+            portfolioItemIds.length
+                ? client.from("reactions").select("portfolio_item_id,post_id,user_id").in("portfolio_item_id", portfolioItemIds)
+                : Promise.resolve(empty),
+            postIds.length ? client.from("reactions").select("portfolio_item_id,post_id,user_id").in("post_id", postIds) : Promise.resolve(empty),
+            userId && portfolioItemIds.length ? client.from("reactions").select("portfolio_item_id,post_id").eq("user_id", userId).in("portfolio_item_id", portfolioItemIds) : Promise.resolve(empty),
+            userId && postIds.length ? client.from("reactions").select("portfolio_item_id,post_id").eq("user_id", userId).in("post_id", postIds) : Promise.resolve(empty),
+        ]);
+        if (portfolioComments.error || postComments.error || portfolioReactions.error || postReactions.error || ownPortfolioReactions.error || ownPostReactions.error) return {};
+        const summaries: Record<string, EngagementSummary> = {};
+        for (const id of portfolioItemIds) summaries[id] = { commentCount: 0, reactionCount: 0, userReacted: false };
+        for (const id of postIds) summaries[id] = { commentCount: 0, reactionCount: 0, userReacted: false };
+        for (const row of [...(portfolioComments.data ?? []), ...(postComments.data ?? [])]) {
+            const id = row.post_id ?? row.portfolio_item_id;
+            if (id && summaries[id]) summaries[id].commentCount += 1;
+        }
+        for (const row of [...(portfolioReactions.data ?? []), ...(postReactions.data ?? [])]) {
+            const id = row.post_id ?? row.portfolio_item_id;
+            if (id && summaries[id]) summaries[id].reactionCount += 1;
+        }
+        for (const row of [...(ownPortfolioReactions.data ?? []), ...(ownPostReactions.data ?? [])]) {
+            const id = row.post_id ?? row.portfolio_item_id;
+            if (id && summaries[id]) summaries[id].userReacted = true;
+        }
+        return summaries;
     } catch {
         return {};
     }
@@ -42,7 +54,7 @@ export async function getEngagementSummaries(targets: EngagementTargets, userId?
 
 async function attachAuthors(comments: Comment[]): Promise<Comment[]> {
     if (comments.length === 0) return comments;
-    const { data: profiles } = await createAdminClient()
+    const { data: profiles } = await createPublicClient()
         .from("profiles")
         .select("id, user_id, name, slug, role, avatar_url")
         .in("user_id", comments.map((comment) => comment.user_id));
@@ -52,12 +64,28 @@ async function attachAuthors(comments: Comment[]): Promise<Comment[]> {
 
 export async function getComments(target: Target): Promise<QueryResult<Comment[]>> {
     try {
-        const base = createPublicClient().from("comments").select("id, portfolio_item_id, post_id, parent_comment_id, user_id, content, created_at, updated_at");
+        const base = (await createClient()).from("comments").select("id, portfolio_item_id, post_id, parent_comment_id, user_id, content, created_at, updated_at");
         const { data, error } = target.portfolio_item_id
             ? await base.eq("portfolio_item_id", target.portfolio_item_id).order("created_at", { ascending: true })
             : await base.eq("post_id", target.post_id as string).order("created_at", { ascending: true });
         if (error) return { data: null, error: new Error(error.message) };
-        return { data: await attachAuthors((data ?? []) as Comment[]), error: null };
+        const comments = (data ?? []) as Comment[];
+        if (comments.length === 0) return { data: [], error: null };
+        const client = await createClient();
+        const [{ data: reactions }, { data: { user } }] = await Promise.all([
+            client.from("reactions").select("comment_id,user_id").in("comment_id", comments.map((comment) => comment.id)),
+            client.auth.getUser(),
+        ]);
+        const counts = new Map<string, { count: number; reacted: boolean }>();
+        for (const reaction of reactions ?? []) {
+            if (!reaction.comment_id) continue;
+            const current = counts.get(reaction.comment_id) ?? { count: 0, reacted: false };
+            current.count += 1;
+            if (reaction.user_id === user?.id) current.reacted = true;
+            counts.set(reaction.comment_id, current);
+        }
+        const enriched = comments.map((comment) => ({ ...comment, reaction_count: counts.get(comment.id)?.count ?? 0, user_reacted: counts.get(comment.id)?.reacted ?? false }));
+        return { data: await attachAuthors(enriched), error: null };
     } catch (error) {
         return { data: null, error: error instanceof Error ? error : new Error(String(error)) };
     }
@@ -69,6 +97,13 @@ export async function addComment(raw: unknown): Promise<QueryResult<Comment>> {
     const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return { data: null, error: new Error("Unauthenticated") };
+    if (parsed.data.parent_comment_id) {
+        const parent = await supabase.from("comments").select("id,post_id,portfolio_item_id").eq("id", parsed.data.parent_comment_id).maybeSingle();
+        const targetMatches = parsed.data.post_id
+            ? parent.data?.post_id === parsed.data.post_id
+            : parent.data?.portfolio_item_id === parsed.data.portfolio_item_id;
+        if (parent.error || !targetMatches) return { data: null, error: new Error("Reply target does not match this conversation") };
+    }
     const { data, error } = await supabase.from("comments").insert({
         portfolio_item_id: parsed.data.portfolio_item_id ?? null,
         post_id: parsed.data.post_id ?? null,
@@ -104,8 +139,10 @@ export async function updateComment(commentId: string, raw: unknown): Promise<Qu
 
 export async function getReactionCount(target: Target): Promise<number> {
     try {
-        const base = createPublicClient().from("reactions").select("id", { count: "exact", head: true });
-        const { count, error } = target.portfolio_item_id
+        const base = (await createClient()).from("reactions").select("id", { count: "exact", head: true });
+        const { count, error } = target.comment_id
+            ? await base.eq("comment_id", target.comment_id)
+            : target.portfolio_item_id
             ? await base.eq("portfolio_item_id", target.portfolio_item_id)
             : await base.eq("post_id", target.post_id as string);
         return error ? 0 : count ?? 0;
@@ -117,8 +154,10 @@ export async function getReactionCount(target: Target): Promise<number> {
 export async function hasUserReacted(target: Target, userId?: string | null): Promise<boolean> {
     if (!userId) return false;
     try {
-        const base = createPublicClient().from("reactions").select("id").eq("user_id", userId);
-        const { data, error } = target.portfolio_item_id
+        const base = (await createClient()).from("reactions").select("id").eq("user_id", userId);
+        const { data, error } = target.comment_id
+            ? await base.eq("comment_id", target.comment_id).maybeSingle()
+            : target.portfolio_item_id
             ? await base.eq("portfolio_item_id", target.portfolio_item_id).maybeSingle()
             : await base.eq("post_id", target.post_id as string).maybeSingle();
         return !error && Boolean(data);
@@ -132,7 +171,9 @@ export async function toggleReaction(target: Target, type: ReactionType = "like"
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return { data: null, error: new Error("Unauthenticated") };
     const existingBase = supabase.from("reactions").select("id").eq("user_id", user.id);
-    const { data: existing, error: existingError } = target.portfolio_item_id
+    const { data: existing, error: existingError } = target.comment_id
+        ? await existingBase.eq("comment_id", target.comment_id).maybeSingle()
+        : target.portfolio_item_id
         ? await existingBase.eq("portfolio_item_id", target.portfolio_item_id).maybeSingle()
         : await existingBase.eq("post_id", target.post_id as string).maybeSingle();
     if (existingError) return { data: null, error: new Error(existingError.message) };
@@ -146,6 +187,7 @@ export async function toggleReaction(target: Target, type: ReactionType = "like"
     const { error } = await supabase.from("reactions").insert({
         portfolio_item_id: target.portfolio_item_id ?? null,
         post_id: target.post_id ?? null,
+        comment_id: target.comment_id ?? null,
         user_id: user.id,
         type,
     });
@@ -167,6 +209,7 @@ export async function setReaction(target: Target, reacted: boolean, type: Reacti
         const { error } = await supabase.from("reactions").insert({
             portfolio_item_id: target.portfolio_item_id ?? null,
             post_id: target.post_id ?? null,
+            comment_id: target.comment_id ?? null,
             user_id: user.id,
             type,
         });
@@ -175,7 +218,9 @@ export async function setReaction(target: Target, reacted: boolean, type: Reacti
         if (error && error.code !== "23505") return { data: null, error: new Error(error.message) };
     } else {
         const base = supabase.from("reactions").delete().eq("user_id", user.id);
-        const { error } = target.portfolio_item_id
+        const { error } = target.comment_id
+            ? await base.eq("comment_id", target.comment_id)
+            : target.portfolio_item_id
             ? await base.eq("portfolio_item_id", target.portfolio_item_id)
             : await base.eq("post_id", target.post_id as string);
         if (error) return { data: null, error: new Error(error.message) };
@@ -185,10 +230,10 @@ export async function setReaction(target: Target, reacted: boolean, type: Reacti
 }
 
 export async function getEngagementSummary(target: Target, userId?: string | null) {
-    const publicClient = createPublicClient();
+    const client = await createClient();
     const commentsQuery = target.portfolio_item_id
-        ? publicClient.from("comments").select("id", { count: "exact", head: true }).eq("portfolio_item_id", target.portfolio_item_id)
-        : publicClient.from("comments").select("id", { count: "exact", head: true }).eq("post_id", target.post_id as string);
+        ? client.from("comments").select("id", { count: "exact", head: true }).eq("portfolio_item_id", target.portfolio_item_id)
+        : client.from("comments").select("id", { count: "exact", head: true }).eq("post_id", target.post_id as string);
     const [comments, reactions, reacted] = await Promise.all([
         commentsQuery,
         getReactionCount(target),

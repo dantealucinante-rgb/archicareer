@@ -142,6 +142,8 @@ export interface Comment {
     created_at: string;
     updated_at: string;
     author?: Pick<Profile, "id" | "name" | "slug" | "role" | "avatar_url">;
+    reaction_count?: number;
+    user_reacted?: boolean;
 }
 
 export interface Reaction {
@@ -170,6 +172,10 @@ export interface FeedPost {
     reaction_count: number;
     comment_count: number;
     user_reacted: boolean;
+    community_id?: string | null;
+    community?: { name: string; slug: string } | null;
+    title?: string | null;
+    post_type?: "discussion" | "question" | "single_image" | "image_gallery" | "project_showcase" | null;
     /** Client-only delivery state for posts being created. Never persisted. */
     client_status?: "pending" | "failed";
 }

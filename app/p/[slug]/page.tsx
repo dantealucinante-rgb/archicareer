@@ -9,6 +9,7 @@ import { absoluteUrl, cleanDescription, locationLabel, pageMetadata, safeJsonLd 
 import type { AccountType } from "@/types";
 import type { PublicProfilePageData } from "@/app/components/profile-experience/ProfilePageData";
 import PublicProfileLayout from "@/app/components/profile-experience/PublicProfileLayout";
+import { getPublicProfileCommunities } from "@/lib/queries/communities";
 
 interface PageProps { params: Promise<{ slug: string }> }
 const labels: Record<AccountType, string> = {
@@ -37,9 +38,10 @@ export default async function PublicProfilePage({ params }: PageProps) {
   const { data: profile } = await getProfileBySlug(slug);
   if (!profile) notFound();
 
-  const [projectResult, postResult, currentResult, profileOwnerId] = await Promise.all([
+  const [projectResult, postResult, communityResult, currentResult, profileOwnerId] = await Promise.all([
     getPortfolioItemsForProfile(profile.id, 12, 0),
     getPostsForProfile(profile.id, 12),
+    getPublicProfileCommunities(profile.user_id),
     getCurrentProfile(),
     getProfileOwnerUserId(profile.id),
   ]);
@@ -73,6 +75,7 @@ export default async function PublicProfilePage({ params }: PageProps) {
     projects,
     projectCount: projectResult.count ?? projects.length,
     posts,
+    communities: communityResult,
     engagement,
     currentUserId: currentProfile?.user_id ?? null,
     isOwner,

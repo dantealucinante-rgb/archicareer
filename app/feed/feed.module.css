@@ -228,3 +228,6 @@
   .skeletonAvatar,.skeletonLine,.skeletonMedia { animation:none; }
   .composeEntry,.composeButton,.post,.postOptions,.engagement :global(.feedback-control),.retryButton,.emptyAction,.publishButton { transition:none; }
 }
+.communityOrigin { margin: 7px 0 0; color: var(--color-graphite); font-size: 12px; }
+.communityOrigin a { color: var(--color-ink); font-weight: 700; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.communityPostTitle { margin: 13px 0 7px; font-size: clamp(19px, 2.5vw, 26px); line-height: 1.1; letter-spacing: -.045em; }

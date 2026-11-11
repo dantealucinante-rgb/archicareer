@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     return {
         rules: {
             userAgent: "*",
-            allow: ["/", "/p/", "/p/*/projects/", "/jobs", "/discover", "/feed", "/about", "/firms/*"],
+            allow: ["/", "/p/", "/p/*/projects/", "/jobs", "/discover", "/feed", "/communities", "/a/", "/about", "/firms/*"],
             disallow: [
                 "/api/",
                 "/admin",
@@ -23,6 +23,7 @@ export default function robots(): MetadataRoute.Robots {
                 "/firms/signup",
                 "/firms/onboarding",
                 "/business/signup",
+                "/communities/create",
             ],
         },
         sitemap: absoluteUrl("/sitemap.xml"),

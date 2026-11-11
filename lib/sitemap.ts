@@ -6,10 +6,10 @@ const PAGE_SIZE = 1_000;
 const XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>';
 const URLSET_OPEN = '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
 
-type SitemapKind = "profiles" | "projects" | "jobs" | "firms";
+type SitemapKind = "profiles" | "projects" | "jobs" | "firms" | "communities";
 type SitemapItem = { loc: string; lastModified?: string | null };
 
-const staticUrls = ["/", "/discover", "/jobs", "/feed", "/about", "/pricing", "/waitlist", "/privacy", "/terms", "/cookies"];
+const staticUrls = ["/", "/discover", "/jobs", "/feed", "/communities", "/about", "/pricing", "/waitlist", "/privacy", "/terms", "/cookies"];
 
 function escapeXml(value: string): string {
     return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&apos;");
@@ -29,8 +29,10 @@ async function countItems(kind: SitemapKind): Promise<number> {
         query = supabase.from("portfolio_items").select("id, profiles!inner(id)", { count: "exact", head: true }).eq("moderation_status", "active").eq("profiles.search_indexable", true).eq("profiles.account_status", "active");
     } else if (kind === "jobs") {
         query = supabase.from("job_listings").select("id", { count: "exact", head: true }).eq("status", "open").eq("moderation_status", "active");
-    } else {
+    } else if (kind === "firms") {
         query = supabase.from("firms").select("id", { count: "exact", head: true });
+    } else {
+        query = supabase.from("communities").select("id", { count: "exact", head: true }).eq("visibility", "public");
     }
     const { count, error } = await query;
     if (error) throw new Error(`Unable to count public ${kind} for sitemap`);
@@ -38,7 +40,7 @@ async function countItems(kind: SitemapKind): Promise<number> {
 }
 
 export async function sitemapIndexXml(): Promise<string> {
-    const kinds: SitemapKind[] = ["profiles", "projects", "jobs", "firms"];
+    const kinds: SitemapKind[] = ["profiles", "projects", "jobs", "firms", "communities"];
     const counts = await Promise.all(kinds.map(async (kind) => ({ kind, count: await countItems(kind) })));
     const sitemapPaths = ["/sitemap/static.xml"];
     for (const { kind, count } of counts) {
@@ -72,16 +74,21 @@ async function getPage(kind: SitemapKind, offset: number, limit: number): Promis
         if (error) throw new Error("Unable to load public job listings for sitemap");
         return (data ?? []).map((job) => ({ loc: absoluteUrl(`/jobs/${encodeURIComponent(job.id)}`), lastModified: job.updated_at }));
     }
-    const { data, error } = await supabase.from("firms").select("slug, updated_at").order("id", { ascending: true }).range(offset, end);
-    if (error) throw new Error("Unable to load public firms for sitemap");
-    return (data ?? []).map((firm) => ({ loc: absoluteUrl(`/firms/${encodeURIComponent(firm.slug)}`), lastModified: firm.updated_at }));
+    if (kind === "firms") {
+        const { data, error } = await supabase.from("firms").select("slug, updated_at").order("id", { ascending: true }).range(offset, end);
+        if (error) throw new Error("Unable to load public firms for sitemap");
+        return (data ?? []).map((firm) => ({ loc: absoluteUrl(`/firms/${encodeURIComponent(firm.slug)}`), lastModified: firm.updated_at }));
+    }
+    const { data, error } = await supabase.from("communities").select("slug, updated_at").eq("visibility", "public").order("id", { ascending: true }).range(offset, end);
+    if (error) throw new Error("Unable to load public communities for sitemap");
+    return (data ?? []).map((community) => ({ loc: absoluteUrl(`/a/${encodeURIComponent(community.slug)}`), lastModified: community.updated_at }));
 }
 
 export async function sitemapXml(id: string): Promise<string | null> {
     if (id === "static") {
         return serializeUrlset(staticUrls.map((path) => ({ loc: absoluteUrl(path) })));
     }
-    const match = /^(profiles|projects|jobs|firms)-(\d+)$/.exec(id);
+    const match = /^(profiles|projects|jobs|firms|communities)-(\d+)$/.exec(id);
     if (!match) return null;
     const kind = match[1] as SitemapKind;
     const page = Number(match[2]);

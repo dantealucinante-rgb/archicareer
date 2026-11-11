@@ -7,6 +7,7 @@ const links = [
     { href: "/discover", label: "Discover" },
     { href: "/jobs", label: "Jobs" },
     { href: "/feed", label: "Feed" },
+    { href: "/communities", label: "Communities" },
     { href: "/pricing", label: "Pricing" },
 ];
 
@@ -16,6 +17,7 @@ function NavIcon({ href }: { href: string }) {
     if (href === "/jobs") return <svg {...common}><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18M10 12v2h4v-2" strokeLinecap="round" strokeLinejoin="round" /></svg>;
     if (href === "/pricing") return <svg {...common}><path d="M12 3v18M17 7.5c0-1.7-2-3-5-3S7 5 7 7s2 3 5 3 5 1.3 5 3-2 3.5-5 3.5-5-1.3-5-3" strokeLinecap="round" /></svg>;
     if (href === "/discover") return <svg {...common}><circle cx="9" cy="8" r="3" /><circle cx="17.5" cy="10" r="2.25" /><path d="M3.5 20a5.5 5.5 0 0 1 11 0M15 20a3.5 3.5 0 0 1 5.5-2.9" strokeLinecap="round" /></svg>;
+    if (href === "/communities") return <svg {...common}><path d="M4 5h16v11H9l-5 4V5Z" strokeLinejoin="round"/><path d="M8 9h8M8 12h5" strokeLinecap="round"/></svg>;
     return <svg {...common}><circle cx="12" cy="8" r="3.5" /><path d="M4 21a8 8 0 0 1 16 0" strokeLinecap="round" /></svg>;
 }
 

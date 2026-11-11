@@ -397,3 +397,16 @@
   .publicProfile, .publicProfile * { scroll-behavior:auto !important; transition-duration:.01ms !important; animation-duration:.01ms !important; }
   .featuredImage > img, .previewImage > img, .publicProfile .projectCover { transform:none !important; }
 }
+.communityLinks { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 22px; border-top:2px solid var(--ink); }
+.communityProfileLink { display:grid; grid-template-columns:54px minmax(0,1fr) auto; align-items:center; gap:13px; min-width:0; border-bottom:1px solid var(--rule); padding:15px 0; color:var(--ink); text-decoration:none; }
+.communityProfileLink > img, .communityInitial { width:54px; height:54px; border:1px solid var(--ink); object-fit:cover; }
+.communityInitial { display:grid; place-items:center; background:var(--sand); font-size:24px; font-weight:800; }
+.communityProfileLink > span:nth-child(2) { display:grid; min-width:0; gap:4px; }
+.communityProfileLink strong { overflow:hidden; text-overflow:ellipsis; font-size:15px; }
+.communityProfileLink small { color:var(--muted); font-size:11px; }
+.communityProfileLink > b { font-size:20px; }
+.communityProfileLink:hover strong { color:var(--blue); }
+.postOrigin { margin:9px 0 0; color:var(--muted); font-size:12px; }
+.postOrigin a { color:var(--ink); font-weight:700; text-underline-offset:3px; }
+.postTitle { margin:12px 0 5px; font-size:20px; line-height:1.15; letter-spacing:-.04em; }
+@media (max-width:700px) { .communityLinks { grid-template-columns:1fr; } }

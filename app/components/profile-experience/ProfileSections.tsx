@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { FeedPost, EngagementSummary, Profile } from "@/types";
 import ContentEngagement from "@/app/components/ContentEngagement";
 import ProfileProjectGallery from "./ProfileProjectGallery";
@@ -58,9 +59,11 @@ export function PostsSection({ data, id = "posts", showTitle = true }: { data: P
 function PostItem({ post, engagement, currentUserId, isOwner }: { post: FeedPost; engagement: Record<string, EngagementSummary>; currentUserId: string | null; isOwner: boolean }) {
   return <article className={styles.post}>
     <time dateTime={post.created_at}>{new Date(post.created_at).toLocaleDateString("en-NG", { dateStyle: "medium" })}</time>
+    {post.community && <p className={styles.postOrigin}>Posted in <Link href={`/a/${post.community.slug}`}>{post.community.name}</Link></p>}
+    {post.title && <h3 className={styles.postTitle}>{post.title}</h3>}
     {post.content && <p className={styles.postContent}>{post.content}</p>}
     {post.image_url && <div className={styles.postImage}><Image src={post.image_url} alt={`Image shared by ${post.author.name}`} fill sizes="(max-width: 700px) 100vw, 720px" /></div>}
-    <ContentEngagement target={{ post_id: post.id }} initial={engagement[post.id] ?? { reactionCount: post.reaction_count, commentCount: post.comment_count, userReacted: post.user_reacted }} currentUserId={currentUserId} canModerate={isOwner} />
+    <ContentEngagement target={{ post_id: post.id }} initial={engagement[post.id] ?? { reactionCount: post.reaction_count, commentCount: post.comment_count, userReacted: post.user_reacted }} currentUserId={currentUserId} canModerate={isOwner} shareUrl={post.community ? `/a/${post.community.slug}/posts/${post.id}` : undefined} />
   </article>;
 }
 

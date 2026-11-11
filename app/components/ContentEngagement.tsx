@@ -8,7 +8,7 @@ import { formatCommunityDate } from "@/lib/date-format";
 
 type Target = { portfolio_item_id?: string; post_id?: string };
 
-export default function ContentEngagement({ target, initial, currentUserId, canModerate = false, compactActions = false }: { target: Target; initial: EngagementSummary; currentUserId: string | null; canModerate?: boolean; compactActions?: boolean }) {
+export default function ContentEngagement({ target, initial, currentUserId, canModerate = false, compactActions = false, shareUrl }: { target: Target; initial: EngagementSummary; currentUserId: string | null; canModerate?: boolean; compactActions?: boolean; shareUrl?: string }) {
     const [summary, setSummary] = useState(initial);
     const [comments, setComments] = useState<Comment[]>([]);
     const [failedCommentIds, setFailedCommentIds] = useState<string[]>([]);
@@ -175,7 +175,7 @@ export default function ContentEngagement({ target, initial, currentUserId, canM
 
     async function sharePost() {
         if (!target.post_id || sharePending) return;
-        const url = `${window.location.origin}/feed#post-${target.post_id}`;
+        const url = shareUrl ? `${window.location.origin}${shareUrl}` : `${window.location.origin}/feed#post-${target.post_id}`;
         const shareData = { title: "ArchiCareer", text: "A post from the ArchiCareer field", url };
 
         setSharePending(true);
@@ -201,13 +201,21 @@ export default function ContentEngagement({ target, initial, currentUserId, canM
     function renderComment(comment: Comment, depth = 0): React.ReactNode {
         const replies = comments.filter((child) => child.parent_comment_id === comment.id);
         return <div key={comment.id} className={depth > 0 ? `${depth > 3 ? "ml-3" : "ml-8"} border-l border-line pl-3` : ""}>
-            <div className="flex gap-3">
+                    <div className="flex gap-3">
                 <ProfileAvatar profile={comment.author ?? { name: "Community member" }} size={28} className="h-7 w-7 shrink-0 rounded-full border border-line object-cover" />
                 <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-baseline gap-2"><span className="font-mono text-[10px] uppercase tracking-widest text-ink">{comment.author?.name ?? "Community member"}</span><span className="font-mono text-[9px] uppercase tracking-widest text-graphite">{formatCommunityDate(comment.created_at)}</span>{currentUserId && <button type="button" onClick={() => { setReplyingTo(comment.id); setBody(""); }} className="font-mono text-[9px] uppercase tracking-widest text-ink hover:text-redline">Reply</button>}{comment.user_id === currentUserId && <button type="button" onClick={() => { setEditingId(comment.id); setEditingBody(comment.content); }} className="font-mono text-[9px] uppercase tracking-widest text-ink hover:text-redline">Edit</button>}{(comment.user_id === currentUserId || canModerate) && <button type="button" onClick={() => void removeComment(comment.id)} className="font-mono text-[9px] uppercase tracking-widest text-redline hover:text-ink">Delete</button>}</div>
                     {editingId === comment.id ? <form onSubmit={(event) => { event.preventDefault(); void saveComment(comment.id); }} className="mt-2 flex gap-2"><input value={editingBody} onChange={(event) => setEditingBody(event.target.value)} maxLength={500} className="field-input text-sm" /><button type="submit" className="shrink-0 rounded-full bg-ink px-3 py-2 font-mono text-[9px] uppercase tracking-widest text-paper">Save</button></form> : <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-graphite">{comment.content}</p>}
                     {comment.id.startsWith("temp-") && <p className={`mt-1 font-mono text-[9px] uppercase tracking-wider ${failedCommentIds.includes(comment.id) ? "text-redline" : "text-graphite"}`}>{failedCommentIds.includes(comment.id) ? <>Not sent. <button type="button" onClick={() => void sendComment(comment.content, comment.parent_comment_id, comment.id)} className="underline">Retry</button></> : "Sending…"}</p>}
-                </div>
+                    </div>
+                    <div className="ml-10 mt-1">
+                        {currentUserId ? <button type="button" className="font-mono text-[9px] uppercase tracking-widest text-graphite hover:text-redline" aria-pressed={Boolean(comment.user_reacted)} onClick={async () => {
+                            const desired = !comment.user_reacted;
+                            setComments((current) => current.map((item) => item.id === comment.id ? { ...item, user_reacted: desired, reaction_count: Math.max(0, (item.reaction_count ?? 0) + (desired ? 1 : -1)) } : item));
+                            const response = await fetch("/api/reactions", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ comment_id: comment.id, reacted: desired }) });
+                            if (!response.ok) setComments((current) => current.map((item) => item.id === comment.id ? { ...item, user_reacted: !desired, reaction_count: Math.max(0, (item.reaction_count ?? 0) + (desired ? -1 : 1)) } : item));
+                        }}>{comment.user_reacted ? "Liked" : "Like"}{(comment.reaction_count ?? 0) > 0 ? ` · ${comment.reaction_count}` : ""}</button> : (comment.reaction_count ?? 0) > 0 ? <span className="font-mono text-[9px] uppercase tracking-widest text-graphite">Like · {comment.reaction_count}</span> : null}
+                    </div>
             </div>
             {replies.length > 0 && <div className="mt-3 space-y-3">{replies.map((reply) => renderComment(reply, depth + 1))}</div>}
         </div>;

@@ -154,6 +154,8 @@ function FeedPostItem({ post, currentUserId, deleting, onDelete, onOpenComposer 
                     {authorHref ? <Link href={authorHref} className={styles.authorLink}><AuthorDetails post={post} /></Link> : <div className={styles.authorInfo}><AuthorDetails post={post} /></div>}
                     {post.user_id === currentUserId && <button type="button" disabled={deleting} onClick={onDelete} aria-label="Delete post" title="Delete post" className={styles.postOptions}>{deleting ? "…" : "⋯"}</button>}
                 </header>
+                {post.community && <p className={styles.communityOrigin}>Posted in <Link href={`/a/${post.community.slug}`}>{post.community.name}</Link></p>}
+                {post.title && <h2 className={styles.communityPostTitle}>{post.title}</h2>}
                 {post.content && <p className={styles.postContent}>{linkifyPost(post.content)}</p>}
                 {post.image_url && <div className={styles.postMedia}><Image src={post.image_url} alt={`Image shared by ${post.author.name}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 680px, 640px" className={styles.postMediaImage} /></div>}
                 {post.client_status ? <div className={styles.pendingStatus}>{post.client_status === "pending" ? "Publishing post…" : <>Post wasn’t published. <button type="button" onClick={onOpenComposer}>Retry in composer</button></>}</div>

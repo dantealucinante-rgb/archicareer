@@ -61,7 +61,7 @@ export default function PublicProfileLayout({ data }: { data: PublicProfilePageD
                 </div>
             </header>
 
-            <ProfileSectionNavigation />
+            <ProfileSectionNavigation hasCommunities={data.communities.length > 0} />
 
             <section id="overview" className={styles.editorialSection}>
                 <SectionHeading number="01" title="Overview" note="A closer look at the work" />
@@ -85,6 +85,14 @@ export default function PublicProfileLayout({ data }: { data: PublicProfilePageD
                 <SectionHeading number="02" title="Projects" note={`${data.projectCount.toLocaleString()} published ${data.projectCount === 1 ? "project" : "projects"}`} />
                 <ProfileProjectGallery slug={profile.slug} initialProjects={projects} total={data.projectCount} isOwner={data.isOwner} />
             </section>
+
+            {data.communities.length > 0 && <section id="communities" className={styles.editorialSection}>
+                <SectionHeading number="02A" title="Communities" note="Spaces in the built environment" />
+                <div className={styles.communityLinks}>{data.communities.map((community) => <Link key={community.id} href={`/a/${community.slug}`} className={styles.communityProfileLink}>
+                    {community.avatar_url ? <Image src={community.avatar_url} alt="" width={54} height={54} /> : <span className={styles.communityInitial}>{community.name.slice(0, 1)}</span>}
+                    <span><strong>{community.name}</strong><small>{community.role === "owner" ? "Owner" : community.role === "moderator" ? "Moderator" : "Member"}</small></span><b aria-hidden="true">↗</b>
+                </Link>)}</div>
+            </section>}
 
             <AboutSection profile={profile} isOwner={data.isOwner} />
             <ContactSection profile={profile} links={contacts} isOwner={data.isOwner} />

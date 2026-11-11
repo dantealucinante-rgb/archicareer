@@ -1,21 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styles from "./profile-experience.module.css";
 
 const sections = [
     ["overview", "Overview"],
     ["projects", "Projects"],
+    ["communities", "Communities"],
     ["about", "About"],
     ["contact", "Contact"],
     ["posts", "Posts"],
 ] as const;
 
-export default function ProfileSectionNavigation() {
+export default function ProfileSectionNavigation({ hasCommunities = false }: { hasCommunities?: boolean }) {
     const [active, setActive] = useState<string>("overview");
+    const visibleSections = useMemo(() => hasCommunities ? sections : sections.filter(([id]) => id !== "communities"), [hasCommunities]);
 
     useEffect(() => {
-        const elements = sections
+        const elements = visibleSections
             .map(([id]) => document.getElementById(id))
             .filter((element): element is HTMLElement => Boolean(element));
         if (!elements.length || typeof IntersectionObserver === "undefined") return;
@@ -29,10 +31,10 @@ export default function ProfileSectionNavigation() {
 
         elements.forEach((element) => observer.observe(element));
         return () => observer.disconnect();
-    }, []);
+    }, [visibleSections]);
 
     return <nav className={styles.editorialNav} aria-label="Profile sections">
-        {sections.map(([id, label], index) => <a
+        {visibleSections.map(([id, label], index) => <a
             href={`#${id}`}
             key={id}
             aria-current={active === id ? "location" : undefined}
