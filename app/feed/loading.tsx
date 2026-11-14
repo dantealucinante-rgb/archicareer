@@ -13,7 +13,6 @@ export default function FeedLoading() {
         <div className={`${styles.feedShell} ${styles.feedShellWithRail}`}>
             <aside className={styles.leftRail}><div className={styles.skeletonNav} aria-hidden="true"><span /><span /><span /><span /></div></aside>
             <section className={styles.timeline}>
-                <header className={styles.timelineHeader}><p className={styles.feedKicker}><span aria-hidden="true" />The community feed</p><span className={styles.skeletonTitle} /></header>
                 <div className={styles.feedFilterBar} aria-hidden="true"><span className={styles.filterPill}>All</span><span className={styles.filterPill}>Projects</span><span className={styles.filterPill}>Discussions</span></div>
                 <LoadingPost media /><LoadingPost /><LoadingPost />
             </section>

@@ -5,6 +5,7 @@ import { getFeed } from "@/lib/queries/posts";
 import FeedList from "@/app/components/FeedList";
 import ProfileAvatar from "@/app/components/ProfileAvatar";
 import PrimaryNav from "@/app/components/PrimaryNav";
+import { MarketingFooter } from "@/app/components/MarketingChrome";
 import styles from "./feed.module.css";
 import { pageMetadata } from "@/lib/seo";
 
@@ -35,11 +36,6 @@ export default async function FeedPage() {
             </aside>
 
             <section className={styles.timeline} aria-label="Community feed">
-                <header className={styles.timelineHeader}>
-                    <p className={styles.feedKicker}><span aria-hidden="true" />The community feed</p>
-                    <h1>Ideas, questions <em>&amp;</em> work <strong>in progress.</strong></h1>
-                    <p className={styles.feedStandfirst}>Notes, questions and projects from students, architects and practices across the built environment — newest first.</p>
-                </header>
                 <FeedList initialPosts={posts} initialError={feedResult.error ? "Couldn’t load posts. Try again." : ""} currentUserId={profile?.user_id ?? null} currentProfile={profile ? { id: profile.id, slug: profile.slug, name: profile.name, avatar_url: profile.avatar_url } : null} />
             </section>
 
@@ -55,6 +51,9 @@ export default async function FeedPage() {
                     <Link href="/discover" className={styles.discoverLink}>Meet more people <span aria-hidden="true">↗</span></Link>
                 </div>
             </aside>}
+        </div>
+        <div className={styles.feedFooterWrap}>
+            <MarketingFooter />
         </div>
     </main>;
 }
