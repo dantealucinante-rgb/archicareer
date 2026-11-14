@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
-import { createPost, deletePost, getFeed } from "@/lib/queries/posts";
+import { createPost, deletePost, FEED_FILTERS, type FeedFilter, getFeed } from "@/lib/queries/posts";
 
 export async function GET(request: Request) {
     const url = new URL(request.url);
     const limit = Number(url.searchParams.get("limit") ?? 10);
     const offset = Number(url.searchParams.get("offset") ?? 0);
-    const result = await getFeed(limit, offset);
+    const rawFilter = url.searchParams.get("filter") ?? "all";
+    const filter: FeedFilter = (FEED_FILTERS as string[]).includes(rawFilter) ? (rawFilter as FeedFilter) : "all";
+    const result = await getFeed(limit, offset, filter);
     if (result.error || !result.data) return NextResponse.json({ error: result.error?.message ?? "Unable to load feed" }, { status: 400 });
     return NextResponse.json({ posts: result.data, hasMore: result.data.length === Math.min(Math.max(Math.floor(limit) || 10, 1), 50) });
 }

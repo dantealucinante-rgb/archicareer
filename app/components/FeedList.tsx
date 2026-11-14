@@ -1,12 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import type { FeedPost } from "@/types";
+import type { FeedFilter } from "@/lib/queries/posts";
 import ProfileAvatar from "./ProfileAvatar";
-import ContentEngagement from "./ContentEngagement";
-import { formatCommunityDate } from "@/lib/date-format";
+import FeedPostItem from "./FeedPostItem";
 import styles from "@/app/feed/feed.module.css";
 
 type Props = {
@@ -15,6 +14,20 @@ type Props = {
     currentUserId: string | null;
     currentProfile: { id: string; slug: string; name: string; avatar_url: string | null } | null;
 };
+
+const FILTERS: { value: FeedFilter; label: string }[] = [
+    { value: "all", label: "All" },
+    { value: "projects", label: "Projects" },
+    { value: "discussions", label: "Discussions" },
+    { value: "questions", label: "Questions" },
+];
+
+async function fetchBatch(limit: number, offset: number, filter: FeedFilter): Promise<{ posts: FeedPost[]; hasMore: boolean }> {
+    const response = await fetch(`/api/posts?limit=${limit}&offset=${offset}&filter=${filter}`);
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error("Couldn’t load posts.");
+    return { posts: (payload.posts ?? []) as FeedPost[], hasMore: Boolean(payload.hasMore) };
+}
 
 export default function FeedList({ initialPosts, initialError = "", currentUserId, currentProfile }: Props) {
     const [posts, setPosts] = useState(initialPosts);
@@ -26,6 +39,8 @@ export default function FeedList({ initialPosts, initialError = "", currentUserI
     const [pageError, setPageError] = useState(Boolean(initialError));
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [confirmingId, setConfirmingId] = useState<string | null>(null);
+    const [filter, setFilter] = useState<FeedFilter>("all");
+    const [filterLoading, setFilterLoading] = useState(false);
     const loadMoreInFlight = useRef(false);
     const loadMoreSentinelRef = useRef<HTMLDivElement>(null);
     const requestRef = useRef<AbortController | null>(null);
@@ -40,21 +55,19 @@ export default function FeedList({ initialPosts, initialError = "", currentUserI
         const controller = new AbortController();
         requestRef.current = controller;
         try {
-            const response = await fetch(`/api/posts?limit=10&offset=${offset}`, { signal: controller.signal });
-            const payload = await response.json().catch(() => ({}));
-            if (!response.ok) throw new Error("Couldn’t load more posts.");
-            const batch = (payload.posts ?? []) as FeedPost[];
+            const batch = await fetchBatch(10, offset, filter);
+            if (controller.signal.aborted) return;
             setPosts((current) => {
                 const seen = new Set(current.map((post) => post.id));
-                const additions = batch.filter((post) => {
+                const additions = batch.posts.filter((post) => {
                     if (seen.has(post.id)) return false;
                     seen.add(post.id);
                     return true;
                 });
                 return [...current, ...additions];
             });
-            setOffset((current) => current + batch.length);
-            setHasMore(Boolean(payload.hasMore));
+            setOffset((current) => current + batch.posts.length);
+            setHasMore(batch.hasMore);
         } catch (error) {
             if (!(error instanceof Error && error.name === "AbortError")) {
                 setPageError(true);
@@ -66,7 +79,7 @@ export default function FeedList({ initialPosts, initialError = "", currentUserI
             loadMoreInFlight.current = false;
             if (!controller.signal.aborted) setLoading(false);
         }
-    }, [hasMore, offset]);
+    }, [hasMore, offset, filter]);
 
     function addPost(post: FeedPost, replaceId?: string) {
         setPosts((current) => {
@@ -78,6 +91,35 @@ export default function FeedList({ initialPosts, initialError = "", currentUserI
 
     function openComposer() {
         window.dispatchEvent(new Event("open-post-composer"));
+    }
+
+    async function changeFilter(next: FeedFilter) {
+        if (next === filter || filterLoading) return;
+        requestRef.current?.abort();
+        loadMoreInFlight.current = false;
+        setFilter(next);
+        setFilterLoading(true);
+        setPosts([]);
+        setOffset(0);
+        setHasMore(true);
+        setFeedMessage("");
+        setFeedHasError(false);
+        setPageError(false);
+        setLoading(true);
+        try {
+            const batch = await fetchBatch(10, 0, next);
+            setPosts(batch.posts);
+            setOffset(batch.posts.length);
+            setHasMore(batch.hasMore);
+        } catch {
+            setPageError(true);
+            setFeedHasError(true);
+            setFeedMessage("Couldn’t load posts for this filter. Try again.");
+            setHasMore(false);
+        } finally {
+            setFilterLoading(false);
+            setLoading(false);
+        }
     }
 
     useEffect(() => {
@@ -124,67 +166,27 @@ export default function FeedList({ initialPosts, initialError = "", currentUserI
         }
     }
 
-    return <div className={styles.postList}>
-        {currentUserId && <div className={styles.composePrompt}>
-            {currentProfile && <ProfileAvatar profile={currentProfile} size={42} className={styles.composeAvatar} />}
-            <button type="button" onClick={openComposer} className={styles.composeEntry}>What’s happening in your world?</button>
-            <button type="button" onClick={openComposer} className={styles.composeButton}>Post</button>
-        </div>}
-        {!currentUserId && <p className={styles.feedNotice}><Link href="/login">Sign in</Link> to share a thought and join the conversation.</p>}
-        {feedMessage && feedHasError && !pageError && posts.length > 0 && <p role="alert" className={styles.feedNotice}>{feedMessage}</p>}
-        {posts.length === 0 && loading ? <div role="status" className={styles.emptyState}><p>Loading posts…</p></div>
-            : posts.length === 0 && feedHasError ? <div role="alert" className={styles.feedError}><span>{feedMessage || "Couldn’t load posts. Try again."}</span><button type="button" onClick={() => void loadMore()} disabled={loading} className={styles.retryButton}>{loading ? "Loading…" : "Retry"}</button></div>
-            : posts.length === 0 ? <div className={styles.emptyState}><h2>The feed is quiet right now.</h2><p>When people share ideas, questions, and work, they’ll appear here.</p>{currentUserId && <button type="button" onClick={openComposer} className={styles.emptyAction}>Start a post</button>}</div>
-                : posts.map((post) => <FeedPostItem key={post.id} post={post} currentUserId={currentUserId} deleting={deletingId === post.id} onDelete={() => setConfirmingId(post.id)} onOpenComposer={openComposer} />)}
-        {hasMore && posts.length > 0 && <div ref={loadMoreSentinelRef} className={styles.loadMore} aria-live="polite">
-            {loading ? "Loading more posts…" : pageError ? <><span>Couldn’t load more posts.</span><button type="button" onClick={() => void loadMore()} className={styles.retryButton}>Retry</button></> : ""}
-        </div>}
-        {confirmingId && <div role="dialog" aria-modal="true" aria-labelledby="delete-post-title" className={styles.deleteDialog}><div className={styles.deleteDialogContent}><h2 id="delete-post-title">Delete this post?</h2><p>This cannot be undone.</p><div className={styles.dialogActions}><button type="button" onClick={() => setConfirmingId(null)} className={styles.dialogButton}>Cancel</button><button type="button" onClick={() => void removePost(confirmingId)} className={`${styles.dialogButton} ${styles.dialogDelete}`} disabled={Boolean(deletingId)}>Delete post</button></div></div></div>}
-    </div>;
-}
-
-function FeedPostItem({ post, currentUserId, deleting, onDelete, onOpenComposer }: { post: FeedPost; currentUserId: string | null; deleting: boolean; onDelete: () => void; onOpenComposer: () => void }) {
-    const authorHref = post.author.slug ? `/p/${post.author.slug}` : null;
-    return <article id={`post-${post.id}`} aria-label={`Post by ${post.author.name}`} className={styles.post}>
-        <div className={styles.postRow}>
-            {authorHref ? <Link href={authorHref} aria-label={`View ${post.author.name}'s profile`} className={styles.authorAvatarLink}><ProfileAvatar profile={post.author} size={44} className={styles.authorAvatar} /></Link>
-                : <ProfileAvatar profile={post.author} size={44} className={styles.authorAvatar} />}
-            <div className={styles.postBody}>
-                <header className={styles.authorRow}>
-                    {authorHref ? <Link href={authorHref} className={styles.authorLink}><AuthorDetails post={post} /></Link> : <div className={styles.authorInfo}><AuthorDetails post={post} /></div>}
-                    {post.user_id === currentUserId && <button type="button" disabled={deleting} onClick={onDelete} aria-label="Delete post" title="Delete post" className={styles.postOptions}>{deleting ? "…" : "⋯"}</button>}
-                </header>
-                {post.community && <p className={styles.communityOrigin}>Posted in <Link href={`/a/${post.community.slug}`}>{post.community.name}</Link></p>}
-                {post.title && <h2 className={styles.communityPostTitle}>{post.title}</h2>}
-                {post.content && <p className={styles.postContent}>{linkifyPost(post.content)}</p>}
-                {post.image_url && <div className={styles.postMedia}><Image src={post.image_url} alt={`Image shared by ${post.author.name}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 680px, 640px" className={styles.postMediaImage} /></div>}
-                {post.client_status ? <div className={styles.pendingStatus}>{post.client_status === "pending" ? "Publishing post…" : <>Post wasn’t published. <button type="button" onClick={onOpenComposer}>Retry in composer</button></>}</div>
-                    : <div className={styles.engagement}><ContentEngagement target={{ post_id: post.id }} initial={{ reactionCount: post.reaction_count, commentCount: post.comment_count, userReacted: post.user_reacted }} currentUserId={currentUserId} compactActions /></div>}
-            </div>
+    return <>
+        <div className={styles.feedFilterBar} role="group" aria-label="Filter the feed by content type">
+            {FILTERS.map((option) => <button key={option.value} type="button" aria-pressed={filter === option.value} disabled={filterLoading && filter !== option.value} onClick={() => void changeFilter(option.value)} className={styles.filterPill}>{option.label}</button>)}
+            <span className={styles.feedFilterNote}>{filterLoading ? "Loading…" : `${posts.length} shown`}</span>
         </div>
-    </article>;
-}
-
-function AuthorDetails({ post }: { post: FeedPost }) {
-    const roleLabel = post.author.role === "student" ? "Architecture student" : post.author.role === "architect" ? "Architect" : post.author.role === "firm" ? "Architecture practice" : "Built environment professional";
-    return <><span className={styles.authorMeta}><strong className={styles.authorName}>{post.author.name}</strong>{post.author.slug && <span className={styles.username}>@{post.author.slug}</span>}<span className={styles.timestamp} aria-hidden="true">·</span><time className={styles.timestamp} dateTime={post.created_at}>{formatCommunityDate(post.created_at)}</time></span><span className={styles.authorRole}>{roleLabel}{post.author.location ? ` · ${post.author.location}` : ""}</span></>;
-}
-
-function linkifyPost(content: string) {
-    const matcher = /https?:\/\/[^\s<>]+/gi;
-    const parts: React.ReactNode[] = [];
-    let cursor = 0;
-    let match: RegExpExecArray | null;
-    while ((match = matcher.exec(content))) {
-        const raw = match[0];
-        const url = raw.replace(/[),.!?;:]+$/, "");
-        const trailing = raw.slice(url.length);
-        if (!url) continue;
-        if (match.index > cursor) parts.push(content.slice(cursor, match.index));
-        parts.push(<a key={`${match.index}-${url}`} href={url} target="_blank" rel="noreferrer">{url}</a>);
-        if (trailing) parts.push(trailing);
-        cursor = match.index + raw.length;
-    }
-    if (cursor < content.length) parts.push(content.slice(cursor));
-    return parts.length ? parts : content;
+        <div className={styles.postList}>
+            {currentUserId && <div className={styles.composePrompt}>
+                {currentProfile && <ProfileAvatar profile={currentProfile} size={42} className={styles.composeAvatar} />}
+                <button type="button" onClick={openComposer} className={styles.composeEntry}>What’s happening in your world?</button>
+                <button type="button" onClick={openComposer} className={styles.composeButton}>Post</button>
+            </div>}
+            {!currentUserId && <p className={styles.feedNotice}><Link href="/login">Sign in</Link> to share a thought and join the conversation.</p>}
+            {feedMessage && feedHasError && !pageError && posts.length > 0 && <p role="alert" className={styles.feedNotice}>{feedMessage}</p>}
+            {posts.length === 0 && loading ? <div role="status" className={styles.emptyState}><p>Loading posts…</p></div>
+                : posts.length === 0 && feedHasError ? <div role="alert" className={styles.feedError}><span>{feedMessage || "Couldn’t load posts. Try again."}</span><button type="button" onClick={() => void changeFilter(filter)} disabled={loading} className={styles.retryButton}>{loading ? "Loading…" : "Retry"}</button></div>
+                : posts.length === 0 ? <div className={styles.emptyState}><h2>{filter === "all" ? "The feed is quiet right now." : `No ${filter} yet.`}</h2><p>{filter === "all" ? "When people share ideas, questions, and work, they’ll appear here." : "Nothing in this corner yet — be the first to share one."}</p>{currentUserId && <button type="button" onClick={openComposer} className={styles.emptyAction}>Start a post</button>}</div>
+                    : posts.map((post) => <FeedPostItem key={post.id} post={post} currentUserId={currentUserId} deleting={deletingId === post.id} onDelete={() => setConfirmingId(post.id)} onOpenComposer={openComposer} />)}
+            {hasMore && posts.length > 0 && <div ref={loadMoreSentinelRef} className={styles.loadMore} aria-live="polite">
+                {loading ? "Loading more posts…" : pageError ? <><span>Couldn’t load more posts.</span><button type="button" onClick={() => void loadMore()} className={styles.retryButton}>Retry</button></> : ""}
+            </div>}
+            {confirmingId && <div role="dialog" aria-modal="true" aria-labelledby="delete-post-title" className={styles.deleteDialog}><div className={styles.deleteDialogContent}><h2 id="delete-post-title">Delete this post?</h2><p>This cannot be undone.</p><div className={styles.dialogActions}><button type="button" onClick={() => setConfirmingId(null)} className={styles.dialogButton}>Cancel</button><button type="button" onClick={() => void removePost(confirmingId)} className={`${styles.dialogButton} ${styles.dialogDelete}`} disabled={Boolean(deletingId)}>Delete post</button></div></div></div>}
+        </div>
+    </>;
 }

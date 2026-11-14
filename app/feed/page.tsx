@@ -36,16 +36,10 @@ export default async function FeedPage() {
 
             <section className={styles.timeline} aria-label="Community feed">
                 <header className={styles.timelineHeader}>
-                    <div>
-                        <p className={styles.sectionEyebrow}>ArchiCareer community</p>
-                        <h1>Home</h1>
-                    </div>
-                    <span className={styles.latestLabel}><span aria-hidden="true" />Latest</span>
+                    <p className={styles.feedKicker}><span aria-hidden="true" />The community feed</p>
+                    <h1>Ideas, questions <em>&amp;</em> work <strong>in progress.</strong></h1>
+                    <p className={styles.feedStandfirst}>Notes, questions and projects from students, architects and practices across the built environment — newest first.</p>
                 </header>
-                <div className={styles.feedFilterBar} aria-label="Feed order">
-                    <span aria-current="page" className={styles.feedFilterActive}>Latest</span>
-                    <span className={styles.feedFilterNote}>From across the built environment</span>
-                </div>
                 <FeedList initialPosts={posts} initialError={feedResult.error ? "Couldn’t load posts. Try again." : ""} currentUserId={profile?.user_id ?? null} currentProfile={profile ? { id: profile.id, slug: profile.slug, name: profile.name, avatar_url: profile.avatar_url } : null} />
             </section>
 

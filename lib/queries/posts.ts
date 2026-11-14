@@ -28,16 +28,28 @@ async function addPostDetails(posts: FeedPost[], userId: string | null): Promise
     })) as FeedPost[];
 }
 
-export async function getFeed(limit = 10, offset = 0): Promise<QueryResult<FeedPost[]>> {
+export type FeedFilter = "all" | "projects" | "discussions" | "questions";
+
+export const FEED_FILTERS: FeedFilter[] = ["all", "projects", "discussions", "questions"];
+
+export async function getFeed(limit = 10, offset = 0, filter: FeedFilter = "all"): Promise<QueryResult<FeedPost[]>> {
     try {
         const safeLimit = Math.min(Math.max(Math.floor(limit) || 10, 1), 50);
         const safeOffset = Math.max(Math.floor(offset) || 0, 0);
         const userId = await currentUserId();
         const client = await createClient();
-        const { data, error } = await client
+        let query = client
             .from("posts")
             .select("id, user_id, content, image_url, created_at, updated_at, community_id, title, post_type, moderation_status")
-            .or("community_id.is.null,moderation_status.eq.active")
+            .or("community_id.is.null,moderation_status.eq.active");
+        if (filter === "projects") {
+            query = query.not("image_url", "is", null);
+        } else if (filter === "discussions") {
+            query = query.is("image_url", null).or("post_type.is.null,post_type.neq.question");
+        } else if (filter === "questions") {
+            query = query.eq("post_type", "question");
+        }
+        const { data, error } = await query
             .order("created_at", { ascending: false })
             .range(safeOffset, safeOffset + safeLimit - 1);
         if (error) return { data: null, error: new Error(error.message) };
