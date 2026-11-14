@@ -1,0 +1,264 @@
+/* Profile editor. Tokens are inherited from the editorial `.page` wrapper. */
+
+.head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 24px;
+    padding-block: 40px 32px;
+    border-bottom: var(--stroke);
+}
+
+.headCopy {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+}
+
+.section {
+    display: grid;
+    gap: 20px;
+    padding-block: 40px;
+    border-bottom: var(--stroke);
+    scroll-margin-top: calc(var(--site-header-height, 72px) + 24px);
+}
+
+.sectionHead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.sectionHeadCopy {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+}
+
+.sectionTitle {
+    margin: 0;
+    font-size: clamp(22px, 2.4vw, 30px);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -.045em;
+}
+
+.sectionNote {
+    margin: 0;
+    max-width: 60ch;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--muted);
+}
+
+.summary {
+    display: grid;
+    gap: 12px;
+}
+
+.summaryRow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 16px;
+    padding-block: 12px;
+    border-top: 1px solid rgba(25, 25, 27, .18);
+}
+
+.summaryRow:first-child {
+    border-top: 0;
+    padding-top: 0;
+}
+
+.summaryLabel {
+    flex: 0 0 150px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.summaryValue {
+    flex: 1 1 240px;
+    min-width: 0;
+    font-size: 16px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+}
+
+.summaryEmpty {
+    font-size: 15px;
+    color: var(--muted);
+}
+
+.fields {
+    display: grid;
+    gap: 20px;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding-top: 4px;
+}
+
+.status {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.statusError {
+    color: var(--coral);
+}
+
+.statusSaved {
+    color: var(--teal);
+}
+
+/* ---------- Repeatable entries ---------- */
+
+.entryList {
+    display: grid;
+    gap: 16px;
+}
+
+.entry {
+    display: grid;
+    gap: 16px;
+    padding: 20px;
+    border: var(--stroke);
+    background: var(--white);
+}
+
+.entryHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.entryIndex {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+}
+
+.entryGrid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.entryGridFull {
+    grid-column: 1 / -1;
+}
+
+/* ---------- Chips ---------- */
+
+.chipEditor {
+    display: grid;
+    gap: 12px;
+}
+
+.chipInputRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chipInput {
+    flex: 1 1 200px;
+    min-width: 0;
+}
+
+/* ---------- Media ---------- */
+
+.mediaRow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px;
+}
+
+.avatarPreview {
+    width: 96px;
+    height: 96px;
+    border: var(--stroke);
+    object-fit: cover;
+    flex: 0 0 auto;
+}
+
+.mediaActions {
+    display: grid;
+    gap: 10px;
+    min-width: 0;
+}
+
+.fileInput {
+    font-size: 14px;
+}
+
+.fileInput::file-selector-button {
+    margin-right: 12px;
+    padding: 8px 14px;
+    border: var(--stroke);
+    border-radius: 999px;
+    background: var(--white);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* ---------- Navigation ---------- */
+
+.nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-block: 20px;
+    border-bottom: var(--stroke);
+}
+
+.navLink {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 16px;
+    border: var(--stroke);
+    border-radius: 999px;
+    background: var(--white);
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.navLink:hover {
+    background: var(--paper);
+}
+
+@media (max-width: 700px) {
+    .head {
+        padding-block: 28px 24px;
+    }
+
+    .section {
+        padding-block: 32px;
+    }
+
+    .entryGrid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .summaryLabel {
+        flex-basis: 100%;
+    }
+}

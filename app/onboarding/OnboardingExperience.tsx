@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import PortfolioEditor from "@/app/(dashboard)/profile/PortfolioEditor";
+import ProjectEditor from "@/app/(dashboard)/profile/projects/ProjectEditor";
 import type { AccountType, PortfolioItem } from "@/types";
 import OnboardingConnectionsStep from "./OnboardingConnectionsStep";
 import OnboardingIdentityStep from "./OnboardingIdentityStep";
@@ -76,7 +76,9 @@ export default function OnboardingExperience({ accountType, profile, onboarding,
         return () => window.clearTimeout(timer);
     }, [draft, interestOther, interests, patchProgress, step]);
 
-    const projectItemsChanged = useCallback((items: PortfolioItem[]) => setProjectItems(items), []);
+    const projectItemAdded = useCallback((item: PortfolioItem | null) => {
+        if (item) setProjectItems((current) => [...current, item]);
+    }, []);
     const currentIndex = Math.max(0, stages.findIndex((stage) => stage.id === step));
     const displayName = (accountType === "student" || accountType === "professional")
         ? `${draft.first_name.trim()} ${draft.last_name.trim()}`.trim()
@@ -199,7 +201,7 @@ export default function OnboardingExperience({ accountType, profile, onboarding,
                     <OnboardingStepVisual accountType={accountType} stage={visualStage} />
                     <section className={styles.stepContent} aria-live="polite">
                         {step === 1 && <OnboardingIdentityStep accountType={accountType} draft={draft} onChange={updateDraft} photoUrl={photoUrl} onPhotoChange={setPhotoUrl} onPhotoBusyChange={setPhotoBusy} />}
-                        {step === 3 && <div className={styles.projectContent}><div className={styles.sectionHeading}><p className={styles.sectionKicker}>YOUR FIRST PROJECT · OPTIONAL</p><h2>LET YOUR WORK SPEAK.</h2><p>Your projects deserve to be seen. Start building your portfolio by sharing a project you’re proud of.</p></div><PortfolioEditor onboardingExperience initialItems={projectItems} variant={accountType === "firm" ? "firm" : "individual"} onItemsChange={projectItemsChanged} />
+                        {step === 3 && <div className={styles.projectContent}><div className={styles.sectionHeading}><p className={styles.sectionKicker}>YOUR FIRST PROJECT · OPTIONAL</p><h2>LET YOUR WORK SPEAK.</h2><p>Your projects deserve to be seen. Start building your portfolio by sharing a project you’re proud of.</p></div><ProjectEditor profileId={profile.id} onSaved={projectItemAdded} onCancel={null} submitLabel="Add project" />
                             <p className={styles.projectLater}>You can skip this step and add projects to your profile whenever you’re ready.</p>
                         </div>}
                         {step === 4 && <OnboardingConnectionsStep />}

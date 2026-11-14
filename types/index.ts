@@ -37,6 +37,43 @@ export type JobPayType = "paid" | "unpaid" | "not_disclosed";
 export type JobStatus = "open" | "closed";
 export type ApplicationStatus = "new" | "reviewing" | "shortlisted" | "interview" | "declined" | "hired";
 
+export interface EducationEntry {
+    id: string;
+    institution: string;
+    qualification: string | null;
+    discipline: string | null;
+    start_year: number | null;
+    end_year: number | null;
+}
+
+export interface ExperienceEntry {
+    id: string;
+    role: string;
+    organisation: string;
+    location: string | null;
+    start_year: number | null;
+    end_year: number | null;
+    description: string | null;
+}
+
+export interface AffiliationEntry {
+    id: string;
+    organisation: string;
+    role: string | null;
+    url: string | null;
+}
+
+/**
+ * Structured profile content stored in `profiles.details` (JSONB).
+ * Every key is optional: an empty object is a profile with nothing to show.
+ */
+export interface ProfileDetails {
+    education?: EducationEntry[];
+    experience?: ExperienceEntry[];
+    affiliations?: AffiliationEntry[];
+    expertise?: string[];
+}
+
 export interface Profile {
     id: string;
     user_id: string;
@@ -54,6 +91,7 @@ export interface Profile {
     personal_site_url: string | null;
     linkedin_url: string | null;
     avatar_url: string | null;
+    details: ProfileDetails;
     marketing_emails: boolean;
     search_indexable: boolean;
     created_at: string;
@@ -74,6 +112,7 @@ export interface PortfolioItem {
     status: PortfolioItemStatus;
     location: string | null;
     process_note: string | null;
+    is_published: boolean;
     display_order: number;
     created_at: string;
     updated_at: string;

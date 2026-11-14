@@ -1,23 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import editorial from "@/app/components/editorial/editorial.module.css";
 import styles from "./profile-experience.module.css";
 
-const sections = [
-    ["overview", "Overview"],
-    ["projects", "Projects"],
-    ["about", "About"],
-    ["contact", "Contact"],
-    ["posts", "Posts"],
-] as const;
+export type ProfileSection = { id: string; label: string };
 
-export default function ProfileSectionNavigation() {
-    const [active, setActive] = useState<string>("overview");
-    const visibleSections = useMemo(() => sections, []);
+export default function ProfileSectionNavigation({ sections }: { sections: ProfileSection[] }) {
+    const [active, setActive] = useState(sections[0]?.id ?? "");
 
     useEffect(() => {
-        const elements = visibleSections
-            .map(([id]) => document.getElementById(id))
+        const elements = sections
+            .map(({ id }) => document.getElementById(id))
             .filter((element): element is HTMLElement => Boolean(element));
         if (!elements.length || typeof IntersectionObserver === "undefined") return;
 
@@ -30,14 +24,20 @@ export default function ProfileSectionNavigation() {
 
         elements.forEach((element) => observer.observe(element));
         return () => observer.disconnect();
-    }, [visibleSections]);
+    }, [sections]);
 
-    return <nav className={styles.editorialNav} aria-label="Profile sections">
-        {visibleSections.map(([id, label], index) => <a
-            href={`#${id}`}
-            key={id}
-            aria-current={active === id ? "location" : undefined}
-            className={active === id ? styles.activeSection : ""}
-        ><span>{String(index + 1).padStart(2, "0")}</span>{label}</a>)}
-    </nav>;
+    if (sections.length < 2) return null;
+
+    return <div className={styles.nav}>
+        <div className={editorial.container}>
+            <nav aria-label="Profile sections" className={styles.navInner}>
+                {sections.map(({ id, label }) => <a
+                    key={id}
+                    href={`#${id}`}
+                    aria-current={active === id ? "location" : undefined}
+                    className={[styles.navLink, active === id ? styles.navLinkActive : ""].filter(Boolean).join(" ")}
+                >{label}</a>)}
+            </nav>
+        </div>
+    </div>;
 }

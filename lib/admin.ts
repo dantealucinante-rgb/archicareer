@@ -312,7 +312,7 @@ export async function getAdminContent(params: {
     } else {
         let q = admin
             .from("portfolio_items")
-            .select("id, profile_id, title, description, image_url, moderation_status, created_at", { count: "exact" })
+            .select("id, profile_id, title, description, moderation_status, created_at", { count: "exact" })
             .order("created_at", { ascending: false });
         if (params.status && ["active", "removed"].includes(params.status)) {
             q = q.eq("moderation_status", params.status);
@@ -320,12 +320,28 @@ export async function getAdminContent(params: {
         const { data, error, count } = await q.range(offset, offset + limit - 1);
         if (error) throw new Error("Unable to load showcases");
         totalCount = count ?? 0;
+
+        // Projects no longer carry a single image_url; the cover is the first
+        // row in portfolio_item_images.
+        const itemIds = (data ?? []).map((s) => s.id);
+        const coverByItem = new Map<string, string>();
+        if (itemIds.length > 0) {
+            const { data: images } = await admin
+                .from("portfolio_item_images")
+                .select("portfolio_item_id, image_url, display_order")
+                .in("portfolio_item_id", itemIds)
+                .order("display_order", { ascending: true });
+            for (const image of images ?? []) {
+                if (!coverByItem.has(image.portfolio_item_id)) coverByItem.set(image.portfolio_item_id, image.image_url);
+            }
+        }
+
         records = (data ?? []).map((s) => ({
             id: s.id,
             user_id: s.profile_id,
             title: s.title,
             content: s.description,
-            image_url: s.image_url,
+            image_url: coverByItem.get(s.id) ?? null,
             moderation_status: s.moderation_status as ModerationStatus,
             created_at: s.created_at,
         }));

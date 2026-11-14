@@ -5,6 +5,68 @@ import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { isFallbackAvatarUrl } from "@/lib/avatar";
 import { PROFESSIONAL_INTEREST_OPTIONS } from "@/lib/professional-interests";
 
+const DETAIL_LIST_LIMIT = 20;
+const DETAIL_TEXT_LIMIT = 600;
+
+function detailText(value: unknown, limit = DETAIL_TEXT_LIMIT): string {
+    return typeof value === "string" ? value.trim().slice(0, limit) : "";
+}
+
+function detailYear(value: unknown): number | null {
+    const year = Number(value);
+    return Number.isInteger(year) && year >= 1900 && year <= 2100 ? year : null;
+}
+
+function detailId(value: unknown, index: number): string {
+    const id = detailText(value, 64);
+    return id || `entry-${index}`;
+}
+
+/**
+ * `profiles.details` is rendered on public profiles, so only the known shapes
+ * are persisted — anything else in the payload is dropped rather than stored.
+ */
+function sanitizeDetails(input: unknown) {
+    const source = (input && typeof input === "object" && !Array.isArray(input) ? input : {}) as Record<string, unknown>;
+    const list = (value: unknown) => (Array.isArray(value) ? value.slice(0, DETAIL_LIST_LIMIT) : []);
+
+    return {
+        expertise: list(source.expertise).map((item) => detailText(item, 80)).filter(Boolean),
+        education: list(source.education).map((item, index) => {
+            const entry = (item ?? {}) as Record<string, unknown>;
+            return {
+                id: detailId(entry.id, index),
+                institution: detailText(entry.institution, 160),
+                qualification: detailText(entry.qualification, 160),
+                discipline: detailText(entry.discipline, 160),
+                start_year: detailYear(entry.start_year),
+                end_year: detailYear(entry.end_year),
+            };
+        }).filter((entry) => entry.institution),
+        experience: list(source.experience).map((item, index) => {
+            const entry = (item ?? {}) as Record<string, unknown>;
+            return {
+                id: detailId(entry.id, index),
+                role: detailText(entry.role, 160),
+                organisation: detailText(entry.organisation, 160),
+                location: detailText(entry.location, 160),
+                start_year: detailYear(entry.start_year),
+                end_year: detailYear(entry.end_year),
+                description: detailText(entry.description),
+            };
+        }).filter((entry) => entry.role || entry.organisation),
+        affiliations: list(source.affiliations).map((item, index) => {
+            const entry = (item ?? {}) as Record<string, unknown>;
+            return {
+                id: detailId(entry.id, index),
+                organisation: detailText(entry.organisation, 160),
+                role: detailText(entry.role, 160),
+                url: detailText(entry.url, 300),
+            };
+        }).filter((entry) => entry.organisation),
+    };
+}
+
 export async function POST(request: Request) {
     try {
         const body = await request.json().catch(() => ({}));
@@ -58,9 +120,11 @@ export async function POST(request: Request) {
             ...(has("linkedin_url") ? { linkedin_url: nullableUrl(body.linkedin_url) } : {}),
             ...(has("avatar_url") ? { avatar_url: nullableUrl(body.avatar_url) } : {}),
             ...(has("search_indexable") && typeof body.search_indexable === "boolean" ? { search_indexable: body.search_indexable } : {}),
+            ...(has("marketing_emails") && typeof body.marketing_emails === "boolean" ? { marketing_emails: body.marketing_emails } : {}),
             ...(has("social_links") && body.social_links && typeof body.social_links === "object" && !Array.isArray(body.social_links)
                 ? { social_links: body.social_links }
                 : {}),
+            ...(has("details") ? { details: sanitizeDetails(body.details) } : {}),
         };
 
         const { data: profile, error: currentError } = await getCurrentProfile();

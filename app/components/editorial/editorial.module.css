@@ -1,0 +1,552 @@
+/*
+ * ArchiCareer editorial system.
+ *
+ * The homepage (app/(marketing)/landing.module.css) is the reference: warm
+ * paper, 2px ink borders, flat offset shadows with zero blur, 999px pills,
+ * huge tight-tracked headlines, two-column editorial composition.
+ *
+ * Every redesigned surface imports this module so the tokens and primitives
+ * stay identical across profiles, projects and the editors.
+ */
+
+.page {
+    --paper: #f7f4ef;
+    --white: #fff;
+    --ink: #19191b;
+    --body: #4f4b49;
+    --muted: #716c69;
+    --blue: #1769e8;
+    --orange: #f2a221;
+    --purple: #5639a4;
+    --coral: #bd4439;
+    --teal: #087c73;
+    --olive: #697632;
+    --pink: #f0a3bd;
+    --stroke: 2px solid var(--ink);
+    --ease: cubic-bezier(.22, 1, .36, 1);
+
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-plus-jakarta-sans), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+.page *,
+.page *::before,
+.page *::after {
+    box-sizing: border-box;
+}
+
+.container {
+    width: min(100%, 1280px);
+    margin-inline: auto;
+    padding-inline: 32px;
+}
+
+/* ---------- Type ---------- */
+
+.display {
+    margin: 0;
+    font-size: clamp(40px, 5.6vw, 76px);
+    font-weight: 700;
+    line-height: .99;
+    letter-spacing: -.073em;
+    text-wrap: balance;
+}
+
+.sectionTitle {
+    margin: 0;
+    font-size: clamp(32px, 4.4vw, 58px);
+    font-weight: 700;
+    line-height: .98;
+    letter-spacing: -.07em;
+    text-wrap: balance;
+}
+
+.subTitle {
+    margin: 0;
+    font-size: clamp(22px, 2.4vw, 30px);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -.045em;
+    text-wrap: balance;
+}
+
+.lede {
+    margin: 0;
+    max-width: 62ch;
+    font-size: 18px;
+    line-height: 1.62;
+    color: var(--body);
+    text-wrap: pretty;
+}
+
+.body {
+    margin: 0;
+    max-width: 68ch;
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--body);
+    text-wrap: pretty;
+    white-space: pre-line;
+}
+
+.meta {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--muted);
+}
+
+.mono {
+    font-family: var(--font-jetbrains-mono), ui-monospace, monospace;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: .04em;
+    color: var(--muted);
+}
+
+.rule {
+    border: 0;
+    border-top: var(--stroke);
+    margin: 0;
+}
+
+/* ---------- Bands ---------- */
+
+.band {
+    padding-block: 88px;
+}
+
+.bandWhite {
+    background: var(--white);
+    border-block: var(--stroke);
+}
+
+.bandTight {
+    padding-block: 56px;
+}
+
+/* ---------- Pills ---------- */
+
+.pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 52px;
+    padding: 0 24px;
+    border: var(--stroke);
+    border-radius: 999px;
+    background: var(--white);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.15;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 var(--ink);
+    transition: transform 300ms var(--ease), box-shadow 300ms var(--ease), background-color 300ms var(--ease), color 300ms var(--ease);
+}
+
+.pill:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 var(--ink);
+}
+
+.pill:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 var(--ink);
+}
+
+.pill:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 4px;
+}
+
+.pill:disabled,
+.pill[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: .55;
+    transform: none;
+    box-shadow: 4px 4px 0 var(--ink);
+}
+
+.pillBlue {
+    background: var(--blue);
+    color: var(--white);
+}
+
+.pillBlue:hover {
+    background: var(--purple);
+}
+
+.pillOrange {
+    background: var(--orange);
+    color: var(--ink);
+}
+
+.pillOrange:hover {
+    background: var(--pink);
+}
+
+.pillInk {
+    background: var(--ink);
+    color: var(--paper);
+}
+
+.pillInk:hover {
+    background: var(--purple);
+    color: var(--white);
+}
+
+.pillQuiet {
+    background: transparent;
+    box-shadow: none;
+}
+
+.pillQuiet:hover {
+    background: var(--white);
+    transform: none;
+    box-shadow: none;
+}
+
+.pillSmall {
+    min-height: 44px;
+    padding: 0 18px;
+    font-size: 14px;
+    box-shadow: 3px 3px 0 var(--ink);
+}
+
+.pillSmall:hover {
+    box-shadow: 1px 1px 0 var(--ink);
+}
+
+.pillSmall:active {
+    box-shadow: 0 0 0 var(--ink);
+}
+
+.pillRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+/* ---------- Chips (non-interactive tags) ---------- */
+
+.chipRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
+    padding: 0 14px;
+    border: var(--stroke);
+    border-radius: 999px;
+    background: var(--white);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.chipButton {
+    cursor: pointer;
+    font-family: inherit;
+    transition: background-color 200ms var(--ease), color 200ms var(--ease);
+}
+
+.chipButton:hover {
+    background: var(--paper);
+}
+
+.chipActive {
+    background: var(--ink);
+    color: var(--paper);
+}
+
+.chipActive:hover {
+    background: var(--ink);
+}
+
+/* ---------- Frames ---------- */
+
+.frame {
+    position: relative;
+    border: var(--stroke);
+    background: var(--white);
+    overflow: hidden;
+}
+
+.frameOffset {
+    position: relative;
+    padding: 0 18px 18px 0;
+}
+
+.frameOffset::after {
+    content: "";
+    position: absolute;
+    inset: 18px 0 0 18px;
+    background: var(--orange);
+    border: var(--stroke);
+    z-index: 0;
+}
+
+.frameOffset > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* ---------- Forms ---------- */
+
+.field {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+}
+
+.fieldLabel {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -.01em;
+}
+
+.fieldHint {
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--muted);
+}
+
+.fieldError {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--coral);
+}
+
+.input,
+.textarea,
+.select {
+    width: 100%;
+    min-height: 52px;
+    padding: 12px 16px;
+    border: var(--stroke);
+    border-radius: 0;
+    background: var(--white);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1.4;
+    transition: box-shadow 200ms var(--ease);
+}
+
+.textarea {
+    min-height: 132px;
+    resize: vertical;
+}
+
+.select {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%), linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+    background-position: calc(100% - 22px) 24px, calc(100% - 16px) 24px;
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    padding-right: 44px;
+}
+
+.input:focus-visible,
+.textarea:focus-visible,
+.select:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 2px;
+}
+
+.input[aria-invalid="true"],
+.textarea[aria-invalid="true"],
+.select[aria-invalid="true"] {
+    border-color: var(--coral);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+    color: #9a9490;
+}
+
+.fieldGrid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.fieldGridFull {
+    grid-column: 1 / -1;
+}
+
+/* ---------- Save bar ---------- */
+
+.saveBar {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 24px;
+    padding: 16px 20px;
+    border: var(--stroke);
+    background: var(--paper);
+    box-shadow: 0 -4px 0 0 var(--paper);
+}
+
+.saveBarStatus {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.saveBarError {
+    color: var(--coral);
+}
+
+.saveBarSaved {
+    color: var(--teal);
+}
+
+/* ---------- Dialog ---------- */
+
+.confirmDialog {
+    width: min(100% - 40px, 480px);
+    padding: 28px;
+    border: var(--stroke);
+    border-radius: 0;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 8px 8px 0 var(--ink);
+}
+
+.confirmDialog::backdrop {
+    background: rgba(25, 25, 27, .45);
+}
+
+.confirmDialog > * + * {
+    margin-top: 16px;
+}
+
+/* ---------- Misc ---------- */
+
+.link {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 1px;
+    transition: color 200ms var(--ease), border-color 200ms var(--ease);
+}
+
+.link:hover {
+    color: var(--blue);
+    border-color: var(--blue);
+}
+
+.empty {
+    display: grid;
+    gap: 16px;
+    justify-items: start;
+    padding: 40px 0;
+    border-top: var(--stroke);
+}
+
+.srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 920px) {
+    .container {
+        padding-inline: 24px;
+    }
+
+    .band {
+        padding-block: 64px;
+    }
+
+    .fieldGrid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    .container {
+        padding-inline: 20px;
+    }
+
+    .display {
+        font-size: clamp(38px, 10.4vw, 58px);
+        line-height: 1.02;
+    }
+
+    .sectionTitle {
+        font-size: clamp(30px, 8.6vw, 46px);
+    }
+
+    .lede {
+        font-size: 16px;
+        line-height: 1.58;
+    }
+
+    .body {
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    .band {
+        padding-block: 52px;
+    }
+
+    .pill {
+        min-height: 48px;
+        padding: 0 20px;
+        font-size: 15px;
+    }
+
+    .saveBar {
+        padding: 14px 16px;
+    }
+}
+
+@media (hover: none) {
+    .pill:hover {
+        transform: none;
+        box-shadow: 4px 4px 0 var(--ink);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pill,
+    .chipButton,
+    .input,
+    .textarea,
+    .select,
+    .link {
+        transition: none;
+    }
+}

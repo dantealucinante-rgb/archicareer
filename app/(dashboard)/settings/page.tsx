@@ -1,7 +1,8 @@
 import { getCurrentProfile } from "@/lib/queries/profiles";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import SettingsEditor from "./SettingsEditor";
+import Pill from "@/app/components/editorial/Pill";
+import editorial from "@/app/components/editorial/editorial.module.css";
 import DeleteAccountButton from "./DeleteAccountButton";
 import SettingsBackButton from "./SettingsBackButton";
 
@@ -20,34 +21,45 @@ export default async function SettingsPage() {
             : "Magic link";
     const roleLabel = profile.role === "firm" ? "Firm" : profile.role === "architect" ? "Architect" : "Student";
 
-    return (
-        <div className="settings-panel-enter min-h-full bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
-            <main className="mx-auto w-full max-w-3xl px-5 py-6 sm:px-8 sm:py-10">
-                <header className="mb-8 flex items-start justify-between gap-5 border-b border-line pb-6">
-                    <div>
-                        <p className="eyebrow font-mono text-redline">Account controls</p>
-                        <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">Settings</h1>
-                        <p className="mt-3 max-w-xl text-sm leading-relaxed text-graphite">Manage how your account appears and how ArchiCareer stays in touch.</p>
-                    </div>
-                    <SettingsBackButton />
-                </header>
-
-                <div className="space-y-5">
-                    <section className="surface p-5 sm:p-7" aria-labelledby="account-heading">
-                        <p className="eyebrow font-mono text-redline">Account</p>
-                        <h2 id="account-heading" className="mt-2 font-display text-2xl font-semibold tracking-tight">Your account</h2>
-                        <dl className="mt-6 divide-y divide-line border-y border-line">
-                            <div className="flex flex-col gap-1 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6"><dt className="text-sm text-graphite">Email</dt><dd className="break-all text-sm font-medium text-ink sm:text-right">{user?.email ?? "Not available"}</dd></div>
-                            <div className="flex flex-col gap-1 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6"><dt className="text-sm text-graphite">Sign-in method</dt><dd className="text-sm font-medium text-ink sm:text-right">{signInMethod}</dd></div>
-                            <div className="flex flex-col gap-1 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6"><dt className="text-sm text-graphite">Account type</dt><dd className="text-sm font-medium text-ink sm:text-right">{roleLabel}</dd></div>
-                        </dl>
-                    </section>
-
-                    <SettingsEditor initialMarketingEmails={profile.marketing_emails} initialSearchIndexable={profile.search_indexable} />
-
-                    <DeleteAccountButton />
+    return <main className={editorial.page}>
+        <div className={editorial.container} style={{ maxWidth: 880 }}>
+            <header style={{ display: "flex", flexWrap: "wrap", alignItems: "start", justifyContent: "space-between", gap: 20, paddingBlock: "40px 28px", borderBottom: "var(--stroke)" }}>
+                <div style={{ display: "grid", gap: 12 }}>
+                    <h1 className={editorial.display}>Settings</h1>
+                    <p className={editorial.lede}>Account details and the actions that affect your whole account.</p>
                 </div>
-            </main>
+                <SettingsBackButton />
+            </header>
+
+            <section style={{ display: "grid", gap: 16, paddingBlock: 36, borderBottom: "var(--stroke)" }} aria-labelledby="account-heading">
+                <h2 id="account-heading" className={editorial.subTitle}>Your account</h2>
+                <dl style={{ display: "grid", margin: 0 }}>
+                    {[
+                        ["Email", user?.email ?? "Not available"],
+                        ["Sign-in method", signInMethod],
+                        ["Account type", roleLabel],
+                    ].map(([term, value]) => <div key={term} style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", justifyContent: "space-between", gap: 12, paddingBlock: 14, borderTop: "1px solid rgba(25,25,27,.18)" }}>
+                        <dt className={editorial.meta}>{term}</dt>
+                        <dd style={{ margin: 0, fontSize: 16, fontWeight: 700, overflowWrap: "anywhere" }}>{value}</dd>
+                    </div>)}
+                </dl>
+            </section>
+
+            <section style={{ display: "grid", gap: 16, paddingBlock: 36, borderBottom: "var(--stroke)" }} aria-labelledby="preferences-heading">
+                <h2 id="preferences-heading" className={editorial.subTitle}>Profile preferences</h2>
+                <p className={editorial.body}>
+                    Search visibility and email preferences now live with the rest of your profile, so everything about how you appear is in one place.
+                </p>
+                <div className={editorial.pillRow}>
+                    <Pill href="/profile/edit#privacy" variant="blue">Open profile preferences</Pill>
+                    <Pill href={`/p/${profile.slug}`} variant="quiet">View public profile ↗</Pill>
+                </div>
+            </section>
+
+            <section style={{ paddingBlock: 36 }} aria-labelledby="danger-heading">
+                <h2 id="danger-heading" className={editorial.subTitle} style={{ marginBottom: 16 }}>Delete account</h2>
+                <DeleteAccountButton />
+            </section>
         </div>
-    );
+    </main>;
 }

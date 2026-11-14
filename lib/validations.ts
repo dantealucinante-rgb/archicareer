@@ -5,6 +5,43 @@ const httpUrl = (message: string) => z.string().url(message).refine((value) => {
     return protocol === "http:" || protocol === "https:";
 }, "URL must use http:// or https://");
 
+const yearField = z.number().int().min(1900, "Year must be 1900 or later").max(2100, "Year must be 2100 or earlier").nullable().optional();
+
+export const educationEntrySchema = z.object({
+    id: z.string().min(1).max(64),
+    institution: z.string().trim().min(1, "Institution is required").max(160),
+    qualification: z.string().trim().max(120).nullable().optional(),
+    discipline: z.string().trim().max(120).nullable().optional(),
+    start_year: yearField,
+    end_year: yearField,
+});
+
+export const experienceEntrySchema = z.object({
+    id: z.string().min(1).max(64),
+    role: z.string().trim().min(1, "Role is required").max(120),
+    organisation: z.string().trim().min(1, "Organisation is required").max(160),
+    location: z.string().trim().max(120).nullable().optional(),
+    start_year: yearField,
+    end_year: yearField,
+    description: z.string().trim().max(600).nullable().optional(),
+});
+
+export const affiliationEntrySchema = z.object({
+    id: z.string().min(1).max(64),
+    organisation: z.string().trim().min(1, "Organisation is required").max(160),
+    role: z.string().trim().max(120).nullable().optional(),
+    url: httpUrl("Affiliation link must be a valid URL").nullable().optional(),
+});
+
+export const profileDetailsSchema = z.object({
+    education: z.array(educationEntrySchema).max(12, "You can list up to 12 education entries").optional(),
+    experience: z.array(experienceEntrySchema).max(20, "You can list up to 20 experience entries").optional(),
+    affiliations: z.array(affiliationEntrySchema).max(20, "You can list up to 20 affiliations").optional(),
+    expertise: z.array(z.string().trim().min(1).max(60)).max(30, "You can list up to 30 areas of expertise").optional(),
+});
+
+export type ProfileDetailsInput = z.infer<typeof profileDetailsSchema>;
+
 export const profileUpdateSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters").max(100).optional(),
     slug: z
@@ -22,6 +59,7 @@ export const profileUpdateSchema = z.object({
     personal_site_url: httpUrl("Personal site must be a valid URL").nullable().optional(),
     linkedin_url: httpUrl("LinkedIn must be a valid URL").nullable().optional(),
     avatar_url: httpUrl("Avatar must be a valid URL").nullable().optional(),
+    details: profileDetailsSchema.optional(),
     marketing_emails: z.boolean().optional(),
     search_indexable: z.boolean().optional(),
 });
@@ -29,7 +67,7 @@ export const profileUpdateSchema = z.object({
 export const portfolioItemCreateSchema = z.object({
     profile_id: z.string().uuid("Invalid profile ID"),
     title: z.string().min(2, "Title must be at least 2 characters").max(150),
-    description: z.string().max(500).nullable().optional(),
+    description: z.string().max(4000, "Description must be 4000 characters or less").nullable().optional(),
     category: z.enum([
         "residential",
         "commercial",
@@ -48,6 +86,7 @@ export const portfolioItemCreateSchema = z.object({
     status: z.enum(["academic", "professional"]),
     location: z.string().max(160).nullable().optional(),
     process_note: z.string().max(280).nullable().optional(),
+    is_published: z.boolean().optional(),
     display_order: z.number().int().nonnegative().optional().default(0),
 });
 

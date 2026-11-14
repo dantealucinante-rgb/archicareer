@@ -123,6 +123,7 @@ export default function MobileNav({ authenticated, profile }: Props) {
                         <>
                             {profile && <Link href={`/p/${profile.slug}`} onClick={closeNavigation} className="interactive rounded-xl px-4 py-3 text-base text-ink hover:bg-sand/40">View profile</Link>}
                             <Link href="/profile/edit" onClick={closeNavigation} className="interactive rounded-xl px-4 py-3 text-base text-ink hover:bg-sand/40">Edit profile</Link>
+                            <Link href="/profile/projects" onClick={closeNavigation} className="interactive rounded-xl px-4 py-3 text-base text-ink hover:bg-sand/40">Projects</Link>
                             <Link href="/applications" onClick={closeNavigation} className="interactive rounded-xl px-4 py-3 text-base text-ink hover:bg-sand/40">Applications</Link>
                             <Link href="/settings" onClick={closeNavigation} className="interactive rounded-xl px-4 py-3 text-base text-ink hover:bg-sand/40">Settings</Link>
                             <div className="my-2 border-t border-line" />

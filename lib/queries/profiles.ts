@@ -12,7 +12,7 @@ export interface QueryResult<T> {
 }
 
 export const PROFILE_COLUMNS = "id, user_id, name, slug, role, account_type, school_or_firm, bio, location, social_links, software_proficiency, cv_url, instagram_url, personal_site_url, linkedin_url, avatar_url, marketing_emails, search_indexable, created_at, updated_at";
-export const PUBLIC_PROFILE_COLUMNS = "id, name, slug, role, account_type, school_or_firm, bio, location, social_links, software_proficiency, cv_url, instagram_url, personal_site_url, linkedin_url, avatar_url, created_at, updated_at";
+export const PUBLIC_PROFILE_COLUMNS = "id, name, slug, role, account_type, school_or_firm, bio, location, social_links, software_proficiency, cv_url, instagram_url, personal_site_url, linkedin_url, avatar_url, details, created_at, updated_at";
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
 export async function removeCvFile(publicUrl: string): Promise<boolean> {

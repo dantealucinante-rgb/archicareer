@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { addPortfolioItem, addPortfolioItemImages, deletePortfolioItem, deletePortfolioItemImage, isOwnedPortfolioImageUrl, removePortfolioImageFiles, reorderPortfolioItemImages, updatePortfolioItem } from "@/lib/queries/portfolio";
+import { addPortfolioItem, addPortfolioItemImages, deletePortfolioItem, deletePortfolioItemImage, isOwnedPortfolioImageUrl, removePortfolioImageFiles, reorderPortfolioItemImages, reorderPortfolioItems, updatePortfolioItem } from "@/lib/queries/portfolio";
 import { getCurrentProfile } from "@/lib/queries/profiles";
 import { verifyStoredAsset } from "@/lib/storage-validation";
 import { createClient } from "@/lib/supabase/server";
@@ -111,16 +111,55 @@ export async function PATCH(request: Request) {
         if (!body || Array.isArray(body) || typeof body !== "object") {
             return NextResponse.json({ error: "Request body must be a JSON object" }, { status: 400 });
         }
+        // Reorder every project on the profile at once.
+        if (Array.isArray(body.order)) {
+            const order = body.order.filter((value: unknown): value is string => typeof value === "string");
+            const orderResult = await reorderPortfolioItems(profile.id, order);
+            if (orderResult.error) return NextResponse.json({ error: "Unable to reorder projects" }, { status: 400 });
+            return NextResponse.json({ ok: true });
+        }
+
         if (typeof body.id !== "string") return NextResponse.json({ error: "Portfolio item ID is required" }, { status: 400 });
-        const { id, imageOrder, ...updates } = body;
+        const { id, imageOrder, imageUrls, ...updates } = body;
+        let appendedImages: unknown[] | null = null;
         if (Array.isArray(imageOrder)) {
             const orderResult = await reorderPortfolioItemImages(id, imageOrder.filter((value: unknown): value is string => typeof value === "string"));
             if (orderResult.error) return NextResponse.json({ error: "Unable to reorder portfolio images" }, { status: 400 });
         }
-        if (Object.keys(updates).length === 0) return NextResponse.json({ ok: true });
+
+        // Append images to a project that already exists.
+        if (Array.isArray(imageUrls) && imageUrls.length > 0) {
+            const images = imageUrls.filter((url: unknown): url is string => typeof url === "string");
+            if (images.some((imageUrl) => !isOwnedPortfolioImageUrl(imageUrl, profile.user_id))) {
+                await removePortfolioImageFiles(images);
+                return NextResponse.json({ error: "Portfolio images must be uploaded to the portfolio storage bucket" }, { status: 400 });
+            }
+            const { count } = await supabase
+                .from("portfolio_item_images")
+                .select("id", { count: "exact", head: true })
+                .eq("portfolio_item_id", id);
+            if ((count ?? 0) + images.length > 12) {
+                await removePortfolioImageFiles(images);
+                return NextResponse.json({ error: "A project can contain at most 12 images" }, { status: 400 });
+            }
+            for (const imageUrl of images) {
+                if (!(await verifyStoredAsset(imageUrl, "portfolio-images", profile.user_id, "image"))) {
+                    await removePortfolioImageFiles(images);
+                    return NextResponse.json({ error: "One or more portfolio images could not be verified" }, { status: 400 });
+                }
+            }
+            const imageResult = await addPortfolioItemImages(id, images);
+            if (imageResult.error) {
+                await removePortfolioImageFiles(images);
+                return NextResponse.json({ error: "Unable to save portfolio images" }, { status: 400 });
+            }
+            appendedImages = imageResult.data ?? [];
+        }
+
+        if (Object.keys(updates).length === 0) return NextResponse.json({ ok: true, images: appendedImages });
         const result = await updatePortfolioItem(id, updates);
         if (result.error || !result.data) return NextResponse.json({ error: "Unable to update portfolio item" }, { status: 400 });
-        return NextResponse.json({ item: result.data });
+        return NextResponse.json({ item: result.data, images: appendedImages });
     } catch {
         return NextResponse.json({ error: "Unexpected server error" }, { status: 500 });
     }

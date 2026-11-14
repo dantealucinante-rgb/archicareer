@@ -5,7 +5,7 @@ import { QueryResult } from "@/lib/queries/profiles";
 import { cache } from "react";
 
 const PORTFOLIO_COLS =
-    "id, profile_id, title, description, category, project_type, role, team_contribution, software_used, year, status, location, process_note, display_order, created_at, updated_at";
+    "id, profile_id, title, description, category, project_type, role, team_contribution, software_used, year, status, location, process_note, is_published, display_order, created_at, updated_at";
 const IMAGE_COLS = "id, portfolio_item_id, image_url, display_order, created_at";
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -96,7 +96,9 @@ export async function getPortfolioItemsForProfile(
             .from("portfolio_items")
             .select(PORTFOLIO_COLS, { count: "exact" })
             .eq("profile_id", profileId)
+            .eq("is_published", true)
             .order("display_order", { ascending: true })
+            .order("created_at", { ascending: true })
             .range(safeOffset, safeOffset + safeLimit - 1);
 
         if (error) return { data: null, error: new Error(error.message) };
@@ -106,6 +108,58 @@ export async function getPortfolioItemsForProfile(
         return { data: null, error: err instanceof Error ? err : new Error(String(err)) };
     }
 }
+
+/**
+ * Every project on a profile, drafts included, for the owner's editor.
+ * The public query caps at 24 items; entitlements allow far more, so projects
+ * past the first page were previously impossible to edit at all.
+ */
+export async function getPortfolioItemsForOwner(profileId: string): Promise<QueryResult<PortfolioItem[]>> {
+    try {
+        const supabase = await createClient();
+        const { data, error } = await supabase
+            .from("portfolio_items")
+            .select(PORTFOLIO_COLS)
+            .eq("profile_id", profileId)
+            .order("display_order", { ascending: true })
+            .order("created_at", { ascending: true })
+            .limit(200);
+
+        if (error) return { data: null, error: new Error(error.message) };
+        return { data: await attachImages(supabase, (data ?? []) as Omit<PortfolioItem, "images">[]), error: null };
+    } catch (err) {
+        console.error("[portfolio] getPortfolioItemsForOwner:", err);
+        return { data: null, error: err instanceof Error ? err : new Error(String(err)) };
+    }
+}
+
+/**
+ * Viewer-aware lookup: an owner session sees their own drafts, everyone else
+ * (including signed-out visitors) is held to the public RLS policy.
+ */
+export const getPortfolioItemForViewer = cache(async function getPortfolioItemForViewer(
+    profileId: string,
+    portfolioItemId: string
+): Promise<QueryResult<PortfolioItem>> {
+    try {
+        const supabase = await createClient();
+        const { data, error } = await supabase
+            .from("portfolio_items")
+            .select(PORTFOLIO_COLS)
+            .eq("profile_id", profileId)
+            .eq("id", portfolioItemId)
+            .maybeSingle();
+
+        if (error) return { data: null, error: new Error(error.message) };
+        if (!data) return { data: null, error: null };
+
+        const [item] = await attachImages(supabase, [data as Omit<PortfolioItem, "images">]);
+        return { data: item, error: null };
+    } catch (err) {
+        console.error("[portfolio] getPortfolioItemForViewer:", err);
+        return { data: null, error: err instanceof Error ? err : new Error(String(err)) };
+    }
+});
 
 export const getPortfolioItemForProfile = cache(async function getPortfolioItemForProfile(
     profileId: string,
@@ -258,8 +312,20 @@ export async function addPortfolioItemImages(
             .maybeSingle();
         if (ownerError) return { data: null, error: new Error(ownerError.message) };
         if (!owner) return { data: null, error: new Error("Portfolio item is not owned by the current user") };
-        const rows = imageUrls.map((image_url, display_order) => ({ portfolio_item_id: portfolioItemId, image_url, display_order }));
-        if (rows.length === 0) return { data: [], error: null };
+        if (imageUrls.length === 0) return { data: [], error: null };
+
+        // Continue after the images already on the project so appending never
+        // collides with the existing order (and never displaces the cover).
+        const { data: existing, error: existingError } = await supabase
+            .from("portfolio_item_images")
+            .select("display_order")
+            .eq("portfolio_item_id", portfolioItemId)
+            .order("display_order", { ascending: false })
+            .limit(1);
+        if (existingError) return { data: null, error: new Error(existingError.message) };
+        const startOrder = (existing?.[0]?.display_order ?? -1) + 1;
+
+        const rows = imageUrls.map((image_url, index) => ({ portfolio_item_id: portfolioItemId, image_url, display_order: startOrder + index }));
 
         const { data, error } = await supabase
             .from("portfolio_item_images")
@@ -410,6 +476,17 @@ export async function reorderPortfolioItems(
 ): Promise<QueryResult<null>> {
     try {
         const supabase = await createClient();
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError || !user) return { data: null, error: new Error("Unauthenticated") };
+        const { data: owner, error: ownerError } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("id", profileId)
+            .eq("user_id", user.id)
+            .maybeSingle();
+        if (ownerError) return { data: null, error: new Error(ownerError.message) };
+        if (!owner) return { data: null, error: new Error("Profile not found or not owned by the current user") };
+
         const updates = orderedIds.map((id, index) => supabase
             .from("portfolio_items")
             .update({ display_order: index })

@@ -7,6 +7,7 @@ import type { DiscoverItem, DiscoverPageData } from "@/lib/queries/discover";
 import FollowButton from "@/app/components/FollowButton";
 import ProfileAvatar from "@/app/components/ProfileAvatar";
 import { Close } from "@/app/components/UiIcon";
+import Pill from "@/app/components/editorial/Pill";
 import styles from "./discover.module.css";
 
 const categories = [
@@ -99,34 +100,69 @@ export default function DiscoverExperience({ initialData, viewerId }: { initialD
   }, [loadMore]);
 
   const showNoResults = items.length === 0 && !loadingResults && !error && !hasMore;
-  return <section className={styles.explore} aria-label="Explore people and portfolios">
-    <form className={styles.search} role="search" onSubmit={(event) => event.preventDefault()}>
-      <svg aria-hidden="true" viewBox="0 0 24 24" className={styles.searchIcon} fill="none" stroke="currentColor" strokeWidth="2"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m16 16 4.3 4.3" strokeLinecap="round"/></svg>
+  return <section aria-label="Explore people and portfolios">
+    <form className={styles.searchBar} role="search" onSubmit={(event) => event.preventDefault()}>
+      <svg aria-hidden="true" viewBox="0 0 24 24" className={styles.searchIcon} fill="none" stroke="currentColor" strokeWidth="2"><circle cx="10.8" cy="10.8" r="6.3" /><path d="m16 16 4.3 4.3" strokeLinecap="round" /></svg>
       <label htmlFor="discover-search" className={styles.visuallyHidden}>Search people, projects and portfolios</label>
-      <input id="discover-search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search people, projects and portfolios…" autoComplete="off" />
-      {search && <button className={styles.clearSearch} type="button" onClick={() => setSearch("")} aria-label="Clear search"><Close /></button>}
+      <input
+        id="discover-search"
+        className={styles.searchInput}
+        value={search}
+        onChange={(event) => setSearch(event.target.value)}
+        placeholder="Search people, projects and portfolios…"
+        autoComplete="off"
+      />
+      {search && <button className={styles.clearButton} type="button" onClick={() => setSearch("")} aria-label="Clear search"><Close /></button>}
     </form>
 
-    <nav aria-label="Filter by category" className={styles.categoryScroller}>
-      {categories.map(([value, label]) => <button key={value} type="button" aria-pressed={category === value} onClick={() => setCategory(value)} className={`${styles.pill} ${category === value ? styles.activePill : ""}`}>{label}</button>)}
+    <nav aria-label="Filter by category" className={styles.filterRow}>
+      {categories.map(([value, label]) => <button
+        key={value}
+        type="button"
+        aria-pressed={category === value}
+        onClick={() => setCategory(value)}
+        className={[styles.filterButton, category === value ? styles.filterActive : ""].filter(Boolean).join(" ")}
+      >{label}</button>)}
     </nav>
 
-    <div className={styles.resultsToolbar}>
-      <p>People and work worth discovering</p>
+    <div className={styles.toolbar}>
+      <p className={styles.toolbarText}>
+        {loadingResults ? "Searching…" : `${items.length} ${items.length === 1 ? "result" : "results"}`}
+      </p>
       <div className={styles.typeFilters} aria-label="Discovery result type">
-        {([["all", "All"], ["people", "People"], ["portfolios", "Portfolios"]] as const).map(([value, label]) => <button key={value} type="button" aria-pressed={resultType === value} className={`${styles.pill} ${resultType === value ? styles.typeActive : ""}`} onClick={() => setResultType(value)}>{label}</button>)}
+        {([["all", "Everything"], ["people", "People"], ["portfolios", "Projects"]] as const).map(([value, label]) => <button
+          key={value}
+          type="button"
+          aria-pressed={resultType === value}
+          className={[styles.filterButton, resultType === value ? styles.filterActive : ""].filter(Boolean).join(" ")}
+          onClick={() => setResultType(value)}
+        >{label}</button>)}
       </div>
     </div>
 
-    {loadingResults && items.length === 0 ? <div className={styles.masonry} aria-label="Loading discoveries" aria-busy="true">{Array.from({ length: 6 }, (_, index) => <div key={index} className={`${styles.skeleton} ${index % 3 === 0 ? styles.skeletonTall : ""}`} />)}</div> : null}
-    <div className={styles.masonry} aria-live="polite">
+    {loadingResults && items.length === 0
+      ? <div className={styles.grid} aria-label="Loading discoveries" aria-busy="true">
+        {Array.from({ length: 6 }, (_, index) => <div key={index} className={styles.skeleton} />)}
+      </div>
+      : null}
+
+    <div className={styles.grid} aria-live="polite">
       {items.map((item, index) => item.type === "portfolio"
         ? <PortfolioCard key={`portfolio:${item.id}`} item={item} priority={index < 2} />
         : <PersonCard key={`person:${item.id}`} item={item} viewerId={viewerId} />)}
-      {loadingMore && Array.from({ length: 2 }, (_, index) => <div key={`loading:${index}`} className={`${styles.skeleton} ${index === 0 ? styles.skeletonTall : ""}`} aria-hidden="true" />)}
+      {loadingMore && Array.from({ length: 2 }, (_, index) => <div key={`loading:${index}`} className={styles.skeleton} aria-hidden="true" />)}
     </div>
-    {showNoResults && <div className={styles.empty}><h2>Nothing here yet.</h2><p>Try another search or explore a different category.</p></div>}
-    {error && <div role="alert" className={styles.error}>{error}<button type="button" className={`${styles.pill} ${styles.retry}`} onClick={() => { setItems([]); setProfileOffset(0); setProjectOffset(0); setHasMore(true); void requestPage(category, search.trim(), resultType, false); }}>Try again</button></div>}
+
+    {showNoResults && <div className={styles.empty}>
+      <h2>Nothing here yet.</h2>
+      <p>Try another search or explore a different category.</p>
+    </div>}
+
+    {error && <div role="alert" className={styles.error}>
+      {error}
+      <Pill size="small" onClick={() => { setItems([]); setProfileOffset(0); setProjectOffset(0); setHasMore(true); void requestPage(category, search.trim(), resultType, false); }}>Try again</Pill>
+    </div>}
+
     {hasMore && <div ref={sentinel} className={styles.loadMarker} aria-label="More discoveries" />}
   </section>;
 }
@@ -134,24 +170,34 @@ export default function DiscoverExperience({ initialData, viewerId }: { initialD
 const PortfolioCard = memo(function PortfolioCard({ item, priority }: { item: Extract<DiscoverItem, { type: "portfolio" }>; priority: boolean }) {
   const cover = item.project.images[0];
   const label = item.project.category.replaceAll("_", " ");
-  return <article className={`${styles.portfolio} ${styles.masonryItem}`}>
-    <Link href={`/p/${item.ownerSlug}/projects/${item.project.id}`} className={styles.projectLink} aria-label={`Open ${item.project.title}`}>
-      <div className={`${styles.projectImage} ${cover ? "" : styles.noImage}`}>
-        {cover ? <Image src={cover.image_url} alt={`${item.project.title} project`} fill priority={priority} sizes="(max-width: 600px) 46vw, (max-width: 1000px) 31vw, 24vw" className={styles.cover} /> : <span className={styles.noImageText}>Project preview</span>}
+  return <Link href={`/p/${item.ownerSlug}/projects/${item.project.id}`} className={styles.portfolioCard} aria-label={`Open ${item.project.title}`}>
+    <div className={styles.portfolioImage}>
+      {cover
+        ? <Image src={cover.image_url} alt={`${item.project.title} project`} fill priority={priority} sizes="(max-width: 700px) 100vw, (max-width: 920px) 50vw, 45vw" />
+        : <span className={styles.noImage}>No image</span>}
+    </div>
+    <div className={styles.portfolioCopy}>
+      <div>
+        <h2>{item.project.title}</h2>
+        <p>{label}{item.project.year ? ` · ${item.project.year}` : ""}</p>
       </div>
-      <div className={styles.projectCopy}><div><h2>{item.project.title}</h2><p>{label}</p></div>{item.project.year && <span className={styles.projectYear}>{item.project.year}</span>}</div>
-    </Link>
-  </article>;
+      {item.project.year && <span className={styles.projectYear}>{item.project.year}</span>}
+    </div>
+  </Link>;
 });
 
 const PersonCard = memo(function PersonCard({ item, viewerId }: { item: Extract<DiscoverItem, { type: "person" }>; viewerId: string | null }) {
   const profile = item.profile;
   const subtitle = profile.school_or_firm || (profile.role === "student" ? "Architecture student" : profile.role === "firm" ? "Architecture firm" : "Architecture professional");
-  return <article className={`${styles.person} ${styles.masonryItem}`}>
-    <div className={styles.personHead}><Link href={`/p/${profile.slug}`} className={styles.personIdentity}><ProfileAvatar profile={profile} size={52} className={styles.avatar} /><span><strong>{profile.name}</strong><small>{subtitle}</small></span></Link>
+  return <article className={styles.personCard}>
+    <div className={styles.personHead}>
+      <Link href={`/p/${profile.slug}`} className={styles.personIdentity}>
+        <ProfileAvatar profile={profile} size={52} className={styles.avatar} />
+        <span><strong>{profile.name}</strong><small>{subtitle}</small></span>
+      </Link>
       {item.followId && item.followId !== viewerId && (viewerId
         ? <FollowButton followingId={item.followId} initialFollowing={item.following} initialMutual={item.mutual} initialFollowerCount={0} compact />
-        : <Link href="/login?next=%2Fdiscover" className={`${styles.pill} ${styles.followLink}`}>Follow</Link>)}
+        : <Pill href="/login?next=%2Fdiscover" size="small" variant="orange">Follow</Pill>)}
     </div>
     {profile.bio && <p className={styles.bio}>{profile.bio}</p>}
     {profile.location && <p className={styles.location}>{profile.location}</p>}
