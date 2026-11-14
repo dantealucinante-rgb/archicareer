@@ -22,7 +22,7 @@ export default function WaitlistForm({ idPrefix, submitLabel }: Props) {
         const form = event.currentTarget;
         const values = new FormData(form);
         setSubmitting(true);
-        setMessage("Sending your details…");
+        setMessage("Sending…");
         setResult("idle");
 
         try {
@@ -42,20 +42,20 @@ export default function WaitlistForm({ idPrefix, submitLabel }: Props) {
 
             if (!response.ok) {
                 if (body.code === "WAITLIST_DUPLICATE") {
-                    setMessage("You’re on the list. You’re already registered and we’ll be in touch when early access becomes available.");
+                    setMessage("You’re on the list. You’re already registered — we’ll write when we open.");
                     setResult("success");
                     return;
                 }
-                setMessage(body.error ?? "We couldn't save your signup just now. Please try again.");
+                setMessage(body.error ?? "That didn’t save. Try again.");
                 setResult("error");
                 return;
             }
 
             form.reset();
-            setMessage("You’re on the list. Thanks for joining ArchiCareer. We’ll be in touch when early access becomes available.");
+            setMessage("You’re on the list. We’ll write when we open.");
             setResult("success");
         } catch {
-            setMessage("We couldn't reach the waitlist just now. Check your connection and try again.");
+            setMessage("Couldn’t reach the server. Check your connection and try again.");
             setResult("error");
         } finally {
             setSubmitting(false);
@@ -95,9 +95,9 @@ export default function WaitlistForm({ idPrefix, submitLabel }: Props) {
             <div className={styles.formMeta}>
                 <label className={styles.consent} htmlFor={`${idPrefix}-consent`}>
                     <input id={`${idPrefix}-consent`} name="consent" type="checkbox" required disabled={submitting || result === "success"} />
-                    <span>I agree to receive a launch update from ArchiCareer.</span>
+                    <span>Email me when ArchiCareer opens.</span>
                 </label>
-                <p className={styles.privacyNote}>Your details are used for the waitlist only. Read our <Link href="/privacy">Privacy Policy</Link>.</p>
+                <p className={styles.privacyNote}>Waitlist only. Read our <Link href="/privacy">Privacy Policy</Link>.</p>
             </div>
 
             <div className={styles.honeypot} aria-hidden="true">

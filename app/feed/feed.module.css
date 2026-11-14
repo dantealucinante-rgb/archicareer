@@ -17,13 +17,13 @@
   --feed-olive: #697632;
 }
 
-:global(body:has(.feedPage)) { --site-header-height: 78px; background: #f7f4ef; }
+:global(body):has(.feedPage) { --site-header-height: 78px; background: #f7f4ef; }
 .feedPage { min-height: 100%; overflow-x: clip; background: var(--color-paper); color: var(--color-ink); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 .feedPage *, .feedPage *::before, .feedPage *::after { box-sizing: border-box; }
 .feedFooterWrap { --paper: #f7f4ef; --white: #fff; --ink: #19191b; --muted: #716c69; --blue: #1769e8; --orange: #f2a221; --purple: #5639a4; --coral: #bd4439; --teal: #087c73; --olive: #697632; --pink: #f0a3bd; --stroke: 2px solid var(--ink); margin: 8px -20px -96px; background: var(--paper); }
 .feedFooterWrap footer { font-family: var(--font-sans); }
-:global(body:has(.feedPage) > div > footer) { display: none; }
-:global(body:has(.feedPage) .footer-fade) { display: none; }
+:global(body):has(.feedPage) > div > footer { display: none; }
+:global(body):has(.feedPage) :global(.footer-fade) { display: none; }
 
 /* Feed-only treatment for the shared app header. */
 .siteHeader:global(.site-header) { --color-paper: #f7f4ef; --color-ink: #19191b; --color-graphite: #716c69; --color-line: #ded9d2; --color-redline: #1769e8; --color-sand: #e8effb; border-bottom: 2px solid var(--color-ink); background: #f7f4ef; backdrop-filter: none; }
@@ -229,7 +229,7 @@
 @media (min-width: 1280px) { .activePeople { display: block; } }
 @media (max-width: 1099px) and (min-width: 640px) { .feedShell { grid-template-columns: minmax(0, 700px); } }
 @media (max-width: 639px) {
-  :global(body:has(.feedPage)) { --site-header-height: 62px; }
+  :global(body):has(.feedPage) { --site-header-height: 62px; }
   .feedShell { grid-template-columns: minmax(0, 1fr); gap: 20px; padding: 0 14px 98px; }
   .timeline { padding-top: 14px; }
   .feedFilterBar { margin-inline: -14px; padding: 2px 14px 14px; }
