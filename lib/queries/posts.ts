@@ -40,8 +40,8 @@ export async function getFeed(limit = 10, offset = 0, filter: FeedFilter = "all"
         const client = await createClient();
         let query = client
             .from("posts")
-            .select("id, user_id, content, image_url, created_at, updated_at, community_id, title, post_type, moderation_status")
-            .or("community_id.is.null,moderation_status.eq.active");
+            .select("id, user_id, content, image_url, created_at, updated_at, title, post_type, moderation_status")
+            .eq("moderation_status", "active");
         if (filter === "projects") {
             query = query.not("image_url", "is", null);
         } else if (filter === "discussions") {
@@ -53,13 +53,7 @@ export async function getFeed(limit = 10, offset = 0, filter: FeedFilter = "all"
             .order("created_at", { ascending: false })
             .range(safeOffset, safeOffset + safeLimit - 1);
         if (error) return { data: null, error: new Error(error.message) };
-        const rows = (data ?? []).filter((post) => !post.community_id || post.moderation_status === "active");
-        const communityIds = [...new Set(rows.map((post) => post.community_id).filter((id): id is string => Boolean(id)))];
-        const { data: communities } = communityIds.length
-            ? await client.from("communities").select("id,name,slug").in("id", communityIds)
-            : { data: [] };
-        const communityMap = new Map((communities ?? []).map((community) => [community.id, { name: community.name, slug: community.slug }]));
-        const posts = rows.map((row) => ({ ...row, community: row.community_id ? communityMap.get(row.community_id) ?? null : null })) as unknown as FeedPost[];
+        const posts = (data ?? []) as unknown as FeedPost[];
         return { data: await addPostDetails(posts, userId), error: null };
     } catch (error) {
         return { data: null, error: error instanceof Error ? error : new Error(String(error)) };
@@ -73,19 +67,13 @@ export async function getPostById(postId: string): Promise<QueryResult<FeedPost>
         const client = await createClient();
         const { data, error } = await client
             .from("posts")
-            .select("id, user_id, content, image_url, created_at, updated_at, community_id, title, post_type, moderation_status")
+            .select("id, user_id, content, image_url, created_at, updated_at, title, post_type, moderation_status")
             .eq("id", postId)
-            .or("community_id.is.null,moderation_status.eq.active")
+            .eq("moderation_status", "active")
             .maybeSingle();
         if (error) return { data: null, error: new Error(error.message) };
         if (!data) return { data: null, error: null };
-        if (data.community_id && data.moderation_status !== "active") return { data: null, error: null };
-        let community: { name: string; slug: string } | null = null;
-        if (data.community_id) {
-            const { data: rows } = await client.from("communities").select("name,slug").eq("id", data.community_id).maybeSingle();
-            community = rows ? { name: rows.name, slug: rows.slug } : null;
-        }
-        const [post] = await addPostDetails([{ ...data, community } as unknown as FeedPost], userId);
+        const [post] = await addPostDetails([data as unknown as FeedPost], userId);
         return { data: post ?? null, error: null };
     } catch (error) {
         return { data: null, error: error instanceof Error ? error : new Error(String(error)) };
@@ -98,15 +86,10 @@ export async function getPostsForProfile(profileId: string, limit = 12): Promise
         if (profileError) return { data: null, error: new Error(profileError.message) };
         if (!profile?.user_id) return { data: [], error: null };
         const client = await createClient();
-        const { data, error } = await client.from("posts").select("id, user_id, content, image_url, created_at, updated_at, community_id, title, post_type, moderation_status").eq("user_id", profile.user_id).or("community_id.is.null,moderation_status.eq.active").order("created_at", { ascending: false }).limit(Math.min(Math.max(limit, 1), 30));
+        const { data, error } = await client.from("posts").select("id, user_id, content, image_url, created_at, updated_at, title, post_type, moderation_status").eq("user_id", profile.user_id).eq("moderation_status", "active").order("created_at", { ascending: false }).limit(Math.min(Math.max(limit, 1), 30));
         if (error) return { data: null, error: new Error(error.message) };
-        const visible = (data ?? []).filter((post) => !post.community_id || post.moderation_status === "active") as unknown as FeedPost[];
         const { data: { user } } = await client.auth.getUser();
-        const communityIds = [...new Set(visible.map((post) => post.community_id).filter((id): id is string => Boolean(id)))];
-        const { data: communities } = communityIds.length ? await client.from("communities").select("id,name,slug").in("id", communityIds) : { data: [] };
-        const byId = new Map((communities ?? []).map((community) => [community.id, { name: community.name, slug: community.slug }]));
-        const withCommunity = visible.map((post) => ({ ...post, community: post.community_id ? byId.get(post.community_id) ?? null : null }));
-        return { data: await addPostDetails(withCommunity, user?.id ?? null), error: null };
+        return { data: await addPostDetails((data ?? []) as unknown as FeedPost[], user?.id ?? null), error: null };
     } catch (error) {
         return { data: null, error: error instanceof Error ? error : new Error(String(error)) };
     }

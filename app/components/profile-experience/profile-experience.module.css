@@ -167,6 +167,8 @@
 .contactButton { background:var(--ink); color:var(--white); }
 .contactButton:hover { background:var(--coral); color:var(--white); }
 .followButton { background:var(--orange); color:var(--ink); }
+.messageButton { background:var(--white); color:var(--ink); }
+.messageButton:hover { background:var(--pink); color:var(--ink); }
 .profileActions :global(.follow-control) { min-height:46px; padding:0 19px; border:var(--stroke); background:var(--orange); box-shadow:3px 3px 0 var(--ink); color:var(--ink); font-size:14px; font-weight:700; transition:transform 220ms cubic-bezier(.22,1,.36,1),box-shadow 220ms cubic-bezier(.22,1,.36,1),background-color 220ms ease; }
 .profileActions :global(.follow-control:hover) { transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink); background:#e79a14; }
 .profileActions :global(.follow-control[aria-pressed="true"]) { background:var(--white); }

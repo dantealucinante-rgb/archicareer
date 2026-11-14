@@ -66,9 +66,8 @@ export default async function PostPage({ params }: { params: Promise<{ postId: s
                     <time className={styles.timestamp} dateTime={post.created_at}>{formatCommunityDate(post.created_at)}</time>
                 </header>
 
-                {(label || post.community) && <div className={styles.chipRow}>
-                    {label && <span className={styles.typeChip}>{label}</span>}
-                    {post.community && <p className={styles.communityOrigin}>Posted in <Link href={`/a/${post.community.slug}`}>{post.community.name}</Link></p>}
+                {label && <div className={styles.chipRow}>
+                    <span className={styles.typeChip}>{label}</span>
                 </div>}
 
                 {post.title && <h1 className={styles.title}>{post.title}</h1>}

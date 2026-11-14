@@ -75,15 +75,14 @@ export default function FeedPostItem({ post, currentUserId, deleting, onDelete, 
                     <div className={styles.authorInfo}><AuthorDetails post={post} /></div>
                     {post.user_id === currentUserId && <button type="button" disabled={deleting} onClick={onDelete} aria-label="Delete post" title="Delete post" className={styles.postOptions}>{deleting ? "…" : "⋯"}</button>}
                 </header>
-                {(chip || post.community) && <div className={styles.chipRow}>
-                    {chip && <span className={`${styles.typeChip} ${chip.className}`}>{chip.label}</span>}
-                    {post.community && <p className={styles.communityOrigin}>Posted in <Link href={`/a/${post.community.slug}`}>&nbsp;{post.community.name}</Link></p>}
+                {chip && <div className={styles.chipRow}>
+                    <span className={`${styles.typeChip} ${chip.className}`}>{chip.label}</span>
                 </div>}
                 {post.title && <h2 className={styles.communityPostTitle}><Link href={`/posts/${post.id}`} className={styles.postTitleLink}>{post.title}</Link></h2>}
                 {post.content && <p className={styles.postContent}>{linkifyPost(post.content)}</p>}
             </div>
         </div>
-        {post.image_url && <Link href={`/posts/${post.id}`} className={styles.postMedia} aria-label={`Open post by ${post.author.name}`}><div className={styles.postMediaImageWrap}><Image src={post.image_url} alt={`Image shared by ${post.author.name}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 680px, 640px" className={styles.postMediaImage} /></div><span className={`${styles.mediaCaption} ${post.community ? styles.mediaCaptionCommunity : chip?.label === "Question" ? styles.mediaCaptionAlt : ""}`}>{post.community ? post.community.name : chip?.label ?? "From the field"}</span></Link>}
+        {post.image_url && <Link href={`/posts/${post.id}`} className={styles.postMedia} aria-label={`Open post by ${post.author.name}`}><div className={styles.postMediaImageWrap}><Image src={post.image_url} alt={`Image shared by ${post.author.name}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 680px, 640px" className={styles.postMediaImage} /></div><span className={`${styles.mediaCaption} ${chip?.label === "Question" ? styles.mediaCaptionAlt : ""}`}>{chip?.label ?? "From the field"}</span></Link>}
         {post.client_status ? <div className={styles.pendingStatus}>{post.client_status === "pending" ? "Publishing post…" : <>Post wasn’t published. <button type="button" onClick={onOpenComposer}>Retry in composer</button></>}</div>
             : <div className={styles.engagement}><ContentEngagement target={{ post_id: post.id }} initial={{ reactionCount: post.reaction_count, commentCount: post.comment_count, userReacted: post.user_reacted }} currentUserId={currentUserId} compactActions shareUrl={`/posts/${post.id}`} /></div>}
     </article>;

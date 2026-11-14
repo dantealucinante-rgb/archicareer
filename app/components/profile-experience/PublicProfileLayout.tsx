@@ -50,6 +50,7 @@ export default function PublicProfileLayout({ data }: { data: PublicProfilePageD
                         {!data.isOwner && data.profileOwnerId && (data.currentUserId
                             ? <FollowButton followingId={data.profileOwnerId} initialFollowing={data.isFollowing} initialMutual={data.isMutual} initialFollowerCount={data.followers} />
                             : <Link className={`${styles.profileButton} ${styles.followButton}`} href={`/login?next=${encodeURIComponent(`/p/${profile.slug}`)}`}>Follow</Link>)}
+                        {!data.isOwner && data.profileOwnerId && <Link className={`${styles.profileButton} ${styles.messageButton}`} href={data.currentUserId ? `/messages?with=${data.profileOwnerId}` : `/login?next=${encodeURIComponent(`/p/${profile.slug}`)}`}>Message</Link>}
                         <a className={`${styles.profileButton} ${styles.contactButton}`} href="#contact">Contact <span aria-hidden="true">↘</span></a>
                     </div>
 
@@ -61,7 +62,7 @@ export default function PublicProfileLayout({ data }: { data: PublicProfilePageD
                 </div>
             </header>
 
-            <ProfileSectionNavigation hasCommunities={data.communities.length > 0} />
+            <ProfileSectionNavigation />
 
             <section id="overview" className={styles.editorialSection}>
                 <SectionHeading number="01" title="Overview" note="A closer look at the work" />
@@ -86,18 +87,10 @@ export default function PublicProfileLayout({ data }: { data: PublicProfilePageD
                 <ProfileProjectGallery slug={profile.slug} initialProjects={projects} total={data.projectCount} isOwner={data.isOwner} />
             </section>
 
-            {data.communities.length > 0 && <section id="communities" className={styles.editorialSection}>
-                <SectionHeading number="02A" title="Communities" note="Spaces in the built environment" />
-                <div className={styles.communityLinks}>{data.communities.map((community) => <Link key={community.id} href={`/a/${community.slug}`} className={styles.communityProfileLink}>
-                    {community.avatar_url ? <Image src={community.avatar_url} alt="" width={54} height={54} /> : <span className={styles.communityInitial}>{community.name.slice(0, 1)}</span>}
-                    <span><strong>{community.name}</strong><small>{community.role === "owner" ? "Owner" : community.role === "moderator" ? "Moderator" : "Member"}</small></span><b aria-hidden="true">↗</b>
-                </Link>)}</div>
-            </section>}
-
             <AboutSection profile={profile} isOwner={data.isOwner} />
             <ContactSection profile={profile} links={contacts} isOwner={data.isOwner} />
             <section id="posts" className={`${styles.editorialSection} ${styles.activitySection}`}>
-                <SectionHeading number="05" title="Posts" note="Community activity" />
+                <SectionHeading number="05" title="Posts" note="Recent activity" />
                 <PostsSection data={data} id="activity-posts" showTitle={false} />
             </section>
         </div>

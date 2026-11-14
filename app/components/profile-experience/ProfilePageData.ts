@@ -1,12 +1,10 @@
 import type { EngagementSummary, FeedPost, PortfolioItem, Profile } from "@/types";
-import type { PublicProfileCommunity } from "@/types/community";
 
 export type PublicProfilePageData = {
   profile: Profile;
   projects: PortfolioItem[];
   projectCount: number;
   posts: FeedPost[];
-  communities: PublicProfileCommunity[];
   engagement: Record<string, EngagementSummary>;
   currentUserId: string | null;
   isOwner: boolean;

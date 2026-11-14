@@ -19,7 +19,7 @@ type MobileAppHeaderProps = {
     profile: Profile | null;
 };
 
-const appRoutes = ["/feed", "/discover", "/jobs", "/applications", "/profile", "/settings", "/communities"];
+const appRoutes = ["/feed", "/discover", "/jobs", "/applications", "/messages", "/profile", "/settings"];
 
 function isAppRoute(pathname: string) {
     return appRoutes.some((route) => pathname === route || pathname.startsWith(`${route}/`));
@@ -37,7 +37,7 @@ function NetworkIcon() {
     return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-5 w-5"><circle cx="9" cy="8" r="3" /><circle cx="17.5" cy="10" r="2.25" /><path d="M3.5 20a5.5 5.5 0 0 1 11 0M15 20a3.5 3.5 0 0 1 5.5-2.9" strokeLinecap="round" /></svg>;
 }
 
-function CommunityIcon() {
+function MessagesIcon() {
     return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-5 w-5"><path d="M4 5h16v11H9l-5 4V5Z" strokeLinejoin="round"/><path d="M8 9h8M8 12h5" strokeLinecap="round"/></svg>;
 }
 
@@ -57,7 +57,7 @@ function MobileBottomNav({ pathname, onOpenComposer }: { pathname: string; onOpe
                     <Plus className="h-5 w-5" />
                     <span>Post</span>
                 </button>
-                <Link href="/communities" aria-current={isActive("/communities") ? "page" : undefined} className={`${bottomNavStyles.item} ${isActive("/communities") ? bottomNavStyles.active : ""}`}><CommunityIcon /><span>Community</span></Link>
+                <Link href="/messages" aria-current={isActive("/messages") ? "page" : undefined} className={`${bottomNavStyles.item} ${isActive("/messages") ? bottomNavStyles.active : ""}`}><MessagesIcon /><span>Messages</span></Link>
                 <Link href="/jobs" aria-current={isActive("/jobs") ? "page" : undefined} className={`${bottomNavStyles.item} ${isActive("/jobs") ? bottomNavStyles.active : ""}`}><BriefcaseIcon /><span>Jobs</span></Link>
             </div>
         </nav>
@@ -67,8 +67,8 @@ function MobileBottomNav({ pathname, onOpenComposer }: { pathname: string; onOpe
 export default function MobileAppHeader({ authenticated, profile }: MobileAppHeaderProps) {
     const pathname = usePathname();
     const showProfileMenu = isProfileRoute(pathname);
-    const showMobileMenu = showProfileMenu || pathname === "/pricing" || pathname === "/communities";
-    const showAppChrome = authenticated && (isAppRoute(pathname) || showProfileMenu || pathname.startsWith("/a/"));
+    const showMobileMenu = showProfileMenu || pathname === "/pricing";
+    const showAppChrome = authenticated && (isAppRoute(pathname) || showProfileMenu);
     const [composerOpen, setComposerOpen] = useState(false);
 
     const openComposer = useCallback(() => setComposerOpen(true), []);

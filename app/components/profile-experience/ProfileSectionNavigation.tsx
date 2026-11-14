@@ -6,15 +6,14 @@ import styles from "./profile-experience.module.css";
 const sections = [
     ["overview", "Overview"],
     ["projects", "Projects"],
-    ["communities", "Communities"],
     ["about", "About"],
     ["contact", "Contact"],
     ["posts", "Posts"],
 ] as const;
 
-export default function ProfileSectionNavigation({ hasCommunities = false }: { hasCommunities?: boolean }) {
+export default function ProfileSectionNavigation() {
     const [active, setActive] = useState<string>("overview");
-    const visibleSections = useMemo(() => hasCommunities ? sections : sections.filter(([id]) => id !== "communities"), [hasCommunities]);
+    const visibleSections = useMemo(() => sections, []);
 
     useEffect(() => {
         const elements = visibleSections
