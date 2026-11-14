@@ -117,7 +117,7 @@ verified working end-to-end:**
 - [x] Delete `app/components/DevBanner.tsx` (yellow warning banner)
 - [x] Remove `NEXT_PUBLIC_DEV_AUTH_BYPASS=true` from `.env.local`
 - [x] Remove bypass branches from `lib/supabase/middleware.ts` (lines using `isBypassActive`)
-- [ ] Remove bypass branches from `lib/queries/profiles.ts`, `jobs.ts`, `portfolio.ts`
+- [x] Remove bypass branches from `lib/queries/profiles.ts`, `jobs.ts`, `portfolio.ts`
 - [x] Remove `DevBanner` import and `isDevBypass` padding from `app/layout.tsx`
-- [ ] Remove `"use client"`, `handleDevLogin`, and the skip button block from `app/(auth)/login/page.tsx`
-- [ ] Run `npm run build` and confirm zero errors after removal
+- [x] Remove `"use client"`, `handleDevLogin`, and the skip button block from `app/(auth)/login/page.tsx`
+- [x] Run `npm run build` and confirm zero errors after removal
