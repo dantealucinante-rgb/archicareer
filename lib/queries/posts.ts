@@ -66,8 +66,33 @@ export async function getFeed(limit = 10, offset = 0, filter: FeedFilter = "all"
     }
 }
 
-export async function getPostsForProfile(profileId: string, limit = 12): Promise<QueryResult<FeedPost[]>> {
+export async function getPostById(postId: string): Promise<QueryResult<FeedPost>> {
     try {
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(postId)) return { data: null, error: null };
+        const userId = await currentUserId();
+        const client = await createClient();
+        const { data, error } = await client
+            .from("posts")
+            .select("id, user_id, content, image_url, created_at, updated_at, community_id, title, post_type, moderation_status")
+            .eq("id", postId)
+            .or("community_id.is.null,moderation_status.eq.active")
+            .maybeSingle();
+        if (error) return { data: null, error: new Error(error.message) };
+        if (!data) return { data: null, error: null };
+        if (data.community_id && data.moderation_status !== "active") return { data: null, error: null };
+        let community: { name: string; slug: string } | null = null;
+        if (data.community_id) {
+            const { data: rows } = await client.from("communities").select("name,slug").eq("id", data.community_id).maybeSingle();
+            community = rows ? { name: rows.name, slug: rows.slug } : null;
+        }
+        const [post] = await addPostDetails([{ ...data, community } as unknown as FeedPost], userId);
+        return { data: post ?? null, error: null };
+    } catch (error) {
+        return { data: null, error: error instanceof Error ? error : new Error(String(error)) };
+    }
+}
+
+export async function getPostsForProfile(profileId: string, limit = 12): Promise<QueryResult<FeedPost[]>> {    try {
         const admin = createAdminClient();
         const { data: profile, error: profileError } = await admin.from("profiles").select("user_id").eq("id", profileId).maybeSingle();
         if (profileError) return { data: null, error: new Error(profileError.message) };

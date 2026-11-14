@@ -1,19 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Comment, EngagementSummary } from "@/types";
 import ProfileAvatar from "./ProfileAvatar";
 import { formatCommunityDate } from "@/lib/date-format";
 
 type Target = { portfolio_item_id?: string; post_id?: string };
 
-export default function ContentEngagement({ target, initial, currentUserId, canModerate = false, compactActions = false, shareUrl }: { target: Target; initial: EngagementSummary; currentUserId: string | null; canModerate?: boolean; compactActions?: boolean; shareUrl?: string }) {
+export default function ContentEngagement({ target, initial, currentUserId, canModerate = false, compactActions = false, defaultOpen = false, shareUrl }: { target: Target; initial: EngagementSummary; currentUserId: string | null; canModerate?: boolean; compactActions?: boolean; defaultOpen?: boolean; shareUrl?: string }) {
     const [summary, setSummary] = useState(initial);
     const [comments, setComments] = useState<Comment[]>([]);
     const [failedCommentIds, setFailedCommentIds] = useState<string[]>([]);
     const [commentInFlight, setCommentInFlight] = useState(false);
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(defaultOpen);
     const [loading, setLoading] = useState(false);
     const [body, setBody] = useState("");
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -167,6 +167,15 @@ export default function ContentEngagement({ target, initial, currentUserId, canM
             setEditingBody("");
         }
     }
+
+    const didLoadInitialComments = useRef(false);
+    useEffect(() => {
+        if (!defaultOpen || didLoadInitialComments.current) return;
+        didLoadInitialComments.current = true;
+        void loadComments();
+        // Runs once for panels that open by default; toggleComments covers the rest.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [defaultOpen]);
 
     function toggleComments() {
         const next = !open; setOpen(next);
