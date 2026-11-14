@@ -104,14 +104,19 @@ export async function addComment(raw: unknown): Promise<QueryResult<Comment>> {
             : parent.data?.portfolio_item_id === parsed.data.portfolio_item_id;
         if (parent.error || !targetMatches) return { data: null, error: new Error("Reply target does not match this conversation") };
     }
-    const { data, error } = await supabase.from("comments").insert({
+    // Same as posts: insert, then read the row back as its own query.
+    const commentId = crypto.randomUUID();
+    const { error } = await supabase.from("comments").insert({
+        id: commentId,
         portfolio_item_id: parsed.data.portfolio_item_id ?? null,
         post_id: parsed.data.post_id ?? null,
         parent_comment_id: parsed.data.parent_comment_id ?? null,
         user_id: user.id,
         content: parsed.data.content,
-    }).select("id, portfolio_item_id, post_id, parent_comment_id, user_id, content, created_at, updated_at").single();
-    if (error) return { data: null, error: new Error(error.message) };
+    });
+    if (error) return { data: null, error: new Error("We couldn’t add your comment just now. Please try again.") };
+    const { data, error: readError } = await supabase.from("comments").select("id, portfolio_item_id, post_id, parent_comment_id, user_id, content, created_at, updated_at").eq("id", commentId).maybeSingle();
+    if (readError || !data) return { data: null, error: new Error("We couldn’t add your comment just now. Please try again.") };
     const [comment] = await attachAuthors([data as Comment]);
     return { data: comment, error: null };
 }

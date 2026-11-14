@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { safeMessage } from "@/lib/error-message";
 import { setReaction, toggleReaction } from "@/lib/queries/engagement";
 
 export async function POST(request: Request) {
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
         const result = typeof body.reacted === "boolean"
             ? await setReaction(target, body.reacted)
             : await toggleReaction(target);
-        if (result.error || !result.data) return NextResponse.json({ error: result.error?.message ?? "Unable to update reaction" }, { status: result.error?.message === "Unauthenticated" ? 401 : 400 });
+        if (result.error || !result.data) return NextResponse.json({ error: safeMessage(result.error, "We couldn’t save that just now. Please try again.") }, { status: result.error?.message === "Unauthenticated" ? 401 : 400 });
         return NextResponse.json(result.data);
     } catch {
         return NextResponse.json({ error: "Request body must be valid JSON" }, { status: 400 });

@@ -121,18 +121,25 @@ export async function createPost(raw: unknown): Promise<QueryResult<FeedPost>> {
     if (parsed.data.image_url && !(await verifyStoredAsset(parsed.data.image_url, "post-images", user.id, "image"))) {
         return { data: null, error: new Error("Post image could not be verified") };
     }
-    const { data, error } = await supabase.from("posts").insert({
+    // Insert with a known id and read the row back separately. Asking PostgREST for
+    // the inserted row (return=representation) re-checks the SELECT policy inside the
+    // INSERT, which the hosted policies reject even though the row is readable.
+    const postId = crypto.randomUUID();
+    const { error } = await supabase.from("posts").insert({
+        id: postId,
         user_id: user.id,
         content: parsed.data.content?.trim() || null,
         image_url: parsed.data.image_url ?? null,
-    }).select("id, user_id, content, image_url, created_at, updated_at").single();
+    });
     if (error) {
         if (parsed.data.image_url) {
             const path = ownedStoragePath(parsed.data.image_url, "post-images", user.id);
             if (path) await createAdminClient().storage.from("post-images").remove([path]);
         }
-        return { data: null, error: new Error(error.message) };
+        return { data: null, error: new Error("We couldn’t publish your post just now. Please try again.") };
     }
+    const { data, error: readError } = await supabase.from("posts").select("id, user_id, content, image_url, created_at, updated_at").eq("id", postId).maybeSingle();
+    if (readError || !data) return { data: null, error: new Error("We couldn’t publish your post just now. Please try again.") };
     const [post] = await addPostDetails([data as FeedPost], user.id);
     return { data: post, error: null };
 }
@@ -145,7 +152,7 @@ export async function deletePost(postId: string): Promise<QueryResult<{ id: stri
     if (readError) return { data: null, error: new Error(readError.message) };
     if (!post) return { data: null, error: new Error("Post not found") };
     const { error } = await supabase.from("posts").delete().eq("id", postId).eq("user_id", user.id);
-    if (error) return { data: null, error: new Error(error.message) };
+    if (error) return { data: null, error: new Error("We couldn’t delete that post just now. Please try again.") };
     if (post.image_url) {
         const path = ownedStoragePath(post.image_url, "post-images", user.id);
         if (path) await createAdminClient().storage.from("post-images").remove([path]);
