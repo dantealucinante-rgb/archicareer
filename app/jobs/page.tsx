@@ -7,9 +7,8 @@ import { SortingOptions } from "@/lib/queries/profiles";
 import { absoluteUrl, pageMetadata, safeJsonLd } from "@/lib/seo";
 import { createPublicClient } from "@/lib/supabase/server";
 import Image from "next/image";
-import ApplyButton from "@/app/components/ApplyButton";
-import { MarketingFooter } from "@/app/components/MarketingChrome";
-import styles from "../components/jobs/jobs.module.css";
+import { MarketingFooter, MarketingHeader } from "@/app/components/MarketingChrome";
+import styles from "@/app/(marketing)/landing.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -20,185 +19,171 @@ export const metadata: Metadata = pageMetadata({
 });
 
 function firmInitials(name: string) {
-	return name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase() || "AC";
-}
-
-function postedDate(value: string) {
-	return new Intl.DateTimeFormat("en-NG", { month: "short", day: "numeric", year: "numeric" }).format(new Date(value));
+ return name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase() || "AC";
 }
 
 function payLabel(value: JobPayType) {
-	return value === "paid" ? "Paid" : value === "unpaid" ? "Unpaid" : "Pay not disclosed";
+ return value === "paid" ? "Paid" : value === "unpaid" ? "Unpaid" : "Pay not disclosed";
 }
 
 function formatApplicantCount(n: number): string {
-	if (n >= 20) return "20+ applicants";
-	if (n >= 5) return "5+ applicants";
-	return `${n} applicant${n === 1 ? "" : "s"}`;
+ if (n >= 20) return "20+ applicants";
+ if (n >= 5) return "5+ applicants";
+ return `${n} applicant${n === 1 ? "" : "s"}`;
 }
 
-const TYPES: { value: JobType | ""; label: string }[] = [
-	{ value: "", label: "All opportunity types" },
-	{ value: "internship", label: "Internships" },
-	{ value: "job", label: "Jobs" },
-	{ value: "competition", label: "Competitions" },
-];
-
-const PAY_TYPES: { value: JobPayType | ""; label: string }[] = [
-	{ value: "", label: "All pay statuses" },
-	{ value: "paid", label: "Paid" },
-	{ value: "unpaid", label: "Unpaid" },
-	{ value: "not_disclosed", label: "Pay not disclosed" },
-];
-
-const SORTS: { value: string; label: string }[] = [
-	{ value: "newest", label: "Newest first" },
-	{ value: "oldest", label: "Oldest first" },
-];
-
 interface JobsPageProps {
-	searchParams: Promise<{
-		search?: string;
-		location?: string;
-		pay?: string;
-		type?: string;
-		sort?: string;
-	}>;
+ searchParams: Promise<{
+  search?: string;
+  location?: string;
+  pay?: string;
+  type?: string;
+  sort?: string;
+ }>;
 }
 
 export default async function JobsPage({ searchParams }: JobsPageProps) {
-	const params = await searchParams;
-	const search = params.search?.trim() || undefined;
-	const location = params.location?.trim() || undefined;
-	const payType = ["paid", "unpaid", "not_disclosed"].includes(params.pay ?? "") ? (params.pay as JobPayType) : undefined;
-	const type = ["internship", "job", "competition"].includes(params.type ?? "") ? (params.type as JobType) : undefined;
-	const sort = ["newest", "oldest"].includes(params.sort ?? "") ? params.sort : "newest";
+ const params = await searchParams;
+ const search = params.search?.trim() || undefined;
+ const location = params.location?.trim() || undefined;
+ const payType = ["paid", "unpaid", "not_disclosed"].includes(params.pay ?? "") ? (params.pay as JobPayType) : undefined;
+ const type = ["internship", "job", "competition"].includes(params.type ?? "") ? (params.type as JobType) : undefined;
+ const sort = ["newest", "oldest"].includes(params.sort ?? "") ? params.sort : "newest";
 
-	const sorting: SortingOptions =
-		sort === "oldest" ? { sortBy: "created_at", ascending: true }
-		: { sortBy: "created_at", ascending: false };
+ const sorting: SortingOptions =
+  sort === "oldest" ? { sortBy: "created_at", ascending: true }
+  : { sortBy: "created_at", ascending: false };
 
-	const [{ data: jobs, error: jobsError }, { user }, applicationCounts] = await Promise.all([
-		getJobListings({ type, location, pay_type: payType, search }, { limit: 50, offset: 0 }, sorting),
-		getCurrentUser(),
-		getApplicationCounts(),
-	]);
+ const [{ data: jobs, error: jobsError }, , applicationCounts] = await Promise.all([
+  getJobListings({ type, location, pay_type: payType, search }, { limit: 50, offset: 0 }, sorting),
+  getCurrentUser(),
+  getApplicationCounts(),
+ ]);
 
-	const firmUserIds = [...new Set((jobs ?? []).map((job) => job.user_id).filter((userId): userId is string => Boolean(userId)))];
-	const { data: firmProfiles } = firmUserIds.length > 0
-		? await createPublicClient().from("profiles").select("user_id, avatar_url").in("user_id", firmUserIds)
-		: { data: [] as { user_id: string; avatar_url: string | null }[] };
-	const firmAvatars = new Map((firmProfiles ?? []).map((firmProfile) => [firmProfile.user_id, firmProfile.avatar_url]));
+ const firmUserIds = [...new Set((jobs ?? []).map((job) => job.user_id).filter((userId): userId is string => Boolean(userId)))];
+ const { data: firmProfiles } = firmUserIds.length > 0
+  ? await createPublicClient().from("profiles").select("user_id, avatar_url").in("user_id", firmUserIds)
+  : { data: [] as { user_id: string; avatar_url: string | null }[] };
+ const firmAvatars = new Map((firmProfiles ?? []).map((firmProfile) => [firmProfile.user_id, firmProfile.avatar_url]));
 
-	const activeFilters = [search, location, payType, type].filter(Boolean).length;
-	const counts = applicationCounts.data ?? {};
-	const totalApplications = Object.values(counts).reduce((sum, n) => sum + n, 0);
+ const activeFilters = [Boolean(search), Boolean(location), Boolean(payType), Boolean(type)].filter(Boolean).length;
+ const counts = applicationCounts.data ?? {};
+ const totalApplications = Object.values(counts).reduce((sum, n) => sum + n, 0);
 
-	const jobsSchema = {
-		"@context": "https://schema.org",
-		"@type": "CollectionPage",
-		url: absoluteUrl("/jobs"),
-		name: "Architecture Jobs and Internships in Nigeria",
-		description: "Current architecture jobs, internships, competitions, and opportunities across Nigeria.",
-		about: { "@type": "Thing", name: "Architecture careers in Nigeria" },
-	};
+ const jobsSchema = {
+ "@context": "https://schema.org",
+ "@type": "CollectionPage",
+ url: absoluteUrl("/jobs"),
+ name: "Architecture Jobs and Internships in Nigeria",
+ description: "Current architecture jobs, internships, competitions, and opportunities across Nigeria.",
+ about: { "@type": "Thing", name: "Architecture careers in Nigeria" },
+ };
 
-	return (
-		<>
-			<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jobsSchema) }} />
-			<div className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
-				<main className={styles.root}>
-					<div className={styles.page}>
-						<div className="mb-2">
-							<p className={styles.kicker}>Opportunities / Nigeria</p>
-							<h1 className={styles.title}>Find the work worth moving toward.</h1>
-							<p className={styles.lead}>Explore roles, collaborations, and opportunities shared by studios and companies across the built environment.</p>
-						</div>
+ return (
+  <>
+   <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jobsSchema) }} />
+   <div className={styles.landingPage}>
+    <MarketingHeader />
 
-						<form method="get" className={styles.filterBar}>
-							<div className={styles.filterGroup}>
-								<label htmlFor="job-search">Search</label>
-								<input id="job-search" name="search" defaultValue={search ?? ""} placeholder="Role, firm or location" className={styles.filterInput} />
-							</div>
-							<div className={styles.filterGroup}>
-								<label htmlFor="job-type">Category</label>
-								<select id="job-type" name="type" defaultValue={type ?? ""} className={styles.filterSelect}>
-									{TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-								</select>
-							</div>
-							<div className={styles.filterGroup}>
-								<label htmlFor="job-location">Location</label>
-								<input id="job-location" name="location" defaultValue={location ?? ""} placeholder="City or Remote" className={styles.filterInput} />
-							</div>
-							<div className={styles.filterGroup}>
-								<label htmlFor="job-pay">Pay</label>
-								<select id="job-pay" name="pay" defaultValue={payType ?? ""} className={styles.filterSelect}>
-									{PAY_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-								</select>
-							</div>
-							<div className={styles.filterGroup}>
-								<div className={styles.sortLabel}>Sort</div>
-								<select name="sort" defaultValue={sort} className={styles.filterSelect}>
-									{SORTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-								</select>
-							</div>
-							<div className={styles.filterActions}>
-								<button type="submit" className="inline-flex min-h-10 items-center justify-center rounded-full border border-ink bg-ink px-4 font-mono text-[10px] uppercase tracking-widest text-paper transition-colors hover:border-redline hover:bg-redline">
-									Apply filters
-								</button>
-								{activeFilters > 0 && <Link href="/jobs" className={styles.clearFilters}>Clear filters</Link>}
-							</div>
-						</form>
+    <main id="home" className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
+     <div className={styles.opportunities}>
+      <div className={styles.opportunityHeading}>
+       <h2 id="opportunities-title">Find your next opportunity.</h2>
+       <p>The jobs board brings roles and internships from studios and organisations into one place. Check the live listings below.</p>
+      </div>
 
-						<div className={styles.section}>
-							<p className={styles.resultsMeta}>
-								{jobs?.length ?? 0} listing{jobs?.length === 1 ? "" : "s"} shown{activeFilters > 0 ? ` · ${totalApplications} total application${totalApplications === 1 ? "" : "s"} across results` : ""}
-							</p>
-						</div>
+      <form method="get" className={styles.jobFilterBar}>
+       <div className={styles.jobFilterGroup}>
+        <span className={styles.jobFilterLabel}>Search</span>
+        <input name="search" defaultValue={search ?? ""} placeholder="Role, firm, location" className={styles.jobFilterInput} />
+       </div>
+       <div className={styles.jobFilterGroup}>
+        <span className={styles.jobFilterLabel}>Category</span>
+        <select name="type" className={styles.jobFilterSelect}>
+         <option value="">All opportunity types</option>
+         <option value="internship">Internships</option>
+         <option value="job">Jobs</option>
+         <option value="competition">Competitions</option>
+        </select>
+       </div>
+       <div className={styles.jobFilterGroup}>
+        <span className={styles.jobFilterLabel}>Location</span>
+        <input name="location" defaultValue={location ?? ""} placeholder="City" className={styles.jobFilterInput} />
+       </div>
+       <div className={styles.jobFilterGroup}>
+        <span className={styles.jobFilterLabel}>Pay</span>
+        <select name="pay" className={styles.jobFilterSelect}>
+         <option value="">All pay statuses</option>
+         <option value="paid">Paid</option>
+         <option value="unpaid">Unpaid</option>
+         <option value="not_disclosed">Pay not disclosed</option>
+        </select>
+       </div>
+       <div className={styles.jobFilterGroup}>
+        <span className={styles.jobFilterLabel}>Sort</span>
+        <select name="sort" className={styles.jobFilterSelect}>
+         <option value="newest">Newest first</option>
+         <option value="oldest">Oldest first</option>
+        </select>
+       </div>
+       <div className={styles.jobFilterActions}>
+        <button type="submit" className={`${styles.pillButton} ${styles.jobBrowse}`}>Apply filters</button>
+       </div>
+      </form>
 
-						{jobsError ? (
-							<div className={styles.errorState}>
-								<p className="font-display text-xl text-ink">Opportunities are taking a moment to load.</p>
-								<Link href="/jobs" className="mt-4 inline-block font-mono text-[10px] uppercase tracking-widest text-redline underline underline-offset-4">
-									Try again
-								</Link>
-							</div>
-						) : jobs && jobs.length > 0 ? (
-							<div className={styles.list}>
-								{jobs.map((job: JobListing) => {
-									const count = counts[job.id] ?? 0;
-									const avatarUrl = firmAvatars.get(job.user_id ?? "");
-									return (
-										<article key={job.id} className={styles.job}>
-											<Link href={`/jobs/${job.id}`} className={styles.jobLogo} aria-label={`Firm mark for ${job.firm_name}`}>
-												{avatarUrl ? <Image src={avatarUrl} alt="" width={72} height={72} className="object-cover" /> : <span className={styles.jobLogoFallback}>{firmInitials(job.firm_name)}</span>}
-											</Link>
-											<div className={styles.jobCopy}>
-												<Link href={`/jobs/${job.id}`} className={styles.jobTitle}>{job.title}</Link>
-												<p className={styles.jobFirm}>{job.firm_name}</p>
-												<p className={styles.jobMeta}>
-													{job.location}<span>{` · ${job.type} · ${payLabel(job.pay_type)}`}</span>
-												</p>
-												<p className={styles.jobPosted}>Posted {postedDate(job.created_at)}</p>
-											</div>
-											<div className={styles.jobActions}>
-												<p className={styles.applicantCount}>{formatApplicantCount(count)}</p>
-												<ApplyButton jobListingId={job.id} authenticated={Boolean(user)} compact />
-											</div>
-										</article>
-									);
-								})}
-							</div>
-						) : (
-							<div className={styles.emptyState}>
-								<p>The opportunity board is quiet.</p>
-								<p>Check back soon, or share the first opening from your firm profile.</p>
-							</div>
-						)}
-					</div>
-					<MarketingFooter />
-				</main>
-			</div>
-		</>
-	);
+      {activeFilters > 0 ? (
+       <div className={styles.jobFilterActions}>
+        <span className={styles.jobClearFilters}>{activeFilters} filter{activeFilters === 1 ? "" : "s"} active</span>
+        <Link href="/jobs" className={`${styles.pillButton} ${styles.jobBrowse}`}>Clear filters</Link>
+       </div>
+      ) : null}
+
+      <div className={styles.jobBoard}>
+       {jobsError ? (
+        <div className={styles.jobEmpty}>
+         <p>The current listings could not load.</p>
+         <span>Visit the jobs board to check available opportunities.</span>
+        </div>
+       ) : jobs && jobs.length > 0 ? (
+        <>
+         {jobs.map((job: JobListing) => {
+          const count = counts[job.id] ?? 0;
+          const avatarUrl = firmAvatars.get(job.user_id ?? "");
+          return (
+           <article key={job.id} className={styles.jobRow}>
+            <div className={styles.jobLogo}>
+             {avatarUrl ? <Image src={avatarUrl} alt="" width={52} height={52} className="object-cover" /> : <span className={styles.jobLogoFallback}>{firmInitials(job.firm_name)}</span>}
+            </div>
+            <div className={styles.jobTitle}>
+             <Link href={`/jobs/${job.id}`} className="text-ink font-display text-lg font-semibold leading-none hover:text-blue">{job.title}</Link>
+             <p className="font-mono text-[10px] uppercase tracking-widest text-graphite">{job.firm_name}</p>
+            </div>
+            <p className={styles.jobMeta}>
+             <span>{job.location}</span>
+             <span>{job.type} · {payLabel(job.pay_type)}</span>
+             <span className={styles.jobApplied}>{formatApplicantCount(count)}</span>
+            </p>
+            <Link href={`/jobs/${job.id}`} className={`${styles.jobAction} ${styles.jobBrowse}`}>View opportunity</Link>
+           </article>
+          );
+         })}
+         <div className={styles.jobBoardFooter}>
+          <span>{activeFilters > 0 ? `${totalApplications} total application${totalApplications === 1 ? "" : "s"} across results` : jobs?.length ? "Recently posted openings" : "No open listings are posted right now"}</span>
+          <Link href="/jobs" className={`${styles.pillButton} ${styles.jobBrowse}`}>Browse the jobs board</Link>
+         </div>
+        </>
+       ) : (
+        <div className={styles.jobEmpty}>
+         <p>There are no open opportunities listed right now.</p>
+         <span>Visit the jobs board for updates.</span>
+        </div>
+       )}
+      </div>
+     </div>
+
+     <MarketingFooter />
+    </main>
+   </div>
+  </>
+ );
 }

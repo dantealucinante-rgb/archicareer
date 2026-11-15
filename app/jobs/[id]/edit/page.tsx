@@ -2,6 +2,8 @@ import { notFound, redirect } from "next/navigation";
 import { getJobListingById } from "@/lib/queries/jobs";
 import { getCurrentUser } from "@/lib/auth";
 import EditJobForm from "@/app/components/jobs/EditJobForm";
+import { MarketingFooter, MarketingHeader } from "@/app/components/MarketingChrome";
+import styles from "@/app/(marketing)/landing.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -14,10 +16,24 @@ export default async function JobEditPage({ params }: PageProps) {
  if (!user || !job.user_id || job.user_id !== user.id) redirect(`/jobs/${job.id}`);
 
  return (
-  <div className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
-   <main className="mx-auto w-full max-w-4xl px-5 py-10 sm:px-8 sm:py-16">
-    <EditJobForm job={job} onSaved={() => {}} />
-   </main>
-  </div>
+  <>
+   <div className={styles.landingPage}>
+    <MarketingHeader />
+
+    <main id="home" className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
+     <div className={styles.opportunities}>
+      <div className={styles.opportunityHeading}>
+       <h2 id="opportunities-title">Edit listing</h2>
+       <p>Make changes to “{job.title}” at {job.firm_name} below.</p>
+      </div>
+      <div className={styles.jobBoard}>
+       <EditJobForm job={job} onSaved={() => {}} />
+      </div>
+     </div>
+
+     <MarketingFooter />
+    </main>
+   </div>
+  </>
  );
 }
