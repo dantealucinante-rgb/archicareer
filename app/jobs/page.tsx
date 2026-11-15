@@ -8,6 +8,7 @@ import { absoluteUrl, pageMetadata, safeJsonLd } from "@/lib/seo";
 import { createPublicClient } from "@/lib/supabase/server";
 import Image from "next/image";
 import ApplyButton from "@/app/components/ApplyButton";
+import { MarketingFooter } from "@/app/components/MarketingChrome";
 import styles from "../components/jobs/jobs.module.css";
 
 export const dynamic = "force-dynamic";
@@ -110,7 +111,8 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
 					<div className={styles.page}>
 						<div className="mb-2">
 							<p className={styles.kicker}>Opportunities / Nigeria</p>
-							<h1 className={styles.title}>Jobs</h1>
+							<h1 className={styles.title}>Find the work worth moving toward.</h1>
+							<p className={styles.lead}>Explore roles, collaborations, and opportunities shared by studios and companies across the built environment.</p>
 						</div>
 
 						<form method="get" className={styles.filterBar}>
@@ -169,7 +171,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
 									return (
 										<article key={job.id} className={styles.job}>
 											<Link href={`/jobs/${job.id}`} className={styles.jobLogo} aria-label={`Firm mark for ${job.firm_name}`}>
-												{avatarUrl ? <Image src={avatarUrl} alt="" width={64} height={64} className="object-cover" /> : <span className={styles.jobLogoFallback}>{firmInitials(job.firm_name)}</span>}
+												{avatarUrl ? <Image src={avatarUrl} alt="" width={72} height={72} className="object-cover" /> : <span className={styles.jobLogoFallback}>{firmInitials(job.firm_name)}</span>}
 											</Link>
 											<div className={styles.jobCopy}>
 												<Link href={`/jobs/${job.id}`} className={styles.jobTitle}>{job.title}</Link>
@@ -194,6 +196,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
 							</div>
 						)}
 					</div>
+					<MarketingFooter />
 				</main>
 			</div>
 		</>
