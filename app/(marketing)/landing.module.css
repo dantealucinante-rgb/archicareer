@@ -19,7 +19,10 @@
 :global(body):has(.landingPage) :global(.site-header) { display: none; }
 :global(body):has(.landingPage) #main-content { padding-top: 0; }
 :global(body):has(.landingPage) :global(.footer-fade),
-:global(body):has(.landingPage) :global(footer):not(.landingFooter) { display: none; }
+/* Any page that renders the editorial footer suppresses the global site footer
+   and the night-gradient fade that belongs to it. */
+:global(body):has(.landingFooter) :global(footer):not(.landingFooter),
+:global(body):has(.landingFooter) :global(.footer-fade) { display: none; }
 
 .publicHeader {
   position: relative;

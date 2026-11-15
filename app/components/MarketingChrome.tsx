@@ -45,7 +45,7 @@ export function MarketingFooter() {
                 <Link href="/about">About ArchiCareer</Link>
                 <Link href="/login">Sign in</Link>
                 <Link href="/signup">Join ArchiCareer</Link>
-                <a href="mailto:hello@archicareer.ng">Contact</a>
+                <a href="mailto:hello@archicareer.com.ng">Contact</a>
             </nav>
         </div>
         <div className={styles.footerLegal}>

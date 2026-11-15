@@ -10,7 +10,7 @@ export async function POST() {
         if (error || !user) return NextResponse.json({ error: "Sign in to start setup." }, { status: 401 });
         const [{ data: profile }, onboarding] = await Promise.all([getCurrentProfile(), getProfileOnboardingState(user.id)]);
         if (!profile) return NextResponse.json({ error: "Your profile could not be loaded." }, { status: 404 });
-        if (onboarding.error || !onboarding.data) return NextResponse.json({ error: "Setup is temporarily unavailable. Refresh or contact hello@archicareer.ng." }, { status: 503 });
+        if (onboarding.error || !onboarding.data) return NextResponse.json({ error: "Setup is temporarily unavailable. Refresh or contact hello@archicareer.com.ng." }, { status: 503 });
         const { error: updateError } = await createAdminClient().auth.admin.updateUserById(user.id, {
             app_metadata: { ...user.app_metadata, onboarding_required: !onboarding.data.onboarding_completed },
         });

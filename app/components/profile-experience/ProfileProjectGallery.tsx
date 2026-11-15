@@ -76,7 +76,7 @@ export default function ProfileProjectGallery({ slug, initialProjects, total, is
                             src={project.images[0].image_url}
                             alt={project.title}
                             fill
-                            priority={index < 2}
+                            preload={index < 2}
                             sizes="(max-width: 700px) 100vw, (max-width: 920px) 50vw, 45vw"
                         />
                         : <span className={styles.projectPlaceholder}>
@@ -85,8 +85,8 @@ export default function ProfileProjectGallery({ slug, initialProjects, total, is
                         </span>}
                 </div>
                 <div className={styles.projectMeta}>
-                    <h3>{project.title}</h3>
-                    <p>
+                    <h3 className={styles.projectTitle}>{project.title}</h3>
+                    <p className={styles.projectMetaLine}>
                         {formatCategory(project.category)}
                         {project.location ? ` · ${project.location}` : ""}
                         {project.year ? ` · ${project.year}` : ""}

@@ -15,6 +15,13 @@ export const affiliationLabels: Record<Profile["account_type"], string> = {
     business: "Organisation",
 };
 
+/** The professional title shown under the name. */
+export const roleLabels: Record<Profile["role"], string> = {
+    student: "Architecture student",
+    architect: "Architect",
+    firm: "Practice",
+};
+
 export function formatCategory(value: string): string {
     return value.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
@@ -40,6 +47,26 @@ export function formatYearRange(start: number | null | undefined, end: number | 
     return "";
 }
 
+/** A readable value for a link: the host without `www.`, or the path for mail links. */
+export function linkValue(href: string): string {
+    try {
+        const url = new URL(href);
+        if (url.protocol === "mailto:") return url.pathname;
+        return url.hostname.replace(/^www\./, "") + (url.pathname === "/" ? "" : url.pathname);
+    } catch {
+        return href;
+    }
+}
+
+export function initials(name: string): string {
+    return name
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part.charAt(0).toUpperCase())
+        .join("");
+}
+
 export type PublicLink = { label: string; href: string };
 
 export function getPublicLinks(profile: Profile): PublicLink[] {
@@ -56,6 +83,19 @@ export function getPublicLinks(profile: Profile): PublicLink[] {
         seen.add(href);
         return [{ label, href }];
     });
+}
+
+/** The line under the name: practice or school, then location. */
+export function getAffiliationLine(profile: Profile): string | null {
+    const affiliation = profile.school_or_firm && profile.school_or_firm !== profile.name ? profile.school_or_firm : null;
+    return [affiliation, profile.location].filter(Boolean).join(" · ") || null;
+}
+
+/** The professional title: the role, plus the first stated area of expertise. */
+export function getProfileTitle(profile: Profile): string {
+    const role = roleLabels[profile.role] ?? accountLabels[profile.account_type];
+    const focus = profile.details?.expertise?.[0];
+    return focus ? `${role} · ${focus}` : role;
 }
 
 export function nonEmpty<T>(value: T | null | undefined | "" | false): value is T {

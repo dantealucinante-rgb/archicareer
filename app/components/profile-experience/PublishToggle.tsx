@@ -9,9 +9,11 @@ type PublishToggleProps = {
     projectId: string;
     published: boolean;
     size?: "default" | "small";
+    /** Quieter pill for the public project surface. */
+    flat?: boolean;
 };
 
-export default function PublishToggle({ projectId, published, size = "small" }: PublishToggleProps) {
+export default function PublishToggle({ projectId, published, size = "small", flat = false }: PublishToggleProps) {
     const router = useRouter();
     const [isPublished, setIsPublished] = useState(published);
     const [pending, setPending] = useState(false);
@@ -43,6 +45,7 @@ export default function PublishToggle({ projectId, published, size = "small" }: 
         <Pill
             size={size}
             variant={isPublished ? "quiet" : "orange"}
+            flat={flat}
             onClick={toggle}
             disabled={pending}
             aria-pressed={isPublished}

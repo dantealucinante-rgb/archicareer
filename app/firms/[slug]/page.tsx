@@ -1,8 +1,12 @@
 import { notFound } from "next/navigation";
-import { getFirmBySlug } from "@/lib/queries/firms";
 import type { Metadata } from "next";
+import { getFirmBySlug } from "@/lib/queries/firms";
 import { absoluteUrl, pageMetadata, safeJsonLd } from "@/lib/seo";
-import Image from "next/image";
+import Pill from "@/app/components/editorial/Pill";
+import editorial from "@/app/components/editorial/editorial.module.css";
+import { MarketingFooter } from "@/app/components/MarketingChrome";
+import ProfileIdentity from "@/app/components/profile-experience/ProfileIdentity";
+import SectionHeading from "@/app/components/profile-experience/SectionHeading";
 import styles from "@/app/components/profile-experience/profile-experience.module.css";
 
 interface PageProps {
@@ -17,7 +21,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     if (!firm) return { title: { absolute: "Firm profile not found | Archicareer" }, robots: { index: false, follow: false } };
     return pageMetadata({
         title: `${firm.name} | Architecture Firm Profile`,
-        description: `${firm.name} on Archicareer. Explore the firm profile and its architecture work.` ,
+        description: `${firm.name} on Archicareer. Explore the firm profile and its architecture work.`,
         path: `/firms/${firm.slug}`,
         image: firm.logo_url,
         imageAlt: `${firm.name} logo`,
@@ -43,25 +47,35 @@ export default async function FirmDetailPage({ params }: PageProps) {
     };
 
     return (
-        <>
+        <div className={editorial.page}>
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(firmSchema) }} />
-            <main className={`${styles.profilePage} ${styles.firm}`}>
-                <div className={styles.container}>
-                    <header className={styles.identity}>
-                        <div className={styles.identityTop}><span className={styles.accountLabel}>Firm directory</span>{firm.verified && <span className={`${styles.pill} ${styles.verified}`}>Verified firm</span>}</div>
-                        <div className={styles.identityBody}>
-                            <div className={`${styles.avatar} ${styles.firmLogo}`}>
-                                {firm.logo_url ? <Image src={firm.logo_url} alt={`${firm.name} logo`} fill sizes="(max-width: 700px) 66px, 84px" priority /> : <span aria-hidden="true">{firm.name.trim().charAt(0).toUpperCase()}</span>}
-                            </div>
-                            <div className={styles.identityCopy}><p className={styles.descriptor}>Architecture firm</p><h1>{firm.name}</h1><p className={styles.bio}>Firm listing on ArchiCareer.</p></div>
+            <main className={styles.profileShell}>
+                <div className={editorial.container}>
+                    <ProfileIdentity
+                        name={firm.name}
+                        avatar={{ id: firm.id, slug: firm.slug, name: firm.name, avatar_url: firm.logo_url }}
+                        eyebrow="Firm directory"
+                        title="Architecture practice"
+                        intro="A firm listed in the ArchiCareer directory."
+                        badges={firm.verified
+                            ? <span className={`${styles.badge} ${styles.badgeVerified}`}>Verified firm</span>
+                            : undefined}
+                        actions={<Pill href="/discover" variant="ink" flat>Explore the directory</Pill>}
+                    />
+                </div>
+
+                <div className={editorial.container}>
+                    <section className={styles.section}>
+                        <SectionHeading eyebrow="Listing" title="Firm information" />
+                        <div className={styles.emptyState}>
+                            <p>This firm has not published a full profile yet. Its projects, people and contact details will appear here once the practice completes its listing.</p>
+                            <Pill href="/discover" variant="quiet" size="small">Browse other profiles</Pill>
                         </div>
-                    </header>
-                    <section className={styles.firmDirectoryNote} aria-label="Firm information">
-                        <p className={styles.infoLabel}>PUBLIC LISTING</p>
-                        <p>Additional firm information is not available on this listing.</p>
                     </section>
                 </div>
             </main>
-        </>
+
+            <MarketingFooter />
+        </div>
     );
 }

@@ -23,6 +23,10 @@
     --olive: #697632;
     --pink: #f0a3bd;
     --stroke: 2px solid var(--ink);
+    /* Hairlines for quieter, publication-style surfaces. */
+    --rule: 1px solid rgba(25, 25, 27, .14);
+    --rule-soft: 1px solid rgba(25, 25, 27, .07);
+    --wash: rgba(25, 25, 27, .035);
     --ease: cubic-bezier(.22, 1, .36, 1);
 
     background: var(--paper);
@@ -226,6 +230,36 @@
 
 .pillSmall:active {
     box-shadow: 0 0 0 var(--ink);
+}
+
+/* Quieter pill for editorial surfaces (profiles, project pages): no offset shadow. */
+.pillFlat,
+.pillFlat:hover,
+.pillFlat:active {
+    box-shadow: none;
+    transform: none;
+}
+
+.pillFlat:hover {
+    background: var(--paper);
+}
+
+.pillFlat.pillBlue:hover {
+    background: var(--purple);
+    color: var(--white);
+}
+
+.pillFlat.pillInk:hover {
+    background: var(--purple);
+    color: var(--white);
+}
+
+.pillFlat.pillOrange:hover {
+    background: var(--pink);
+}
+
+.pillFlat:disabled {
+    box-shadow: none;
 }
 
 .pillRow {

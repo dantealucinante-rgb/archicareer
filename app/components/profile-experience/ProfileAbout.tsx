@@ -38,7 +38,7 @@ export default function ProfileAbout({ profile, isOwner }: ProfileAboutProps) {
 
     if (!hasNarrative && !hasSidebar) {
         return <section id="about" className={styles.section}>
-            <SectionHeading title="About" />
+            <SectionHeading eyebrow="Profile" title="About" />
             <div className={styles.emptyState}>
                 <p>{isOwner ? "Tell people about your background, practice and the work you care about." : "This profile hasn't added a biography yet."}</p>
                 {isOwner && <Pill href="/profile/edit" variant="blue">Complete your profile</Pill>}
@@ -47,7 +47,11 @@ export default function ProfileAbout({ profile, isOwner }: ProfileAboutProps) {
     }
 
     return <section id="about" className={styles.section}>
-        <SectionHeading title="About" note={isOwner && !profile.bio ? "Add a biography from your profile editor" : undefined} />
+        <SectionHeading
+            eyebrow="Profile"
+            title="About"
+            note={isOwner && !profile.bio ? "Add a biography from your profile editor" : undefined}
+        />
 
         <div className={styles.aboutGrid}>
             {hasNarrative && <div className={styles.aboutColumn}>
@@ -74,12 +78,15 @@ export default function ProfileAbout({ profile, isOwner }: ProfileAboutProps) {
             {hasSidebar && <div className={styles.aboutColumn}>
                 {(profile.school_or_firm || profile.location) && <div className={styles.aboutBlock}>
                     <h3 className={styles.aboutBlockTitle}>Details</h3>
-                    <dl className={styles.projectFacts} style={{ paddingTop: 16 }}>
-                        {profile.school_or_firm && profile.school_or_firm !== profile.name && <div>
+                    <dl className={styles.detailList}>
+                        {profile.school_or_firm && profile.school_or_firm !== profile.name && <div className={styles.detailRow}>
                             <dt>{affiliationLabels[profile.account_type]}</dt>
                             <dd>{profile.school_or_firm}</dd>
                         </div>}
-                        {profile.location && <div><dt>Based in</dt><dd>{profile.location}</dd></div>}
+                        {profile.location && <div className={styles.detailRow}>
+                            <dt>Based in</dt>
+                            <dd>{profile.location}</dd>
+                        </div>}
                     </dl>
                 </div>}
 
@@ -118,7 +125,7 @@ export default function ProfileAbout({ profile, isOwner }: ProfileAboutProps) {
                             return <li key={entry.id}>
                                 <strong>{entry.organisation}</strong>
                                 {entry.role && <span>{entry.role}</span>}
-                                {href && <a href={href} target="_blank" rel="noreferrer">Visit ↗</a>}
+                                {href && <a href={href} target="_blank" rel="noreferrer">Visit <span aria-hidden="true">↗</span></a>}
                             </li>;
                         })}
                     </ul>

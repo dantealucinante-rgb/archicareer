@@ -10,6 +10,7 @@ export function PostsSection({ data }: { data: PublicProfilePageData }) {
 
     return <section id="posts" className={styles.section}>
         <SectionHeading
+            eyebrow="From the feed"
             title="Recent posts"
             note={`${data.posts.length} ${data.posts.length === 1 ? "post" : "posts"} from this profile`}
         />

@@ -10,9 +10,11 @@ type Props = {
     initialMutual: boolean;
     initialFollowerCount: number;
     compact?: boolean;
+    /** Removes the offset shadow for quieter, editorial surfaces such as profiles. */
+    flat?: boolean;
 };
 
-export default function FollowButton({ followingId, initialFollowing, initialMutual, initialFollowerCount, compact = false }: Props) {
+export default function FollowButton({ followingId, initialFollowing, initialMutual, initialFollowerCount, compact = false, flat = false }: Props) {
     const [following, setFollowing] = useState(initialFollowing);
     const [mutual, setMutual] = useState(initialMutual);
     const [followerCount, setFollowerCount] = useState(initialFollowerCount);
@@ -67,6 +69,7 @@ export default function FollowButton({ followingId, initialFollowing, initialMut
         styles.pillSmall,
         following ? styles.pill : styles.pillOrange,
         compact ? styles.pillSmall : "",
+        flat ? styles.pillFlat : "",
     ].filter(Boolean).join(" ");
 
     return <div style={{ display: "grid", gap: 6, justifyItems: "start" }}>

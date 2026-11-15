@@ -10,6 +10,7 @@ import ProfileAvatar from "@/app/components/ProfileAvatar";
 import FollowButton from "@/app/components/FollowButton";
 import Pill from "@/app/components/editorial/Pill";
 import editorial from "@/app/components/editorial/editorial.module.css";
+import { MarketingFooter } from "@/app/components/MarketingChrome";
 import ProjectImageGallery from "@/app/components/profile-experience/ProjectImageGallery";
 import PublishToggle from "@/app/components/profile-experience/PublishToggle";
 import { absoluteUrl, cleanDescription, pageMetadata, safeJsonLd } from "@/lib/seo";
@@ -97,14 +98,15 @@ export default async function ProjectPage({ params }: Props) {
         ["Tools", project.software_used.length > 0 ? project.software_used.join(" · ") : null],
     ];
 
-    return <main className={editorial.page}>
+    return <div className={editorial.page}>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(projectSchema) }} />
+        <main>
         <div className={editorial.container}>
             <div className={styles.topBar}>
                 <Link className={styles.back} href={`/p/${owner.slug}#projects`}>← All projects</Link>
                 {isOwner && <div className={editorial.pillRow}>
-                    <PublishToggle projectId={project.id} published={project.is_published} />
-                    <Pill href={`/profile/projects/${project.id}`} size="small">Edit project</Pill>
+                    <PublishToggle projectId={project.id} published={project.is_published} flat />
+                    <Pill href={`/profile/projects/${project.id}`} size="small" flat>Edit project</Pill>
                 </div>}
             </div>
 
@@ -115,13 +117,13 @@ export default async function ProjectPage({ params }: Props) {
                     <span>{label(project.status)}</span>
                     {!project.is_published && <span className={styles.draftBadge}>Draft — only you can see this</span>}
                 </p>
-                <h1 className={editorial.display}>{project.title}</h1>
+                <h1 className={styles.heading}>{project.title}</h1>
                 {project.description && <p className={styles.lede}>{project.description}</p>}
             </header>
 
             <div className={styles.cover}>
                 {images[0]
-                    ? <Image src={images[0].image_url} alt={project.title} fill priority sizes="100vw" />
+                    ? <Image src={images[0].image_url} alt={project.title} fill preload sizes="100vw" />
                     : <span className={styles.coverPlaceholder}>
                         <span>{label(project.category)}</span>
                         <strong>{project.title}</strong>
@@ -190,8 +192,8 @@ export default async function ProjectPage({ params }: Props) {
                     <div className={editorial.pillRow}>
                         {ownerUserId && ownerUserId !== viewerId && (viewerId
                             ? <FollowButton followingId={ownerUserId} initialFollowing={following} initialMutual={mutual} initialFollowerCount={followers} />
-                            : <Pill href={`/login?next=${encodeURIComponent(`/p/${owner.slug}/projects/${project.id}`)}`} variant="orange">Sign in to follow</Pill>)}
-                        <Pill href={`/p/${owner.slug}`} variant="ink">View profile →</Pill>
+                            : <Pill href={`/login?next=${encodeURIComponent(`/p/${owner.slug}/projects/${project.id}`)}`} variant="orange" flat>Sign in to follow</Pill>)}
+                        <Pill href={`/p/${owner.slug}`} variant="ink" flat>View profile →</Pill>
                     </div>
                 </div>
             </section>
@@ -211,5 +213,8 @@ export default async function ProjectPage({ params }: Props) {
                 </div>
             </section>}
         </div>
-    </main>;
+        </main>
+
+        <MarketingFooter />
+    </div>;
 }

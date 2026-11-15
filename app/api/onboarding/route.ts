@@ -60,7 +60,7 @@ export async function GET() {
         if (authError || !user) return NextResponse.json({ error: "Sign in to continue setup." }, { status: 401 });
         const [{ data: profile }, onboarding] = await Promise.all([getCurrentProfile(), getProfileOnboardingState(user.id)]);
         if (!profile) return NextResponse.json({ error: "Your profile could not be loaded." }, { status: 404 });
-        if (onboarding.error || !onboarding.data) return NextResponse.json({ error: "Your setup record is not ready yet. Refresh the page or contact hello@archicareer.ng." }, { status: 503 });
+        if (onboarding.error || !onboarding.data) return NextResponse.json({ error: "Your setup record is not ready yet. Refresh the page or contact hello@archicareer.com.ng." }, { status: 503 });
         return NextResponse.json({ profile, onboarding: onboarding.data });
     } catch {
         return NextResponse.json({ error: "Unable to load setup progress." }, { status: 500 });
@@ -80,12 +80,12 @@ export async function PATCH(request: Request) {
 
         const [{ data: profile }, current] = await Promise.all([getCurrentProfile(), getProfileOnboardingState(user.id)]);
         if (!profile) return NextResponse.json({ error: "Your profile could not be loaded." }, { status: 404 });
-        if (current.error || !current.data) return NextResponse.json({ error: "Your setup record is not ready yet. Refresh the page or contact hello@archicareer.ng." }, { status: 503 });
+        if (current.error || !current.data) return NextResponse.json({ error: "Your setup record is not ready yet. Refresh the page or contact hello@archicareer.com.ng." }, { status: 503 });
         if (current.data.onboarding_completed) return NextResponse.json({ error: "Setup is already complete." }, { status: 409 });
 
         const accountType = profile.account_type;
         const identitySchema = identitySchemas[accountType];
-        if (!identitySchema) return NextResponse.json({ error: "We could not identify your account type. Contact hello@archicareer.ng for help." }, { status: 409 });
+        if (!identitySchema) return NextResponse.json({ error: "We could not identify your account type. Contact hello@archicareer.com.ng for help." }, { status: 409 });
         const patch = parsed.data;
         const identity = patch.data ? identitySchema.safeParse(patch.data) : null;
         if (identity && !identity.success) return NextResponse.json({ error: identity.error.issues[0]?.message ?? "Check the details and try again." }, { status: 400 });

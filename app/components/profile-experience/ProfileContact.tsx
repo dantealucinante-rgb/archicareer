@@ -1,6 +1,6 @@
 import Pill from "@/app/components/editorial/Pill";
 import type { Profile } from "@/types";
-import type { PublicLink } from "./format";
+import { linkValue, type PublicLink } from "./format";
 import SectionHeading from "./SectionHeading";
 import styles from "./profile-experience.module.css";
 
@@ -16,23 +16,23 @@ export default function ProfileContact({ profile, links, isOwner, messageHref }:
 
     return <section id="contact" className={styles.section}>
         <SectionHeading
+            eyebrow="Reach out"
             title="Contact"
-            note={isOrganisation ? `Reach ${profile.name}` : `Reach ${profile.name}`}
+            note={isOrganisation
+                ? `Ways to reach ${profile.name}`
+                : `Ways to reach ${profile.name}`}
         />
 
         {links.length > 0
-            ? <div className={styles.contactGrid}>
-                {links.map((link) => <a
-                    key={`${link.label}-${link.href}`}
-                    className={styles.contactLink}
-                    href={link.href}
-                    target="_blank"
-                    rel="noreferrer"
-                >
-                    <span>{link.label}</span>
-                    <span aria-hidden="true">↗</span>
-                </a>)}
-            </div>
+            ? <ul className={styles.contactList}>
+                {links.map((link) => <li key={`${link.label}-${link.href}`}>
+                    <a className={styles.contactRow} href={link.href} target="_blank" rel="noreferrer">
+                        <span className={styles.contactLabel}>{link.label}</span>
+                        <span className={styles.contactValue}>{linkValue(link.href)}</span>
+                        <span className={styles.contactArrow} aria-hidden="true">↗</span>
+                    </a>
+                </li>)}
+            </ul>
             : <div className={styles.emptyState}>
                 <p>{isOwner
                     ? "Add a website or professional social link so people can reach you."
@@ -40,7 +40,8 @@ export default function ProfileContact({ profile, links, isOwner, messageHref }:
                 {isOwner && <Pill href="/profile/edit" variant="blue">Add contact links</Pill>}
             </div>}
 
-        {messageHref && <div style={{ marginTop: 24 }}>
+        {messageHref && <div className={styles.contactCta}>
+            <p>Prefer a direct conversation? Send a message from your ArchiCareer account.</p>
             <Pill href={messageHref} variant="ink">Send a message</Pill>
         </div>}
     </section>;

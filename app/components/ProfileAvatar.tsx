@@ -11,10 +11,11 @@ type ProfileAvatarProps = {
     size: number;
     className?: string;
     fallbackClassName?: string;
-    priority?: boolean;
+    /** Preload the avatar (Next.js 16 replaced `priority` with `preload`). */
+    preload?: boolean;
 };
 
-export default function ProfileAvatar({ profile, size, className = "", fallbackClassName = "", priority = false }: ProfileAvatarProps) {
+export default function ProfileAvatar({ profile, size, className = "", fallbackClassName = "", preload = false }: ProfileAvatarProps) {
     const src = profile.avatar_url || getFallbackAvatarUrl(profile);
     const isFallback = !profile.avatar_url || isFallbackAvatarUrl(profile.avatar_url);
 
@@ -24,7 +25,7 @@ export default function ProfileAvatar({ profile, size, className = "", fallbackC
             alt={`${profile.name} avatar`}
             width={size}
             height={size}
-            priority={priority}
+            preload={preload}
             unoptimized={isFallback}
             className={`${className} ${isFallback ? `bg-sand ${fallbackClassName}` : ""}`.trim()}
         />

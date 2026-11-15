@@ -17,6 +17,8 @@ type BaseProps = {
     children: ReactNode;
     variant?: Variant;
     size?: Size;
+    /** Removes the offset shadow for quieter, editorial surfaces such as profiles. */
+    flat?: boolean;
     className?: string;
 };
 
@@ -37,11 +39,11 @@ function omit(value: object, keys: string[]): Record<string, unknown> {
 }
 
 export default function Pill(props: LinkProps | ButtonProps) {
-    const { children, variant = "default", size = "default", className } = props;
-    const classes = [styles.pill, variantClass[variant], size === "small" ? styles.pillSmall : "", className ?? ""]
+    const { children, variant = "default", size = "default", flat = false, className } = props;
+    const classes = [styles.pill, variantClass[variant], size === "small" ? styles.pillSmall : "", flat ? styles.pillFlat : "", className ?? ""]
         .filter(Boolean)
         .join(" ");
-    const rest = omit(props, ["children", "variant", "size", "className", "href", "external"]);
+    const rest = omit(props, ["children", "variant", "size", "flat", "className", "href", "external"]);
 
     if (props.href !== undefined) {
         if (props.external) {

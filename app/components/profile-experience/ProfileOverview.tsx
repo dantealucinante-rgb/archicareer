@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import Pill from "@/app/components/editorial/Pill";
-import editorial from "@/app/components/editorial/editorial.module.css";
 import type { PortfolioItem, Profile } from "@/types";
 import { affiliationLabels, formatCategory } from "./format";
 import SectionHeading from "./SectionHeading";
@@ -26,16 +25,17 @@ export default function ProfileOverview({ profile, projects, projectCount, isOwn
 
     return <section id="overview" className={styles.section}>
         <SectionHeading
+            eyebrow="Selected work"
             title="Overview"
-            note={projectCount > 0 ? `${projectCount.toLocaleString()} ${projectCount === 1 ? "project" : "projects"} of selected work` : undefined}
-            action={projectCount > 0 ? <Pill href="#projects" variant="quiet" size="small">All projects ↓</Pill> : undefined}
+            note={projectCount > 0 ? `${projectCount.toLocaleString()} ${projectCount === 1 ? "project" : "projects"} published` : undefined}
+            action={projectCount > 0 ? <a className={styles.textLink} href="#projects">All projects <span aria-hidden="true">↓</span></a> : undefined}
         />
 
         {lead ? <>
             <article className={styles.featured}>
                 <Link href={`/p/${profile.slug}/projects/${lead.id}`} className={styles.featuredImage} aria-label={`View ${lead.title}`}>
                     {lead.images[0]
-                        ? <Image src={lead.images[0].image_url} alt={lead.title} fill priority sizes="(max-width: 920px) 100vw, 62vw" />
+                        ? <Image src={lead.images[0].image_url} alt={lead.title} fill preload sizes="(max-width: 920px) 100vw, 60vw" />
                         : <ProjectPlaceholder project={lead} />}
                 </Link>
                 <div className={styles.featuredCopy}>
@@ -51,14 +51,16 @@ export default function ProfileOverview({ profile, projects, projectCount, isOwn
                         <div><dt>Contribution</dt><dd>{lead.role === "team" ? "Team project" : "Individual"}</dd></div>
                         {lead.software_used.length > 0 && <div><dt>Tools</dt><dd>{lead.software_used.slice(0, 3).join(", ")}</dd></div>}
                     </dl>
-                    <Pill href={`/p/${profile.slug}/projects/${lead.id}`} variant="ink" size="small">View project →</Pill>
+                    <Link className={styles.textLink} href={`/p/${profile.slug}/projects/${lead.id}`}>
+                        View project <span aria-hidden="true">→</span>
+                    </Link>
                 </div>
             </article>
 
             {rest.length > 0 && <div className={styles.selected}>
                 <div className={styles.selectedHead}>
-                    <h3>Selected work</h3>
-                    <a className={editorial.link} href="#projects">See everything</a>
+                    <h3>More selected work</h3>
+                    <a className={styles.textLink} href="#projects">See everything</a>
                 </div>
                 <div className={styles.selectedGrid}>
                     {rest.slice(0, 2).map((project) => <Link
@@ -71,8 +73,8 @@ export default function ProfileOverview({ profile, projects, projectCount, isOwn
                                 ? <Image src={project.images[0].image_url} alt={project.title} fill sizes="(max-width: 700px) 100vw, 30vw" />
                                 : <ProjectPlaceholder project={project} />}
                         </div>
-                        <h4>{project.title}</h4>
-                        <p>{formatCategory(project.category)}{project.year ? ` · ${project.year}` : ""}</p>
+                        <h4 className={styles.previewTitle}>{project.title}</h4>
+                        <p className={styles.previewMeta}>{formatCategory(project.category)}{project.year ? ` · ${project.year}` : ""}</p>
                     </Link>)}
                 </div>
             </div>}
@@ -85,8 +87,11 @@ export default function ProfileOverview({ profile, projects, projectCount, isOwn
             {isOwner && <Pill href="/profile/projects/new" variant="blue">Add a project</Pill>}
         </div>}
 
-        {facts.length > 0 && <dl className={styles.projectFacts} style={{ marginTop: 56 }}>
-            {facts.map((fact) => <div key={fact.label}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}
+        {facts.length > 0 && <dl className={styles.factsRow}>
+            {facts.map((fact) => <div key={fact.label}>
+                <dt>{fact.label}</dt>
+                <dd>{fact.value}</dd>
+            </div>)}
         </dl>}
     </section>;
 }
