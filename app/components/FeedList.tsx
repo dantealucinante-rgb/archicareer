@@ -167,6 +167,7 @@ export default function FeedList({ initialPosts, initialError = "", currentUserI
     }
 
     return <>
+        <header className={styles.feedHeading}><h1>Feed</h1></header>
         <div className={styles.feedFilterBar} role="group" aria-label="Filter the feed by content type">
             {FILTERS.map((option) => <button key={option.value} type="button" aria-pressed={filter === option.value} disabled={filterLoading && filter !== option.value} onClick={() => void changeFilter(option.value)} className={styles.filterPill}>{option.label}</button>)}
             <span className={styles.feedFilterNote}>{filterLoading ? "Loading…" : `${posts.length} shown`}</span>

@@ -244,7 +244,7 @@ export default function ProfileEditExperience({ profile, interests, interestOthe
     return <>
         <header className={styles.head}>
             <div className={styles.headCopy}>
-                <h1 className={editorial.display}>Edit your profile</h1>
+                <h1 className={editorial.pageTitle}>Edit your profile</h1>
                 <p className={editorial.lede}>
                     Each section saves on its own. Changes appear on your public profile as soon as you save them.
                 </p>

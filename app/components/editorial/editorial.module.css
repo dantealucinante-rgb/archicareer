@@ -58,6 +58,16 @@
     text-wrap: balance;
 }
 
+/* Compact page headings keep workspace actions close to their section title. */
+.pageTitle {
+    margin: 0;
+    font-size: clamp(32px, 4vw, 36px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -.06em;
+    text-wrap: balance;
+}
+
 .sectionTitle {
     margin: 0;
     font-size: clamp(32px, 4.4vw, 58px);

@@ -24,7 +24,7 @@ export default async function EditProjectPage({ params }: PageProps) {
             <header className={styles.head}>
                 <div className={styles.headCopy}>
                     <Link href="/profile/projects" className={styles.rowMeta}>← All projects</Link>
-                    <h1 className={editorial.display}>Edit project</h1>
+                    <h1 className={editorial.pageTitle}>Edit project</h1>
                     <p className={editorial.lede}>
                         {project.is_published
                             ? "This project is live on your public profile."

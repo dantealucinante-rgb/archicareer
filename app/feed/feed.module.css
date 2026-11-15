@@ -77,6 +77,8 @@
 .leftRail nav { position: sticky; top: calc(var(--site-header-height) + 22px); display: grid; gap: 8px; }
 
 /* Editorial feed header. */
+.feedHeading { padding: 18px 0 14px; }
+.feedHeading h1 { margin: 0; font-family: var(--font-plus-jakarta-sans), sans-serif; font-size: clamp(30px, 4vw, 36px); font-weight: 700; line-height: 1; letter-spacing: -.05em; }
 .timeline { min-width: 0; }
 .timeline { padding-top: 22px; }
 .latestLabel { display: none; }

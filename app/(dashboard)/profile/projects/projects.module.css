@@ -5,14 +5,14 @@
     flex-wrap: wrap;
     align-items: end;
     justify-content: space-between;
-    gap: 24px;
-    padding-block: 40px 32px;
+    gap: 16px;
+    padding-block: 24px 20px;
     border-bottom: var(--stroke);
 }
 
 .headCopy {
     display: grid;
-    gap: 12px;
+    gap: 8px;
     min-width: 0;
 }
 

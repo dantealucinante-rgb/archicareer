@@ -16,7 +16,7 @@ export default async function NewProjectPage() {
             <header className={styles.head}>
                 <div className={styles.headCopy}>
                     <Link href="/profile/projects" className={styles.rowMeta}>← All projects</Link>
-                    <h1 className={editorial.display}>New project</h1>
+                    <h1 className={editorial.pageTitle}>New project</h1>
                     <p className={editorial.lede}>
                         Add the details and images now, or save it as a draft and come back later.
                     </p>

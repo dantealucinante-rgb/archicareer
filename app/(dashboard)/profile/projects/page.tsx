@@ -26,10 +26,7 @@ export default async function ProjectsPage() {
         <div className={editorial.container}>
             <header className={styles.head}>
                 <div className={styles.headCopy}>
-                    <h1 className={editorial.display}>Your projects</h1>
-                    <p className={editorial.lede}>
-                        Add work, choose a cover, and decide what appears on your public profile.
-                    </p>
+                    <h1 className={editorial.pageTitle}>Your projects</h1>
                     {entitlements && <p className={styles.quota}>
                         {entitlements.usedSpaces} of {entitlements.totalSpaceLimit} portfolio {entitlements.totalSpaceLimit === 1 ? "space" : "spaces"} used
                         {drafts > 0 ? ` · ${drafts} ${drafts === 1 ? "draft" : "drafts"}` : ""}

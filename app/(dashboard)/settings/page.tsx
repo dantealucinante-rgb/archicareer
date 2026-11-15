@@ -23,10 +23,9 @@ export default async function SettingsPage() {
 
     return <main className={editorial.page}>
         <div className={editorial.container} style={{ maxWidth: 880 }}>
-            <header style={{ display: "flex", flexWrap: "wrap", alignItems: "start", justifyContent: "space-between", gap: 20, paddingBlock: "40px 28px", borderBottom: "var(--stroke)" }}>
-                <div style={{ display: "grid", gap: 12 }}>
-                    <h1 className={editorial.display}>Settings</h1>
-                    <p className={editorial.lede}>Account details and the actions that affect your whole account.</p>
+            <header style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 16, paddingBlock: "24px 20px", borderBottom: "var(--stroke)" }}>
+                <div style={{ display: "grid", gap: 0 }}>
+                    <h1 className={editorial.pageTitle}>Settings</h1>
                 </div>
                 <SettingsBackButton />
             </header>

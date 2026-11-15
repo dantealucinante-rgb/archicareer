@@ -2,8 +2,8 @@
 
 .masthead {
     display: grid;
-    gap: 16px;
-    padding-block: 48px 32px;
+    gap: 0;
+    padding-block: 28px 20px;
 }
 
 .mastheadBody {

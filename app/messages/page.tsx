@@ -32,7 +32,6 @@ export default async function MessagesPage({ searchParams }: { searchParams: Pro
             <header className={styles.pageHeader}>
                 <p className={styles.kicker}>Direct</p>
                 <h1>Messages</h1>
-                <p className={styles.standfirst}>Private conversations with the people you meet here.</p>
             </header>
 
             <MessagesExperience

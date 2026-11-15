@@ -23,12 +23,7 @@ export default async function DiscoverPage() {
     <main id="main-content" className={editorial.page}>
       <div className={editorial.container}>
         <header className={styles.masthead}>
-          <h1 className={editorial.display}>Discover</h1>
-          <div className={styles.mastheadBody}>
-            <p className={editorial.lede}>
-              Projects, portfolios and the people shaping the built environment — search by name, place or discipline.
-            </p>
-          </div>
+          <h1 className={editorial.pageTitle}>Discover</h1>
         </header>
         <DiscoverExperience initialData={initialData} viewerId={currentProfile?.user_id ?? null} />
       </div>
