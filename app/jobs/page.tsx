@@ -85,22 +85,18 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
    <div className={styles.landingPage}>
     <MarketingHeader />
 
-    <main id="home" className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
+    <main id="home" className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper pb-16 sm:pb-0">
      <div className={styles.opportunities}>
       <div className={styles.opportunityHeading}>
        <h2 id="opportunities-title">Find your next opportunity.</h2>
        <p>The jobs board brings roles and internships from studios and organisations into one place. Check the live listings below.</p>
       </div>
 
-      <form method="get" className={styles.jobFilterBar}>
+      <form method="get" className={styles.jobFilterBar} onChange={(e) => { const form = e.target.form; if (form) form.requestSubmit(); }}>
        <div className={styles.jobFilterGroup}>
-        <span className={styles.jobFilterLabel}>Search</span>
-        <input name="search" defaultValue={search ?? ""} placeholder="Role, firm, location" className={styles.jobFilterInput} />
-       </div>
-       <div className={styles.jobFilterGroup}>
-        <span className={styles.jobFilterLabel}>Category</span>
-        <select name="type" className={styles.jobFilterSelect}>
-         <option value="">All opportunity types</option>
+        <span className={styles.jobFilterLabel}>All</span>
+        <select name="type" defaultValue={type ?? ""} className={styles.jobFilterSelect}>
+         <option value="">Job Type</option>
          <option value="internship">Internships</option>
          <option value="job">Jobs</option>
          <option value="competition">Competitions</option>
@@ -108,33 +104,34 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
        </div>
        <div className={styles.jobFilterGroup}>
         <span className={styles.jobFilterLabel}>Location</span>
-        <input name="location" defaultValue={location ?? ""} placeholder="City" className={styles.jobFilterInput} />
+        <input name="location" defaultValue={location ?? ""} placeholder="Location" className={styles.jobFilterInput} />
        </div>
        <div className={styles.jobFilterGroup}>
         <span className={styles.jobFilterLabel}>Pay</span>
-        <select name="pay" className={styles.jobFilterSelect}>
-         <option value="">All pay statuses</option>
+        <select name="pay" defaultValue={payType ?? ""} className={styles.jobFilterSelect}>
+         <option value="">Salary</option>
          <option value="paid">Paid</option>
          <option value="unpaid">Unpaid</option>
-         <option value="not_disclosed">Pay not disclosed</option>
+         <option value="not_disclosed">Not disclosed</option>
         </select>
        </div>
        <div className={styles.jobFilterGroup}>
         <span className={styles.jobFilterLabel}>Sort</span>
-        <select name="sort" className={styles.jobFilterSelect}>
-         <option value="newest">Newest first</option>
-         <option value="oldest">Oldest first</option>
+        <select name="sort" defaultValue={sort} className={styles.jobFilterSelect}>
+         <option value="newest">Newest</option>
+         <option value="oldest">Oldest</option>
         </select>
        </div>
-       <div className={styles.jobFilterActions}>
-        <button type="submit" className={`${styles.pillButton} ${styles.jobBrowse}`}>Apply filters</button>
+       <div className={styles.jobFilterGroup}>
+        <span className={styles.jobFilterLabel}>Search</span>
+        <input name="search" defaultValue={search ?? ""} placeholder="Search" className={styles.jobFilterInput} />
        </div>
       </form>
 
       {activeFilters > 0 ? (
        <div className={styles.jobFilterActions}>
-        <span className={styles.jobClearFilters}>{activeFilters} filter{activeFilters === 1 ? "" : "s"} active</span>
-        <Link href="/jobs" className={`${styles.pillButton} ${styles.jobBrowse}`}>Clear filters</Link>
+        <span className={styles.jobClearFilters}>{activeFilters} active</span>
+        <Link href="/jobs" className={`${styles.pillButton} ${styles.jobBrowse}`}>Clear</Link>
        </div>
       ) : null}
 
@@ -152,7 +149,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
           return (
            <article key={job.id} className={styles.jobRow}>
             <div className={styles.jobLogo}>
-             {avatarUrl ? <Image src={avatarUrl} alt="" width={52} height={52} className="object-cover" /> : <span className={styles.jobLogoFallback}>{firmInitials(job.firm_name)}</span>}
+             {avatarUrl ? <Image src={avatarUrl} alt="" width={44} height={44} className="object-cover" /> : <span className={styles.jobLogoFallback}>{firmInitials(job.firm_name)}</span>}
             </div>
             <div className={styles.jobTitle}>
              <Link href={`/jobs/${job.id}`} className="text-ink font-display text-lg font-semibold leading-none hover:text-blue">{job.title}</Link>
