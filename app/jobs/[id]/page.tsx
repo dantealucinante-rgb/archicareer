@@ -76,7 +76,7 @@ export default async function JobDetailPage({ params }: PageProps) {
   <>
    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jobSchema) }} />
    <div className={styles.landingPage}>
-    <MarketingHeader />
+    <MarketingHeader authenticated={Boolean(user)} />
 
     <main id="home" className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper">
      <div className={styles.opportunities}>

@@ -54,7 +54,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
   sort === "oldest" ? { sortBy: "created_at", ascending: true }
   : { sortBy: "created_at", ascending: false };
 
- const [{ data: jobs, error: jobsError }, , applicationCounts] = await Promise.all([
+ const [{ data: jobs, error: jobsError }, { user }, applicationCounts] = await Promise.all([
   getJobListings({ type, location, pay_type: payType, search }, { limit: 50, offset: 0 }, sorting),
   getCurrentUser(),
   getApplicationCounts(),
@@ -83,7 +83,7 @@ export default async function JobsPage({ searchParams }: JobsPageProps) {
   <>
    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jobsSchema) }} />
    <div className={styles.landingPage}>
-    <MarketingHeader />
+    <MarketingHeader authenticated={Boolean(user)} />
 
     <main id="home" className="min-h-screen bg-paper text-ink font-sans selection:bg-redline selection:text-paper pb-16 sm:pb-0">
      <div className={styles.opportunities}>
